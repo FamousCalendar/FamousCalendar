@@ -41,6 +41,7 @@ define(function(require, exports, module) {
 
   function _createDaysOfWeekBar() {
     // create static days of the week bar
+    var fontColor;
     var letterSurface;
     var letterSurfaces = [];
     var letterGridModifier;
@@ -52,13 +53,16 @@ define(function(require, exports, module) {
     letterGrid.sequenceFrom(letterSurfaces);
 
     for (var i = 0; i < dayLetters.length; i++) {
+      fontColor = (i === 0 || i === 6) ? 'grey' : 'black';
+
       letterSurface = new Surface({
         size: [undefined, 12],
         content: dayLetters[i],
         properties: {
           textAlign: 'center',
           fontFamily: 'sans-serif',
-          fontSize: '8px'
+          fontSize: '8px',
+          color: fontColor
         }
       });
 
