@@ -3,13 +3,16 @@ define(function(require, exports, module) {
   var View = require('famous/core/View');
   var Surface = require('famous/core/Surface');
   var Modifier = require('famous/core/Modifier');
+  var Transform = require('famous/core/Transform');
   var HeaderFooterLayout = require('famous/views/HeaderFooterLayout');
+  var GridLayout = require("famous/views/GridLayout");
   var Transitionable = require('famous/transitions/Transitionable');
 
   function AppView() {
     View.apply(this, arguments);
 
     _createLayout.call(this);
+    _createDaysOfWeekBar.call(this);
   }
 
   AppView.prototype = Object.create(View.prototype);
@@ -34,6 +37,40 @@ define(function(require, exports, module) {
 
     this.layout.header.add(this.headerModifier).add(header);
     this.add(this.layout);
+  }
+
+  function _createDaysOfWeekBar() {
+    // create static days of the week bar
+    var letterSurface;
+    var letterSurfaces = [];
+    var letterGridModifier;
+    var dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    var letterGrid = new GridLayout({
+      dimensions: [7, 1]
+    });
+
+    letterGrid.sequenceFrom(letterSurfaces);
+
+    for (var i = 0; i < dayLetters.length; i++) {
+      letterSurface = new Surface({
+        size: [undefined, 12],
+        content: dayLetters[i],
+        properties: {
+          textAlign: 'center',
+          fontFamily: 'sans-serif',
+          fontSize: '8px'
+        }
+      });
+
+      letterSurfaces.push(letterSurface);
+    }
+
+    letterGridModifier = new Modifier({
+      size: [undefined, 12],
+      transform: Transform.translate(0, 48, 5)
+    });
+
+    this.add(letterGridModifier).add(letterGrid);
   }
 
   module.exports = AppView;
