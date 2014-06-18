@@ -6,12 +6,14 @@ define(function(require, exports, module) {
   var Transform = require('famous/core/Transform');
   var Transitionable = require('famous/transitions/Transitionable');
   var StateModifier     = require('famous/modifiers/StateModifier');
+  var WeekView = require('views/WeekView');
 
   function MonthView() {
     View.apply(this, arguments);
     this.mods = [];
 
     _createMonthName.call(this);
+    _createWeeks.call(this);
   }
 
   MonthView.prototype = Object.create(View.prototype);
@@ -37,6 +39,22 @@ define(function(require, exports, module) {
     this.mods.push(slideMod);
 
     this.add(slideMod).add(monthName);
+  }
+
+  function _createWeeks() {
+    for (var i = 0; i < 5; i++) {
+      var mod = new Modifier({
+        transform: Transform.translate(0, (i+1) * 60, 0)
+      })
+      var slideMod = new StateModifier();
+      var week = new WeekView({
+        startDate: 1 + (i * 7),
+        weekNumber: i + 1
+      });
+      this.mods.push(slideMod);
+      this.add(slideMod).add(mod).add(week);
+      this.subscribe(week);
+    }
   }
 
   module.exports = MonthView;
