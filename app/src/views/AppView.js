@@ -9,12 +9,14 @@ define(function(require, exports, module) {
   var GridLayout = require("famous/views/GridLayout");
   var Transitionable = require('famous/transitions/Transitionable');
   var ImageSurface = require('famous/surfaces/ImageSurface');
+  var MonthView = require('views/MonthView');
 
   function AppView() {
     View.apply(this, arguments);
 
     _createLayout.call(this);
     _createHeader.call(this);
+    _createContent.call(this);
   }
 
   AppView.prototype = Object.create(View.prototype);
@@ -143,6 +145,18 @@ define(function(require, exports, module) {
     this.layout.header.add(this.monthModifier).add(monthSurface);
     this.layout.header.add(backIconModifier).add(backIcon);
     this.add(letterGridModifier).add(letterGrid);
+  }
+
+
+  function _createContent() {
+    this.monthView = new MonthView();
+    this.monthMod = new Modifier({
+      transform: Transform.translate(0, 48, 0)
+    });
+
+    this.layout.content.add(this.monthMod).add(this.monthView);
+    this.monthView.subscribe(this._eventOutput);
+    this._eventInput.subscribe(this.monthView._eventOutput);
   }
 
   module.exports = AppView;
