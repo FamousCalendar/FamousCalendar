@@ -48,7 +48,7 @@ define(function(require, exports, module) {
     });
 
     var backgroundModifier = new Modifier({
-      transform: Transform.behind
+      transform: Transform.translate(0, 0, 2)
     });
 
     
@@ -98,7 +98,8 @@ define(function(require, exports, module) {
 
     var backIconModifier = new Modifier({
       align: [0.06, 0.4],
-      origin: [0.5, 0.5]
+      origin: [0.5, 0.5],
+      transform: Transform.translate(0, 0, 3)
     });
 
 
