@@ -1,5 +1,5 @@
-#Calendar
-> Calendar App UI.
+#FamousCalendar
+> Calendar App UI using Famo.us
 
 [![Build Status](https://travis-ci.org/mikefreeman/calendar.svg?branch=master)](https://travis-ci.org/mikefreeman/calendar) [![Dependency Status](https://david-dm.org/mikefreeman/calendar.svg)](https://david-dm.org/mikefreeman/calendar) [![devDependency Status](https://david-dm.org/mikefreeman/calendar/dev-status.svg)](https://david-dm.org/mikefreeman/calendar#info=devDependencies)
 
@@ -45,7 +45,60 @@ While the default style guidelines are fairly strict, we are doing so with reaso
 While our Package Manager (which is currently in development) will enforce our style guide if you would like to publish a module, feel free to disable eslint or jscs as you see fit.  If you want to disable linting you will need to comment out lines 18 - 19 in ```grunt/aliases.js```
 
 ## Contributing
-All contributions are welcome! The simplest way to show your support for this project is to **"star" it**.
+
+### Fork the repo
+Use github’s interface to make a fork of the repo, then add this repo
+as an upstream remote:
+
+```
+git remote add upstream https://github.com/FamousCalendar/FamousCalendar.git
+```
+
+### Create your branch based off of the development branch
+
+Your branch should follow this naming convention:
+* `feat/thefeature` for feature additions
+* `bug/thebug` for bugfixes
+* `test/thetest` for test files
+* `doc/description` for documentation changes/style fixes
+
+These commands will help you do this:
+
+``` bash
+# Brings you to the development branch
+git checkout development
+
+# Creates your branch and brings you there
+git checkout -b `your-branch-name`
+```
+
+### Make commits to your branch - keep your commits focused!
+
+Make changes and commits on your branch, and make sure that you
+only make changes that are relevant to this branch. If you find
+yourself making unrelated changes, make a new branch for those
+changes.
+
+Your commits should be full sentences and start with a past-tense
+verb.
+
+### Rebase upstream changes into your branch
+
+Once you are done making changes, you can begin the process of getting
+your code merged into the main repo. Step 1 is to rebase upstream
+changes to the development branch into yours by running this command
+from your branch:
+
+```
+git pull --rebase upstream development
+```
+
+This will start the rebase process. You must commit all of your changes
+before doing this. If there are no conflicts, this should just roll all
+of your changes back on top of the changes from upstream, leading to a
+nice, clean, linear commit history.
+
+### Submit pull requests to development branch of FamousCalendar/FamousCalendar
 
 ##License
 ISC
