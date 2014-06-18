@@ -40,7 +40,8 @@ define(function(require, exports, module) {
     // background surface
     var backgroundSurface = new Surface({
       properties: {
-        backgroundColor: '#F2F2F2'
+        backgroundColor: '#FAFAFA',
+        borderBottom: '1px solid lightgrey'
       }
     });
 
@@ -65,7 +66,7 @@ define(function(require, exports, module) {
       fontColor = (i === 0 || i === 6) ? 'grey' : 'black';
 
       letterSurface = new Surface({
-        size: [undefined, 12],
+        size: [undefined, 14],
         content: dayLetters[i],
         properties: {
           textAlign: 'center',
@@ -79,14 +80,18 @@ define(function(require, exports, module) {
     }
 
     letterGridModifier = new Modifier({
-      size: [undefined, 12],
-      transform: Transform.translate(0, 48, 5)
+      size: [undefined, 14],
+      transform: Transform.translate(0, 46, 5)
     });
+
 
     // back icon
     var backIcon = new ImageSurface({
       size: [22, 22],
-      content:'content/images/back_icon.png'
+      content:'content/images/back_icon.png',
+      properties: {
+        pointerEvents: 'none'
+      }
     });
 
     var backIconModifier = new Modifier({
@@ -94,15 +99,17 @@ define(function(require, exports, module) {
       origin: [0.5, 0.5]
     });
 
+
     // year and month surfaces
     var yearSurface = new Surface({
+      size: [100, undefined],
       content: '2014',
       properties: {
         color: 'red',
         textAlign: 'center',
         lineHeight: '50px',
         fontSize: '14px',
-        fontFamily: 'sans-serif',
+        fontFamily: 'sans-serif'
       }
     });
 
