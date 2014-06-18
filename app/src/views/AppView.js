@@ -17,6 +17,7 @@ define(function(require, exports, module) {
     _createLayout.call(this);
     _createHeader.call(this);
     _createContent.call(this);
+    _setListeners.call(this);
   }
 
   AppView.prototype = Object.create(View.prototype);
@@ -103,8 +104,8 @@ define(function(require, exports, module) {
     });
 
 
-    // year and month surfaces
-    var yearSurface = new Surface({
+    // title surface
+    this.titleSurface = new Surface({
       size: [100, undefined],
       content: '2014',
       properties: {
@@ -116,34 +117,23 @@ define(function(require, exports, module) {
       }
     });
 
-    var monthSurface = new Surface({
-      content: 'June',
-      properties: {
-        color: 'red',
-        textAlign: 'right',
-        lineHeight: '50px',
-        fontSize: '14px',
-        fontFamily: 'sans-serif'
-      }
-    });
+    this.titleSurface.on('click', function(data) {
+      // temporary hack
+      if (this.titleSurface.getContent() === '2014') return;
 
-    this.yearModifier = new Modifier({
+      _setTitleSurface.call(this, '2014');
+      this._eventOutput.emit('back', data);
+    }.bind(this));
+
+    this.titleModifier = new Modifier({
       align: [0.15, 0.5],
       origin: [0.5, 0.5],
       opacity: 0.999,
       transform: Transform.translate(0, 0, 3)
     });
 
-    this.monthModifier = new Modifier({
-      align: [0.5, 0.5],
-      origin: [0.5, 0.5],
-      opacity: 0.001,
-      transform: Transform.translate(0, 0, 3)
-    });
-
     this.layout.header.add(backgroundModifier).add(backgroundSurface);
-    this.layout.header.add(this.yearModifier).add(yearSurface);
-    this.layout.header.add(this.monthModifier).add(monthSurface);
+    this.layout.header.add(this.titleModifier).add(this.titleSurface);
     this.layout.header.add(backIconModifier).add(backIcon);
     this.add(letterGridModifier).add(letterGrid);
   }
@@ -158,6 +148,23 @@ define(function(require, exports, module) {
     this.layout.content.add(this.monthMod).add(this.monthView);
     this.monthView.subscribe(this._eventOutput);
     this._eventInput.subscribe(this.monthView._eventOutput);
+  }
+
+  function _setListeners() {
+    this._eventInput.on('dayView', function(data) {
+      _setTitleSurface.call(this, 'June');
+    }.bind(this));
+
+    this._eventInput.on('monthView', function(data) {
+      _setTitleSurface.call(this, '2014');
+    }.bind(this));
+  }
+
+  function _setTitleSurface(title) {
+    this.titleModifier.setOpacity(0.001, { duration: 200, curve: 'easeIn' }, function() {
+      this.titleSurface.setContent(title);
+      this.titleModifier.setOpacity(0.999, { duration: 200, curve: 'easeIn' });
+    }.bind(this));
   }
 
   module.exports = AppView;
