@@ -12,13 +12,59 @@ define(function(require, exports, module) {
 
   function WeekView() {
     View.apply(this, arguments);
+
+    _createDaysOfWeek.call(this);
   }
 
   WeekView.prototype = Object.create(View.prototype);
   WeekView.prototype.constructor = WeekView;
 
   WeekView.DEFAULT_OPTIONS = {
+    startDay: 1,
+    weekNumber: 1,
+    daysInMonth: 30
   };
+
+    function _createDaysOfWeek() {
+    var fontColor;
+    var grid = new GridLayout({
+      dimensions: [7, 1]
+    });
+
+    var days = [];
+    grid.sequenceFrom(days);
+
+    for (var i = 0; i < 7; i++) {
+      if (this.options.startDate + i > this.options.daysInMonth) break;
+      fontColor = (i === 0 || i === 6) ? 'grey' : 'black';
+      
+      var day = new Surface({
+        content: '<br>' + (this.options.startDate + i),
+        id: this.options.weekNumber,
+        properties: {
+          textAlign: 'center',
+          color: fontColor,
+          fontSize: '14px',
+          fontFamily: 'sans-serif',
+          borderTop: '1px solid lightgrey',
+          id: this.options.weekNumber,
+        }
+      });
+
+      days.push(day);
+      day.on('click', function(data) {
+        this._eventOutput.emit('click', data);
+      }.bind(this));
+    }
+
+
+    var modifier = new Modifier({
+      size: [undefined, 60],
+      transform: Transform.translate(0, 0, 0.1)
+    });
+
+    this.add(modifier).add(grid);
+  }
 
   module.exports = WeekView;
 });
