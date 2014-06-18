@@ -7,6 +7,7 @@ define(function(require, exports, module) {
   var Transitionable = require('famous/transitions/Transitionable');
   var StateModifier     = require('famous/modifiers/StateModifier');
   var WeekView = require('views/WeekView');
+  var Easing = require('famous/transitions/Easing');
 
   function MonthView() {
     View.apply(this, arguments);
@@ -14,6 +15,7 @@ define(function(require, exports, module) {
 
     _createMonthName.call(this);
     _createWeeks.call(this);
+    _setListeners.call(this);
   }
 
   MonthView.prototype = Object.create(View.prototype);
@@ -54,6 +56,33 @@ define(function(require, exports, module) {
       this.mods.push(slideMod);
       this.add(slideMod).add(mod).add(week);
       this.subscribe(week);
+    }
+  }
+
+  function _setListeners() {
+    this._eventInput.on('click', function(data) {
+      this.selectedRow = data.origin.properties.id;
+      this._eventOutput.emit('dayView', data);
+      _animateWeeks.call(this, -(this.selectedRow + 1) * 60, this.selectedRow);
+    }.bind(this));
+  }
+
+  function _animateWeeks(amount, row) {
+    var bottomMovement = (amount === 0) ? 0 : 400;
+    var bottomDuration = (amount === 0) ? 500 : 1000;
+
+    for (var i = 0; i < this.mods.length; i++) {
+      if (i <= row) {
+        this.mods[i].setTransform(Transform.translate(0, amount, 0), {
+          duration: 500,
+          curve: Easing.outQuint
+        });
+      } else {
+        this.mods[i].setTransform(Transform.translate(0, bottomMovement, 0), {
+          duration: bottomDuration,
+          curve: Easing.outQuint
+        });
+      }
     }
   }
 
