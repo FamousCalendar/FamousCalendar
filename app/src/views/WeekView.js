@@ -40,14 +40,13 @@ define(function(require, exports, module) {
       
       var day = new Surface({
         content: '<br>' + (this.options.startDate + i),
-        id: this.options.weekNumber,
         properties: {
           textAlign: 'center',
           color: fontColor,
           fontSize: '14px',
           fontFamily: 'sans-serif',
           borderTop: '1px solid lightgrey',
-          id: this.options.weekNumber,
+          id: this.options.weekNumber
         }
       });
 
