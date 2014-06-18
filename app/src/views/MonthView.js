@@ -65,6 +65,11 @@ define(function(require, exports, module) {
       this._eventOutput.emit('dayView', data);
       _animateWeeks.call(this, -(this.selectedRow + 1) * 60, this.selectedRow);
     }.bind(this));
+
+    this._eventInput.on('back', function(data) {
+      this._eventOutput.emit('monthView', data);
+      _animateWeeks.call(this, 0, this.selectedRow);
+    }.bind(this));
   }
 
   function _animateWeeks(amount, row) {
