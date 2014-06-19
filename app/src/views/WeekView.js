@@ -9,9 +9,11 @@ define(function(require, exports, module) {
   var GridLayout = require("famous/views/GridLayout");
   var Transitionable = require('famous/transitions/Transitionable');
   var ImageSurface = require('famous/surfaces/ImageSurface');
+  var DayBoxView = require('views/DayBoxView');
 
   function WeekView() {
     View.apply(this, arguments);
+    this.days = [];
 
     _createDaysOfWeek.call(this);
   }
@@ -22,35 +24,31 @@ define(function(require, exports, module) {
   WeekView.DEFAULT_OPTIONS = {
     startDay: 1,
     weekNumber: 1,
-    daysInMonth: 30
+    daysInMonth: 30,
+    year: 2014,
+    month: 'January'
   };
 
     function _createDaysOfWeek() {
     var fontColor;
+    var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     var grid = new GridLayout({
       dimensions: [7, 1]
     });
 
-    var days = [];
-    grid.sequenceFrom(days);
+    grid.sequenceFrom(this.days);
 
     for (var i = 0; i < 7; i++) {
       if (this.options.startDate + i > this.options.daysInMonth) break;
       fontColor = (i === 0 || i === 6) ? 'grey' : 'black';
       
-      var day = new Surface({
-        content: '<br>' + (this.options.startDate + i),
-        properties: {
-          textAlign: 'center',
-          color: fontColor,
-          fontSize: '14px',
-          fontFamily: 'sans-serif',
-          borderTop: '1px solid lightgrey',
-          id: this.options.weekNumber
-        }
+      var day = new DayBoxView({
+        number: this.options.startDate + i,
+        fontColor: fontColor,
+        id: dayNames[i] + '-' + this.options.month + '-' + (this.options.startDate + i) + '-' + this.options.year + '-' + this.options.weekNumber
       });
 
-      days.push(day);
+      this.days.push(day);
       day.on('click', function(data) {
         this._eventOutput.emit('click', data);
       }.bind(this));
