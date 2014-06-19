@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <title>Calendar</title>
+        <title>FamousCalendar</title>
         <meta name="viewport" content="width=device-width, maximum-scale=1, user-scalable=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -26,6 +26,12 @@
         <!-- /process -->
         
         <!-- process:remove:dist -->
+        <script type='application/javascript' src='../node_modules/fastclick/lib/fastclick.js'></script>
+        <script type="text/javascript">
+          window.addEventListener('load', function() {
+              FastClick.attach(document.body);
+          }, false);
+        </script>
         <script type="text/javascript" src="lib/requirejs/require.js" data-main="src/requireConfig"></script>
         <!-- /process -->
     </head>
