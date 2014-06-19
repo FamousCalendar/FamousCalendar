@@ -32,7 +32,7 @@ define(function(require, exports, module) {
       properties: {
         lineHeight: '80px',
         fontFamily: 'sans-serif',
-        fontSize: '14px',
+        fontSize: '16px',
         color: 'red',
         pointerEvents: 'none'
       }
@@ -47,7 +47,7 @@ define(function(require, exports, module) {
   function _createWeeks() {
     for (var i = 0; i < 5; i++) {
       var mod = new Modifier({
-        transform: Transform.translate(0, (i+1) * 60, 0)
+        transform: Transform.translate(0, (i+1) * 70, 0)
       })
       var slideMod = new Modifier();
       var week = new WeekView({
@@ -77,7 +77,7 @@ define(function(require, exports, module) {
         this.selectedDay = data.selectedDay;
         this.selectedRow = Number(data.origin.properties.id.split('-').pop());
         this._eventOutput.emit('dayView', data);
-        _animateWeeks.call(this, (-(this.selectedRow + 1) * 60) + 5, this.selectedRow);
+        _animateWeeks.call(this, (-(this.selectedRow + 1) * 70) + 18, this.selectedRow);
       }
     }.bind(this));
 
@@ -93,6 +93,7 @@ define(function(require, exports, module) {
     var color = this.selectedDay.properties.id[0] === 'S' ? 'grey' : 'black';
     this.selectedDay.setProperties({
         fontWeight: '',
+        fontSize: '18px',
         color: color,
         backgroundColor: '',
         borderRadius: '0px'

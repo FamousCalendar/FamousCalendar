@@ -76,7 +76,7 @@ define(function(require, exports, module) {
         properties: {
           textAlign: 'center',
           fontFamily: 'sans-serif',
-          fontSize: '8px',
+          fontSize: '10px',
           color: fontColor
         }
       });
@@ -86,21 +86,21 @@ define(function(require, exports, module) {
 
     letterGridModifier = new Modifier({
       size: [undefined, 14],
-      transform: Transform.translate(0, 46, 5)
+      transform: Transform.translate(0, 44, 5)
     });
 
 
     // back icon
     var backIcon = new ImageSurface({
-      size: [22, 22],
-      content:'content/images/back_icon.png',
+      size: [30, 30],
+      content:'content/images/back_arrow.png',
       properties: {
         pointerEvents: 'none'
       }
     });
 
     var backIconModifier = new Modifier({
-      align: [0.06, 0.4],
+      align: [0.045, 0.4],
       origin: [0.5, 0.5],
       transform: Transform.translate(0, 0, 3)
     });
@@ -113,8 +113,8 @@ define(function(require, exports, module) {
       properties: {
         color: 'red',
         textAlign: 'center',
-        lineHeight: '50px',
-        fontSize: '14px',
+        lineHeight: '48px',
+        fontSize: '16px',
         fontFamily: 'sans-serif'
       }
     });
@@ -128,7 +128,7 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this.titleModifier = new Modifier({
-      align: [0.15, 0.5],
+      align: [0.14, 0.5],
       origin: [0.5, 0.5],
       opacity: 0.999,
       transform: Transform.translate(0, 0, 3)
@@ -140,13 +140,13 @@ define(function(require, exports, module) {
       properties: {
         textAlign: 'center',
         fontFamily: 'sans-serif',
-        fontSize: '14px'
+        fontSize: '16px'
       }
     });
 
     this.dateStringModifier = new Modifier({
       opacity: 0.001,
-      transform: Transform.translate(0, 120, 5)
+      transform: Transform.translate(0, 140, 5)
     });
 
     this.layout.header.add(this.dateStringModifier).add(this.dateStringSurface);
@@ -192,17 +192,17 @@ define(function(require, exports, module) {
   }
 
   function _toggleHeaderSize(data) {
-    var height = (this.headerTransition.state[1] === 60) ? 120 : 60;
-    this.headerTransition.set([undefined, height], {duration: 500, curve: Easing.outQuint});
+    var height = (this.headerTransition.state[1] === 60) ? 130 : 60;
+    this.headerTransition.set([undefined, height], {duration: 700, curve: Easing.outQuint});
     this.backgroundModifier.sizeFrom(this.headerTransition);
-    if (height === 120) {
+    if (height === 130) {
       var dateArr = data.selectedDay.properties.id.split('-');
       this.dateStringSurface.setContent(dateArr[0] + ' ' + dateArr[1] + ' ' + dateArr[2] + ', ' + dateArr[3]);
-      this.dateStringModifier.setTransform(Transform.translate(0, 90, 5), { duration: 500, curve: Easing.outQuart });
-      this.dateStringModifier.setOpacity(0.999, {duration: 275, curve: Easing.inQuad});
+      this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 650, curve: Easing.outExpo });
+      this.dateStringModifier.setOpacity(0.999, {duration: 325, curve: Easing.inQuart});
     } else {
       this.dateStringModifier.setOpacity(0.001, {duration: 150, curve: Easing.outExpo});
-      this.dateStringModifier.setTransform(Transform.translate(0, 120, 5), { duration: 550, curve: Easing.outExpo });
+      this.dateStringModifier.setTransform(Transform.translate(0, 140, 5), { duration: 550, curve: Easing.outExpo });
     }
   }
 
@@ -212,13 +212,13 @@ define(function(require, exports, module) {
     this.dateStringSurface.setContent(dateArr[0] + ' ' + dateArr[1] + ' ' + dateArr[2] + ', ' + dateArr[3]);
 
     if (data.difference > 0) {
-      this.dateStringModifier.setTransform(Transform.translate(-30, 90, 5));
-      this.dateStringModifier.setOpacity(0.999, {duration: 300, curve: Easing.outCubic});
-      this.dateStringModifier.setTransform(Transform.translate(0, 90, 5), { duration: 400, curve: Easing.outQuart });
+      this.dateStringModifier.setTransform(Transform.translate(-40, 100, 5));
+      this.dateStringModifier.setOpacity(0.999, {duration: 600, curve: Easing.outCubic});
+      this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 600, curve: Easing.outQuart });
     } else {
-      this.dateStringModifier.setTransform(Transform.translate(30, 90, 5));
-      this.dateStringModifier.setOpacity(0.999, {duration: 300, curve: Easing.outCubic});
-      this.dateStringModifier.setTransform(Transform.translate(0, 90, 5), { duration: 400, curve: Easing.outQuart });
+      this.dateStringModifier.setTransform(Transform.translate(40, 100, 5));
+      this.dateStringModifier.setOpacity(0.999, {duration: 600, curve: Easing.outCubic});
+      this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 600, curve: Easing.outQuart });
     }
   }
 

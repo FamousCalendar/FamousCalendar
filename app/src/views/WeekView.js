@@ -56,7 +56,7 @@ define(function(require, exports, module) {
 
 
     var modifier = new Modifier({
-      size: [undefined, 60],
+      size: [undefined, 70],
       transform: Transform.translate(0, 0, 0.1)
     });
 

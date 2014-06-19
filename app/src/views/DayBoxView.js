@@ -42,6 +42,7 @@ define(function(require, exports, module) {
       this.numberSurface.setProperties({
         color: 'white',
         fontWeight: 'bold',
+        fontSize: '18px',
         backgroundColor: 'black',
         borderRadius: '99999px'
       });
@@ -55,13 +56,14 @@ define(function(require, exports, module) {
 
   function _createNumberSurface() {
     this.numberSurface = new Surface({
-      size: [26, 26],
+      size: [34, 34],
       content: this.options.number,
       properties: {
-        lineHeight: '24px',
+        lineHeight: '34px',
         textAlign: 'center',
         color: this.options.fontColor,
-        fontSize: '14px',
+        fontWeight: 'thin',
+        fontSize: '18px',
         fontFamily: 'sans-serif',
         pointerEvents: 'none',
         id: this.options.id
