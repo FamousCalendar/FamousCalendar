@@ -41,5 +41,8 @@
   },
   "scripts": {
     "test": "grunt test"
+  },
+  "dependencies": {
+    "fastclick": "^1.0.2"
   }
 }
