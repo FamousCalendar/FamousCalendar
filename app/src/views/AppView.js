@@ -10,9 +10,11 @@ define(function(require, exports, module) {
   var Transitionable = require('famous/transitions/Transitionable');
   var ImageSurface = require('famous/surfaces/ImageSurface');
   var MonthView = require('views/MonthView');
+  var Easing = require('famous/transitions/Easing');
 
   function AppView() {
     View.apply(this, arguments);
+    this.headerTransition = new Transitionable([undefined, 60]);
 
     _createLayout.call(this);
     _createHeader.call(this);
@@ -48,7 +50,7 @@ define(function(require, exports, module) {
       }
     });
 
-    var backgroundModifier = new Modifier({
+    this.backgroundModifier = new Modifier({
       transform: Transform.translate(0, 0, 2)
     });
 
@@ -132,7 +134,23 @@ define(function(require, exports, module) {
       transform: Transform.translate(0, 0, 3)
     });
 
-    this.layout.header.add(backgroundModifier).add(backgroundSurface);
+    this.dateStringSurface = new Surface({
+      size:[undefined, 20],
+      content: '',
+      properties: {
+        textAlign: 'center',
+        fontFamily: 'sans-serif',
+        fontSize: '14px'
+      }
+    });
+
+    this.dateStringModifier = new Modifier({
+      opacity: 0.001,
+      transform: Transform.translate(0, 120, 5)
+    });
+
+    this.layout.header.add(this.dateStringModifier).add(this.dateStringSurface);
+    this.layout.header.add(this.backgroundModifier).add(backgroundSurface);
     this.layout.header.add(this.titleModifier).add(this.titleSurface);
     this.layout.header.add(backIconModifier).add(backIcon);
     this.add(letterGridModifier).add(letterGrid);
@@ -153,10 +171,16 @@ define(function(require, exports, module) {
   function _setListeners() {
     this._eventInput.on('dayView', function(data) {
       _setTitleSurface.call(this, 'June');
+      _toggleHeaderSize.call(this, data);
     }.bind(this));
 
     this._eventInput.on('monthView', function(data) {
       _setTitleSurface.call(this, '2014');
+      _toggleHeaderSize.call(this, data);
+    }.bind(this));
+
+    this._eventInput.on('changeDate', function(data) {
+      _transitionDateString.call(this, data, 'right');
     }.bind(this));
   }
 
@@ -165,6 +189,37 @@ define(function(require, exports, module) {
       this.titleSurface.setContent(title);
       this.titleModifier.setOpacity(0.999, { duration: 200, curve: 'easeIn' });
     }.bind(this));
+  }
+
+  function _toggleHeaderSize(data) {
+    var height = (this.headerTransition.state[1] === 60) ? 120 : 60;
+    this.headerTransition.set([undefined, height], {duration: 500, curve: Easing.outQuint});
+    this.backgroundModifier.sizeFrom(this.headerTransition);
+    if (height === 120) {
+      var dateArr = data.selectedDay.properties.id.split('-');
+      this.dateStringSurface.setContent(dateArr[0] + ' ' + dateArr[1] + ' ' + dateArr[2] + ', ' + dateArr[3]);
+      this.dateStringModifier.setTransform(Transform.translate(0, 90, 5), { duration: 500, curve: Easing.outQuart });
+      this.dateStringModifier.setOpacity(0.999, {duration: 275, curve: Easing.inQuad});
+    } else {
+      this.dateStringModifier.setOpacity(0.001, {duration: 150, curve: Easing.outExpo});
+      this.dateStringModifier.setTransform(Transform.translate(0, 120, 5), { duration: 550, curve: Easing.outExpo });
+    }
+  }
+
+  function _transitionDateString(data) {
+    var dateArr = data.selectedDay.properties.id.split('-');
+    this.dateStringModifier.setOpacity(0.001);
+    this.dateStringSurface.setContent(dateArr[0] + ' ' + dateArr[1] + ' ' + dateArr[2] + ', ' + dateArr[3]);
+
+    if (data.difference > 0) {
+      this.dateStringModifier.setTransform(Transform.translate(-30, 90, 5));
+      this.dateStringModifier.setOpacity(0.999, {duration: 300, curve: Easing.outCubic});
+      this.dateStringModifier.setTransform(Transform.translate(0, 90, 5), { duration: 400, curve: Easing.outQuart });
+    } else {
+      this.dateStringModifier.setTransform(Transform.translate(30, 90, 5));
+      this.dateStringModifier.setOpacity(0.999, {duration: 300, curve: Easing.outCubic});
+      this.dateStringModifier.setTransform(Transform.translate(0, 90, 5), { duration: 400, curve: Easing.outQuart });
+    }
   }
 
   module.exports = AppView;
