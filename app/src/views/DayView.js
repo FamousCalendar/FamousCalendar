@@ -4,27 +4,24 @@ define(function(require, exports, module) {
   //  Dependencies
   var View  = require('famous/core/View');
   
+  var RowsView      = require('views/RowsView');
   var TimelineView  = require('views/TimelineView');
+  var AppSettings   = require('config/AppSettings');
   
   function DayView() {
     View.apply(this, arguments);
     
     //  Instantiate settings/options
     
-    //  Instantiate Timebar
-    _createTimeline.call(this);
     //  Instantiate Rows
     _createRows.call(this);
+    //  Instantiate Timebar
+    _createTimeline.call(this);
     //  Instantiate Events
     this.loadEvents();
   }
   
   DayView.DEFAULT_OPTIONS = {
-    rowColorDayPrimary: 'FFFF66',
-    rowColorDayOffset: 'FFFF99',
-    rowColorNightPrimary: 'FF99CC',
-    rowColorNightOffset: 'FFCCFF',
-    fontColor: '000000'
   };
   
   //  Prototype Functions
@@ -42,9 +39,15 @@ define(function(require, exports, module) {
   };  //  End DayView.prototype.loadEvents
   
   //  Helper Functions
-  function _createTimeline() {};  //  End _createTimeline
+  function _createRows() {
+    var rows = new RowsView();
+    this.add(rows);
+  };  //  End _createRows
   
-  function _createRows() {};  //  End _createRows
+  function _createTimeline() {
+    var timeline = new TimelineView();
+    this.add(timeline);
+  };  //  End _createTimeline
   
   module.exports = DayView;
 });
