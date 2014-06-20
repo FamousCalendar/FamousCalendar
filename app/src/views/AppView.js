@@ -4,11 +4,12 @@ define(function(require, exports, module) {
   var Surface = require('famous/core/Surface');
   
   var DayView = require('views/DayView');
+  var DayScrollView = require('views/DayScrollView');
 
   function AppView() {
     View.apply(this, arguments);
 
-    this.add(new DayView());
+    this.add(new DayScrollView());
   }
 
   AppView.prototype = Object.create(View.prototype);
