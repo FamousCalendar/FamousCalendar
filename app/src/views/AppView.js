@@ -15,6 +15,7 @@ define(function(require, exports, module) {
   function AppView() {
     View.apply(this, arguments);
     this.headerTransition = new Transitionable([undefined, 60]);
+    this.state = 'monthView';
 
     _createLayout.call(this);
     _createHeader.call(this);
@@ -120,8 +121,8 @@ define(function(require, exports, module) {
     });
 
     this.titleSurface.on('click', function(data) {
-      // temporary hack
-      if (this.titleSurface.getContent() === '2014') return;
+      if (this.state === 'monthView') return;
+
 
       _setTitleSurface.call(this, '2014');
       this._eventOutput.emit('back', data);
@@ -170,21 +171,24 @@ define(function(require, exports, module) {
 
   function _setListeners() {
     this._eventInput.on('dayView', function(data) {
+      this.state = 'dayView';
       _setTitleSurface.call(this, 'June');
       _toggleHeaderSize.call(this, data);
     }.bind(this));
 
     this._eventInput.on('monthView', function(data) {
+      this.state = 'monthView';
       _setTitleSurface.call(this, '2014');
       _toggleHeaderSize.call(this, data);
     }.bind(this));
 
     this._eventInput.on('changeDate', function(data) {
-      _transitionDateString.call(this, data, 'right');
+      _transitionDateString.call(this, data);
     }.bind(this));
   }
 
   function _setTitleSurface(title) {
+    this.titleModifier.halt();
     this.titleModifier.setOpacity(0.001, { duration: 200, curve: 'easeIn' }, function() {
       this.titleSurface.setContent(title);
       this.titleModifier.setOpacity(0.999, { duration: 200, curve: 'easeIn' });
@@ -192,9 +196,13 @@ define(function(require, exports, module) {
   }
 
   function _toggleHeaderSize(data) {
-    var height = (this.headerTransition.state[1] === 60) ? 130 : 60;
+    var height = (this.state === 'dayView') ? 130 : 60;
+    this.headerTransition.halt();
+    this.backgroundModifier.halt();
+    this.dateStringModifier.halt();
     this.headerTransition.set([undefined, height], {duration: 700, curve: Easing.outQuint});
     this.backgroundModifier.sizeFrom(this.headerTransition);
+
     if (height === 130) {
       var dateArr = data.selectedDay.properties.id.split('-');
       this.dateStringSurface.setContent(dateArr[0] + ' ' + dateArr[1] + ' ' + dateArr[2] + ', ' + dateArr[3]);
@@ -208,6 +216,7 @@ define(function(require, exports, module) {
 
   function _transitionDateString(data) {
     var dateArr = data.selectedDay.properties.id.split('-');
+    this.dateStringModifier.halt();
     this.dateStringModifier.setOpacity(0.001);
     this.dateStringSurface.setContent(dateArr[0] + ' ' + dateArr[1] + ' ' + dateArr[2] + ', ' + dateArr[3]);
 
