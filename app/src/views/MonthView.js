@@ -107,9 +107,11 @@ define(function(require, exports, module) {
     var backgroundOpacity = (amount === 0) ? 0.999 : 0.001;
 
     for (var i = 0; i < this.mods.length; i++) {
+      this.mods[i].halt();
       if (i === row) {
         // fade out backgroundsurface/border of days in selected week so it doesn't show in header
         for (var j = 0; j < this.weeks[i - 1].days.length; j++) {
+          this.weeks[i - 1].days[j].backgroundModifier.halt();
           this.weeks[i - 1].days[j].backgroundModifier.setOpacity(backgroundOpacity, {duration: 100, curve: Easing.inQuint});
         }
         this.mods[i].setTransform(Transform.translate(0, amount, 4), {
