@@ -11,17 +11,13 @@ define(function(require, exports, module) {
   function DayView() {
     View.apply(this, arguments);
     
-    //  Instantiate settings/options
-    
-    //  Instantiate Rows
     _createRows.call(this);
-    //  Instantiate Timebar
     _createTimeline.call(this);
-    //  Instantiate Events
     this.loadEvents();
   }
   
   DayView.DEFAULT_OPTIONS = {
+    scrollView: null
   };
   
   //  Prototype Functions
@@ -29,8 +25,8 @@ define(function(require, exports, module) {
   DayView.prototype.constructor = DayView;
   
   DayView.prototype.getSize = function getSize() {
-    //  return [x,y] dimensions of entire view
     //  This function is called by scrollview to determine spacing of each element in the scroll's collection
+    return this.rows.getTotalSize();
   };  //  End DayView.prototype.getSize
   
   DayView.prototype.loadEvents = function loadEvents() {
@@ -40,13 +36,13 @@ define(function(require, exports, module) {
   
   //  Helper Functions
   function _createRows() {
-    var rows = new RowsView();
-    this.add(rows);
+    this.rows = new RowsView({ scrollView: this.options.scrollView });
+    this.add(this.rows);
   };  //  End _createRows
   
   function _createTimeline() {
-    var timeline = new TimelineView();
-    this.add(timeline);
+    this.timeline = new TimelineView();
+    this.add(this.timeline);
   };  //  End _createTimeline
   
   module.exports = DayView;

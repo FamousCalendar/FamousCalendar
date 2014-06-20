@@ -11,6 +11,7 @@ define(function(require, exports, module) {
   var ImageSurface = require('famous/surfaces/ImageSurface');
   var MonthView = require('views/MonthView');
   var Easing = require('famous/transitions/Easing');
+  var DayScrollView = require('views/DayScrollView');
 
   function AppView() {
     View.apply(this, arguments);

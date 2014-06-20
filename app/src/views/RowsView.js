@@ -13,8 +13,9 @@ define(function(require, exports, module) {
   }
   
   RowsView.DEFAULT_OPTIONS = {
+    scrollView: null,
     timeUnit: 30,
-    rowSize: [undefined, 30],
+    rowSize: [undefined, 30, 0],
     rowColorDayPrimary: '#FFFF66',
     rowColorDaySecondary: '#FFFF99',
     rowColorNightPrimary: '#BBBBFF',
@@ -24,7 +25,11 @@ define(function(require, exports, module) {
   RowsView.prototype = Object.create(View.prototype);
   RowsView.prototype.constructor = RowsView;
   RowsView.prototype.getTotalSize = function getTotalSize() {
+    var sizeX = this.options.rowSize[0];
+    var sizeY = this.options.rowSize[1] * (1440 / this.options.timeUnit);
+    var sizeZ = this.options.rowSize[2];
     
+    return [sizeX, sizeY, sizeZ];
   };  //  End RowsView.prototype.getTotalSize
   
   function _createRows() {
@@ -58,9 +63,10 @@ define(function(require, exports, module) {
       var rowSurface = new Surface({
         properties: {
           backgroundColor: rowColor,
-          pointerEvents: 'none'
+          zIndex: -1
         }
       });
+      if (this.options.scrollView) rowSurface.pipe(this.options.scrollView);
       
       this.add(rowModifier).add(rowSurface);
     }
