@@ -37,12 +37,26 @@ define(function(require, exports, module) {
     });
 
     grid.sequenceFrom(this.days);
-
+    var day;
     for (var i = 0; i < 7; i++) {
-      if (this.options.startDate + i > this.options.daysInMonth) break;
+      if (this.options.startDate + i > this.options.daysInMonth) {
+        var day = new DayBoxView({
+          number: '',
+          fontColor: fontColor,
+        });
+
+        this.days.push(day);
+          var modifier = new Modifier({
+          size: [undefined, undefined],
+          transform: Transform.translate(0, 0, 0.1)
+        });
+
+        continue;
+      }
+
       fontColor = (i === 0 || i === 6) ? 'grey' : 'black';
       
-      var day = new DayBoxView({
+      day = new DayBoxView({
         number: this.options.startDate + i,
         fontColor: fontColor,
         id: dayNames[i] + '-' + this.options.month + '-' + (this.options.startDate + i) + '-' + this.options.year + '-' + this.options.weekNumber
@@ -56,7 +70,7 @@ define(function(require, exports, module) {
 
 
     var modifier = new Modifier({
-      size: [undefined, 70],
+      size: [undefined, undefined],
       transform: Transform.translate(0, 0, 0.1)
     });
 

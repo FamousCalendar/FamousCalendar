@@ -11,6 +11,7 @@ define(function(require, exports, module) {
   var ImageSurface = require('famous/surfaces/ImageSurface');
   var MonthView = require('views/MonthView');
   var Easing = require('famous/transitions/Easing');
+  var DayView = require('views/DayView');
   var DayScrollView = require('views/DayScrollView');
 
   function AppView() {
@@ -33,7 +34,8 @@ define(function(require, exports, module) {
 
   function _createLayout() {
     this.layout = new HeaderFooterLayout({
-      headerSize: this.options.headerSize
+      headerSize: this.options.headerSize,
+      footerSize: 0
     });
 
     var layoutModifier = new Modifier({
@@ -53,7 +55,7 @@ define(function(require, exports, module) {
     });
 
     this.backgroundModifier = new Modifier({
-      transform: Transform.translate(0, 0, 2)
+      transform: Transform.translate(0, 0, 3)
     });
 
     
@@ -162,9 +164,16 @@ define(function(require, exports, module) {
   function _createContent() {
     this.monthView = new MonthView();
     this.monthMod = new Modifier({
-      transform: Transform.translate(0, 48, 0)
+      transform: Transform.translate(0, 0, 1)
     });
 
+    this.dayScrollView = new DayScrollView();
+
+    this.dayScrollModifier = new Modifier({
+      transform: Transform.translate(0, 130, 0)
+    });
+
+    this.layout.content.add(this.dayScrollModifier).add(this.dayScrollView);
     this.layout.content.add(this.monthMod).add(this.monthView);
     this.monthView.subscribe(this._eventOutput);
     this._eventInput.subscribe(this.monthView._eventOutput);
@@ -173,12 +182,19 @@ define(function(require, exports, module) {
   function _setListeners() {
     this._eventInput.on('dayView', function(data) {
       this.state = 'dayView';
+      this.currentRow = Number(data.selectedDay.properties.id.split('-').pop()) + 1;
+      this.dayScrollModifier.halt();
+      this.dayScrollModifier.setTransform(Transform.translate(0, 70 * this.currentRow, 0));
+      this.dayScrollModifier.setTransform(Transform.translate(0, 130, 0), {duration: 500, curve: Easing.outQuart });
       _setTitleSurface.call(this, 'June');
       _toggleHeaderSize.call(this, data);
     }.bind(this));
 
     this._eventInput.on('monthView', function(data) {
       this.state = 'monthView';
+      this.dayScrollModifier.halt();
+      this.dayScrollModifier.setTransform(Transform.translate(0, 70 * this.currentRow, 0),
+        {duration: 500, curve: Easing.outQuart });
       _setTitleSurface.call(this, '2014');
       _toggleHeaderSize.call(this, data);
     }.bind(this));
@@ -224,11 +240,11 @@ define(function(require, exports, module) {
     if (data.difference > 0) {
       this.dateStringModifier.setTransform(Transform.translate(-40, 100, 5));
       this.dateStringModifier.setOpacity(0.999, {duration: 600, curve: Easing.outCubic});
-      this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 600, curve: Easing.outQuart });
+      this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 700, curve: Easing.outQuart });
     } else {
       this.dateStringModifier.setTransform(Transform.translate(40, 100, 5));
       this.dateStringModifier.setOpacity(0.999, {duration: 600, curve: Easing.outCubic});
-      this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 600, curve: Easing.outQuart });
+      this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 700, curve: Easing.outQuart });
     }
   }
 

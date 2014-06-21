@@ -28,10 +28,13 @@ define(function(require, exports, module) {
   };
 
   function _createBackground() {
+    var borderColor = (this.options.number < 0) ? '' : 'lightgrey';
+
     this.backgroundSurface = new Surface({
       size: [undefined, undefined],
       properties: {
-        borderTop: '1px solid lightgrey',
+        borderTop: '1px solid ' + borderColor,
+        backgroundColor: 'white',
         id: this.options.id
       }
     });
@@ -56,14 +59,13 @@ define(function(require, exports, module) {
 
   function _createNumberSurface() {
     this.numberSurface = new Surface({
-      size: [34, 34],
-      content: this.options.number,
+      size: [34, true],
+      content: this.options.number || '',
       properties: {
         lineHeight: '34px',
         textAlign: 'center',
         color: this.options.fontColor,
         fontWeight: 'thin',
-        fontSize: '18px',
         fontFamily: 'sans-serif',
         pointerEvents: 'none',
         id: this.options.id
@@ -71,7 +73,7 @@ define(function(require, exports, module) {
     });
 
     this.numberModifier = new Modifier({
-      align: [0.5, 0.30],
+      align: [0.5, 0.33],
       origin: [0.5, 0.5],
     });
 
