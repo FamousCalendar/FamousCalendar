@@ -1,0 +1,74 @@
+/*** AddEventView ***/
+
+// define this module in Require.JS
+define(function(require, exports, module) {
+
+    // Import additional modules to be used in this view 
+    var View = require('famous/core/View');
+    var Surface = require('famous/core/Surface');
+    var Transform = require('famous/core/Transform');
+    var StateModifier = require('famous/modifiers/StateModifier');
+    var InputSurface = require('famous/surfaces/InputSurface');
+
+    // Constructor function for our SlideShowView class
+    function AddEventView() {
+
+        // Applies View's constructor function to AddEventView class
+        // View.apply(this, arguments);
+
+        ScrollView.apply(this, arguments);
+        
+        this.inputFields = [];
+        this.viewSequence = new ViewSequence({
+          array: this.inputFields
+        });
+        this.sequenceFrom(this.viewSequence);
+        
+        this.header = new Surface({
+            content:'Add Event'
+        });
+        //TBD: Add Cancel and Done buttons on Header
+        this.add(this.header);
+
+        this.titleField = new InputSurface({
+            placeholder: 'Title',
+            type: 'text'
+        });
+        this.inputFields.push(this.titleField);
+
+        this.locationField = new InputSurface({
+            placeholder: 'Location',
+            type: 'text'
+        });
+        this.inputFields.push(this.locationField);
+
+        this.startField = new InputSurface({
+            placeholder: 'Starts',
+            type: 'dateTime'
+        });
+        this.inputFields.push(this.startField);
+
+        this.endField = new InputSurface({
+            placeholder: 'Ends'.
+            type: 'time'
+        });
+        this.inputFields.push(this.endField);
+
+        this.repeatField = new Surface({
+            content: 'Repeat     Never >'
+        });
+        this.inputFields.push(this.repeatField);
+
+    }
+
+    // Establishes prototype chain for AddEventView class to inherit from View
+    AddEventView.prototype = Object.create(View.prototype);
+    AddEventView.prototype.constructor = AddEventView;
+
+    // Default options for AddEventView class
+    AddEventView.DEFAULT_OPTIONS = {};
+
+    // Define your helper functions and prototype methods here
+
+    module.exports = AddEventView;
+});
