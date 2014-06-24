@@ -13,8 +13,6 @@ define(function(require, exports, module) {
     var Modifier = require('famous/core/Modifier');
     var Utility = require('utilities');
 
-    var utility = new Utility();
-
     var hUnits = window.innerHeight / 500;
     var wUnits = window.innerWidth / 500;
 
@@ -45,7 +43,7 @@ define(function(require, exports, module) {
         var backgroundMod = new Modifier({
             transform: Transform.behind,
         });
-        this.add(backgroundMod).add(this.background)
+        var backgroundNode = this.add(backgroundMod).add(this.background);
         //Focus Title Field
 
         //Access app header??? But not this:
@@ -62,6 +60,22 @@ define(function(require, exports, module) {
             origin : [0.5, 0.5],
             align: [0.5, 0.5]
         })
+
+        this.startLabel = new Surface({
+            content: 'LOOK',
+            properties: {
+                // backgroundColor: 'red'
+                fontFamily: 'sans-serif',
+                borderBottom: '1px solid lightgrey'
+            },
+            size: [undefined, true]
+        });
+        var startLabelModifier = new Modifier({
+            origin: [0.5, 0.5],
+            align: [0.5, 0.1],
+            transform: Transform.translate()
+        });
+        backgroundNode.add(startLabelModifier).add(this.startLabel);
 
         //TBD: Add Cancel and Done buttons on Header
 
@@ -167,7 +181,7 @@ define(function(require, exports, module) {
         this.add(repeatFieldModifier).add(this.repeatField);
 
         //On Save
-        //newEvent = createEvent.call(this);
+        //newEvent = _createEvent.call(this);
 
         //saveEvent(newEvent);
 
@@ -181,7 +195,7 @@ define(function(require, exports, module) {
             }
         });
         this.saveButton.on('click', function(){
-            utility.saveEvent(createEvent.call(this));
+            Utility.saveEvent(_createEvent.call(this));
         }.bind(this));
 
 
@@ -201,7 +215,7 @@ define(function(require, exports, module) {
     AddEventView.DEFAULT_OPTIONS = {};
 
     // Define your helper functions and prototype methods here
-    function createEvent(){
+    function _createEvent(){
         var eventData = {};
         eventData.title = this.titleField.getValue();
         eventData.date = this.dateField.getValue();
