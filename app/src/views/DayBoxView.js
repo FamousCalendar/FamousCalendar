@@ -56,7 +56,8 @@ define(function(require, exports, module) {
     backgroundColor: 'white',
     borderColor: 'lightgrey',
     selectedColor: 'black',
-    font: 'sans-serif'
+    font: 'sans-serif',
+    scrollView: null
   };
 
   function _createBackground() {
@@ -82,9 +83,10 @@ define(function(require, exports, module) {
         borderRadius: '50px'
       });
 
-      this._eventOutput.emit('click', this);
+      this._eventOutput.emit('click', { data: this, click: data });
     }.bind(this));
 
+    this.backgroundSurface.pipe(this.options.scrollView);
     this.add(this.backgroundModifier).add(this.backgroundSurface);
   }
 

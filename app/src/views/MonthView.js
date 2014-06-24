@@ -31,7 +31,8 @@ define(function(require, exports, module) {
 
   MonthView.DEFAULT_OPTIONS = {
     month: 0,
-    year: 2014
+    year: 2014,
+    scrollView: null
   };
 
   function _createLayout() {
@@ -40,7 +41,7 @@ define(function(require, exports, module) {
     });
 
     grid.sequenceFrom(this.gridWeeks);
-    this.monthGridModifier = new Modifier({});
+    this.monthGridModifier = new Modifier();
     this.add(this.monthGridModifier).add(grid);
   }
 
@@ -66,7 +67,7 @@ define(function(require, exports, module) {
     node.add(slideMod).add(monthName);
     this.gridWeeks.push(node);
     this.weeks.push(monthName);
-
+    monthName.pipe(this.options.scrollView);
     // this.add(slideMod).add(monthName);
   }
 
@@ -82,7 +83,8 @@ define(function(require, exports, module) {
         daysInMonth: this.daysInMonth,
         month: this.options.month,
         year: this.options.year,
-        week: i + 1
+        week: i + 1,
+        scrollView: this.options.scrollView
       });
 
       weekModifier = new Modifier();
@@ -98,26 +100,43 @@ define(function(require, exports, module) {
 
   function _setListeners() {
     this._eventInput.on('click', function(data) {
-      if (data.getDate().day === 0) return;
-
-      if (this.selectedDay) {
-        if (this.selectedDay === data) return;
-        data.difference = this.selectedDay.getDate().weekDay - data.getDate().weekDay;
-        _unselectDay.call(this);
-        this.selectedDay = data;
-        this.selectedRow = data.getDate().week;
-        this._eventOutput.emit('changeDate', data);
+      var offset;
+      var weekNumber = data.data.getDate().week;
+      var clickYPosition = data.click.y;
+      var position = this.options.scrollView.getPosition();
+      if (weekNumber > 3 && clickYPosition < 140 && position > 300) {
+        offset = position;
+      } else if (weekNumber <= 3 && clickYPosition > (window.innerHeight - 140) && position < 300) {
+        offset = -(window.innerHeight - 60) + position;
       } else {
-        this.selectedDay = data;
-        this.selectedRow = data.getDate().week;
-        this._eventOutput.emit('dayView', data);
-        _animateWeeks.call(this, (-(this.selectedRow) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60), this.selectedRow);
+        offset = position > 300 ? -(window.innerHeight - 60) + position : position;
+      }
+
+      if (data.data.getDate().day === 0) return;
+      console.log(data.data.getDate());
+      console.log(window.innerHeight);
+      if (this.selectedDay) {
+        if (this.selectedDay === data.data) return;
+        data.difference = this.selectedDay.getDate().weekDay - data.data.getDate().weekDay;
+        _unselectDay.call(this);
+        this.selectedDay = data.data;
+        this.selectedRow = data.data.getDate().week;
+        this._eventOutput.emit('changeDate', data.data);
+      } else {
+        this.selectedDay = data.data;
+        this.selectedRow = data.data.getDate().week;
+        console.log('yello');
+        this._eventOutput.emit('dayView', data.data);
+        _animateWeeks.call(this, (-(this.selectedRow) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60) + offset, this.selectedRow);
       }
     }.bind(this));
 
     this._eventInput.on('back', function(data) {
+      // only continue if this month is the selected month
+      if (this.options.month !== data.month) return;
+
       _unselectDay.call(this);
-      this._eventOutput.emit('monthView', data);
+      this._eventOutput.emit('monthView', data.data);
       _animateWeeks.call(this, 0, this.selectedRow);
     }.bind(this));
   }
@@ -140,6 +159,8 @@ define(function(require, exports, module) {
     var bottomDuration = amount ? 1000 : 500;
     var backgroundOpacity = amount ? 0.01 : 0.99;
     var zIndex = amount ? 4 : 0;
+
+    this._eventOutput.emit('moveAdjacentMonths', [amount, { movement: bottomMovement, duration: bottomDuration }]);
 
     for (var i = 0; i < this.mods.length; i++) {
       this.mods[i].halt();

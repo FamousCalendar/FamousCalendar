@@ -27,10 +27,11 @@ define(function(require, exports, module) {
     week: 1,
     daysInMonth: 30,
     year: 2014,
-    month: 0
+    month: 0,
+    scrollView: null
   };
 
-    function _createDaysOfWeek() {
+  function _createDaysOfWeek() {
     var fontColor;
     var day;
     var dayModifier;
@@ -44,7 +45,8 @@ define(function(require, exports, module) {
     for (var i = 0; i < 7; i++) {
       if (i < this.options.startDay || this.options.startDate + i > this.options.daysInMonth) {
         day = new DayBoxView({
-          day: 0
+          day: 0,
+          scrollView: this.options.scrollView
         });
       } else {
         day = new DayBoxView({
@@ -52,7 +54,8 @@ define(function(require, exports, module) {
           month: this.options.month,
           year: this.options.year,
           week: this.options.week,
-          weekDay: i
+          weekDay: i,
+          scrollView: this.options.scrollView
         }); 
       }
 
