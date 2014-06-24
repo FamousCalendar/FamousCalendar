@@ -13,6 +13,7 @@ define(function(require, exports, module) {
   var Easing = require('famous/transitions/Easing');
   var DayView = require('views/DayView');
   var DayScrollView = require('views/DayScrollView');
+  var DateConstants = require('config/DateConstants');
 
   function AppView() {
     View.apply(this, arguments);
@@ -112,11 +113,11 @@ define(function(require, exports, module) {
 
     // title surface
     this.titleSurface = new Surface({
-      size: [100, undefined],
+      size: [100, 60],
       content: '2014',
       properties: {
         color: 'red',
-        textAlign: 'center',
+        textAlign: 'left',
         lineHeight: '48px',
         fontSize: '16px',
         fontFamily: 'sans-serif'
@@ -132,7 +133,7 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this.titleModifier = new Modifier({
-      align: [0.14, 0.5],
+      align: [0.24, 0.5],
       origin: [0.5, 0.5],
       opacity: 0.999,
       transform: Transform.translate(0, 0, 3)
@@ -162,7 +163,11 @@ define(function(require, exports, module) {
 
 
   function _createContent() {
-    this.monthView = new MonthView();
+    this.monthView = new MonthView({
+      month: 6,
+      year: 2014
+    });
+
     this.monthMod = new Modifier({
       transform: Transform.translate(0, 0, 1)
     });
@@ -170,6 +175,7 @@ define(function(require, exports, module) {
     this.dayScrollView = new DayScrollView();
 
     this.dayScrollModifier = new Modifier({
+      opacity: 0.01,
       transform: Transform.translate(0, 130, 0)
     });
 
@@ -182,11 +188,11 @@ define(function(require, exports, module) {
   function _setListeners() {
     this._eventInput.on('dayView', function(data) {
       this.state = 'dayView';
-      this.currentRow = Number(data.selectedDay.properties.id.split('-').pop()) + 1;
-      this.dayScrollModifier.halt();
-      this.dayScrollModifier.setTransform(Transform.translate(0, 70 * this.currentRow, 0));
+      this.currentRow = data.getDate().week;
+      this.dayScrollModifier.setTransform(Transform.translate(0, ((window.innerHeight - 60)/6) * this.currentRow, 0));
+      this.dayScrollModifier.setOpacity(0.99);
       this.dayScrollModifier.setTransform(Transform.translate(0, 130, 0), {duration: 500, curve: Easing.outQuart });
-      _setTitleSurface.call(this, 'June');
+      _setTitleSurface.call(this, DateConstants.monthNames[data.getDate().month]);
       _toggleHeaderSize.call(this, data);
     }.bind(this));
 
@@ -194,7 +200,9 @@ define(function(require, exports, module) {
       this.state = 'monthView';
       this.dayScrollModifier.halt();
       this.dayScrollModifier.setTransform(Transform.translate(0, 70 * this.currentRow, 0),
-        {duration: 500, curve: Easing.outQuart });
+        {duration: 500, curve: Easing.outQuart }, function() {
+          this.dayScrollModifier.setOpacity(0.01);
+        }.bind(this));
       _setTitleSurface.call(this, '2014');
       _toggleHeaderSize.call(this, data);
     }.bind(this));
@@ -221,8 +229,9 @@ define(function(require, exports, module) {
     this.backgroundModifier.sizeFrom(this.headerTransition);
 
     if (height === 130) {
-      var dateArr = data.selectedDay.properties.id.split('-');
-      this.dateStringSurface.setContent(dateArr[0] + ' ' + dateArr[1] + ' ' + dateArr[2] + ', ' + dateArr[3]);
+      var date = data.getDate();
+      this.dateStringSurface.setContent(DateConstants.daysOfWeek[date.weekDay] + 
+        ' ' + DateConstants.monthNames[date.month] + ' ' + date.day + ', ' + date.year);
       this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 650, curve: Easing.outExpo });
       this.dateStringModifier.setOpacity(0.999, {duration: 325, curve: Easing.inQuart});
     } else {
@@ -232,10 +241,11 @@ define(function(require, exports, module) {
   }
 
   function _transitionDateString(data) {
-    var dateArr = data.selectedDay.properties.id.split('-');
+    var date = data.getDate();
     this.dateStringModifier.halt();
     this.dateStringModifier.setOpacity(0.001);
-    this.dateStringSurface.setContent(dateArr[0] + ' ' + dateArr[1] + ' ' + dateArr[2] + ', ' + dateArr[3]);
+    this.dateStringSurface.setContent(DateConstants.daysOfWeek[date.weekDay] + 
+      ' ' + DateConstants.monthNames[date.month] + ' ' + date.day + ', ' + date.year);
 
     if (data.difference > 0) {
       this.dateStringModifier.setTransform(Transform.translate(-40, 100, 5));
