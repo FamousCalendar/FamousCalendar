@@ -35,6 +35,11 @@ define(function(require, exports, module){
 		  //Store updated events array in local storage
 		  window.localStorage.setItem(eventDate, JSON.stringify(events));
 		};
+
+		this.getEvents = function getEvents(date){
+		  //returns events array for given date
+		  return JSON.parse(window.localStorage.getItem(date));
+		};
 	}
 
 	module.exports = Utilities;
