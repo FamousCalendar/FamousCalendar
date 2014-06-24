@@ -17,7 +17,7 @@ define(function(require, exports, module) {
     //Instantiate Event views from local storage
     for (var i = 0; i < eventsArray.length; i++){
       newEvent = new Event();
-      newEvent.setContent(eventsArray[i].title);
+      newEvent.setContent(<p>eventsArray[i].title</p>);
       this.add(newEvent);
 
     }
@@ -33,39 +33,6 @@ define(function(require, exports, module) {
     }
   }
 
-  function saveEvent(newEvent) {
-
-    //Retrieve events for date from local storage
-    var events = window.localStorage.getItem(eventDate);
-
-    //Check if any events exist
-    if(events === null){
-      //Initialize events to array
-      events = [];
-    }else{
-      //Parse events array from string
-      events = JSON.parse(events);
-    }
-
-    //create new event object from input - TBD in Calling Function
-
-    //Object schema:
-    //{date: eventToBeSaved.date, 
-      // start: eventToBeSaved.start, 
-      // end: eventEndTime, 
-      // title: eventTitle, 
-      // description: eventBody};
-    
-    //add new event to events array
-    events.push(newEvent);
-    //Store updated events array in local storage
-    window.localStorage.setItem(eventDate, JSON.stringify(events));
-  }
-
-  function getEvents(date){
-    //returns events array for given date
-    return JSON.parse(window.localStorage.getItem(date));
-  }
 
   EventsView.DEFAULT_OPTIONS = {};
   
