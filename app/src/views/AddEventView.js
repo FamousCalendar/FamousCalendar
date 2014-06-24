@@ -12,8 +12,9 @@ define(function(require, exports, module) {
     var ScrollView = require('famous/views/Scrollview');
     var Modifier = require('famous/core/Modifier');
     var Utility = require('utilities');
+    var Easing = require('famous/transitions/Easing');
 
-    var hUnits = window.innerHeight / 500;
+    var hUnits = window.innerHeight / 450;
     var wUnits = window.innerWidth / 500;
 
     // Constructor function for our SlideShowView class
@@ -62,9 +63,8 @@ define(function(require, exports, module) {
         })
 
         this.startLabel = new Surface({
-            content: 'LOOK',
+            content: 'Starts at:',
             properties: {
-                // backgroundColor: 'red'
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey'
             },
@@ -73,9 +73,9 @@ define(function(require, exports, module) {
         var startLabelModifier = new Modifier({
             origin: [0.5, 0.5],
             align: [0.5, 0.1],
-            transform: Transform.translate()
+            transform: Transform.translate(0, 110*hUnits, 0)
         });
-        backgroundNode.add(startLabelModifier).add(this.startLabel);
+        this.add(startLabelModifier).add(this.startLabel);
 
         //TBD: Add Cancel and Done buttons on Header
 
@@ -93,7 +93,8 @@ define(function(require, exports, module) {
         });
         var titleFieldModifier = new Modifier({
             origin: [0.5, 0.5],
-            align: [0.5, 0.1]
+            align: [0.5, 0.1],
+            transform: Transform.translate(0, 20 * hUnits, 0)
         });
         this.add(titleFieldModifier).add(this.titleField);
 
@@ -121,12 +122,13 @@ define(function(require, exports, module) {
             size: [undefined, true],
             properties: {
                 fontFamily: 'sans-serif',
-                borderBottom: '1px solid lightgrey'
+                borderBottom: '1px solid lightgrey',
+                color: 'red'
             }
         });
         var dateModifier = new Modifier({
             align: [0.5, 0.1],
-            transform: Transform.translate(0, 75 * hUnits, 0)
+            transform: Transform.translate(0, 80 * hUnits, 0)
         });
         this.add(dateModifier).add(this.dateField);
 
@@ -144,8 +146,25 @@ define(function(require, exports, module) {
         })
         this.add(startFieldModifier).add(this.startField);
 
+
+
+        this.endLabel = new Surface({
+            content: 'Ends at:',
+            properties: {
+                fontFamily: 'sans-serif',
+                borderBottom: '1px solid lightgrey'
+            },
+            size: [undefined, true]
+        });
+        var endLabelModifier = new Modifier({
+            origin: [0.5, 0.5],
+            align: [0.5, 0.1],
+            transform: Transform.translate(0, 150*hUnits, 0)
+        });
+        this.add(endLabelModifier).add(this.endLabel);
+
+
         this.endField = new InputSurface({
-            placeholder: 'Ends',
             type: 'time',
             size: [undefined, true],
             properties: {
@@ -155,7 +174,7 @@ define(function(require, exports, module) {
             }
         });
         var endFieldModifier = new Modifier({
-            transform: Transform.translate(0, 150 * hUnits, 0),
+            transform: Transform.translate(0, 175 * hUnits, 0),
             align: [0.5, 0.1]
         })
         this.add(endFieldModifier).add(this.endField);
@@ -200,7 +219,7 @@ define(function(require, exports, module) {
 
 
         var saveModifier = new Modifier({
-            transform: Transform.translate(0, 250 * hUnits, 0),
+            transform: Transform.translate(0, 300 * hUnits, 0),
             align: [0.5, 0.1]
         })
         this.add(saveModifier).add(this.saveButton);
@@ -212,19 +231,24 @@ define(function(require, exports, module) {
     AddEventView.prototype.constructor = AddEventView;
 
     // Default options for AddEventView class
-    AddEventView.DEFAULT_OPTIONS = {};
+    AddEventView.DEFAULT_OPTIONS = {
+
+        transition: {
+            duration: 300,
+            curve: Easing.inOutElastic
+        }
+    };
 
     // Define your helper functions and prototype methods here
     function _createEvent(){
-        var eventData = {};
-        eventData.title = this.titleField.getValue();
-        eventData.date = this.dateField.getValue();
-        eventData.location = this.locationField.getValue();
-        eventData.start = this.startField.getValue();
-        eventData.end = this.endField.getValue();
-        // eventData.repeat = this.repeatField.getValue();
-
-        return eventData;
+        return {
+            title : this.titleField.getValue(),
+            date : this.dateField.getValue(),
+            location : this.locationField.getValue(),
+            start : this.startField.getValue(),
+            end : this.endField.getValue()
+            // eventData.repeat = this.repeatField.getValue();
+        };
     }
 
     module.exports = AddEventView;
