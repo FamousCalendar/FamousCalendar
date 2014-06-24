@@ -8,6 +8,7 @@ define(function(require, exports, module) {
     var Surface = require('famous/core/Surface');
     var Transform = require('famous/core/Transform');
     var StateModifier = require('famous/modifiers/StateModifier');
+    var Settings = require('config/AppSettings');
 
     // Constructor function for our EventView class
     function EventView() {

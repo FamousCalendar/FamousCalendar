@@ -9,13 +9,22 @@ define(function(require, exports, module) {
   
   function EventsView() {
     View.apply(this, arguments);
-    this.add(new Surface({
-      size: [true, true],
+  
+    var newEvent;
 
-    }))
+    var eventsArray = getEvents(); //How to get date ???
 
+    //Instantiate Event views from local storage
+    for (var i = 0; i < eventsArray.length; i++){
+      newEvent = new Event();
+      newEvent.setContent(eventsArray[i].title);
+      this.add(newEvent);
+
+    }
   }
 
+
+  //Checks for local storage support ... Where to put this?
   function supports_html5_storage() {
     try {
       return 'localStorage' in window && window['localStorage'] !== null;
