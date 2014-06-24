@@ -11,7 +11,9 @@ define(function(require, exports, module) {
     var InputSurface = require('famous/surfaces/InputSurface');
     var ScrollView = require('famous/views/Scrollview');
     var Modifier = require('famous/core/Modifier');
+    var Utility = require('utilities');
 
+    var utility = new Utility();
 
     var hUnits = window.innerHeight / 500;
     var wUnits = window.innerWidth / 500;
@@ -179,7 +181,7 @@ define(function(require, exports, module) {
             }
         });
         this.saveButton.on('click', function(){
-            saveEvent(createEvent.call(this));
+            utility.saveEvent(createEvent.call(this));
         }.bind(this));
 
 
