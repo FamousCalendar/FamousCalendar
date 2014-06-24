@@ -19,15 +19,21 @@ define(function(require, exports, module) {
         ScrollView.apply(this, arguments);
         
         this.inputFields = [];
+
         this.viewSequence = new ViewSequence({
           array: this.inputFields
         });
+
         this.sequenceFrom(this.viewSequence);
         
+
+        //Access app header??? But not this:
         this.header = new Surface({
             content:'Add Event'
         });
+
         //TBD: Add Cancel and Done buttons on Header
+
         this.add(this.header);
 
         this.titleField = new InputSurface({
@@ -56,8 +62,15 @@ define(function(require, exports, module) {
 
         this.repeatField = new Surface({
             content: 'Repeat     Never >'
+            //Is there a true/false input type?
+            //Or implement as link to new view  like in iOS cal
         });
         this.inputFields.push(this.repeatField);
+
+        //On Save
+        //newEvent = createEvent.call(this);
+
+        //saveEvent(newEvent);
 
     }
 
@@ -69,6 +82,45 @@ define(function(require, exports, module) {
     AddEventView.DEFAULT_OPTIONS = {};
 
     // Define your helper functions and prototype methods here
+    function createEvent(){
+        var eventData = {};
+        eventData.title = this.titleField.getValue();
+        eventData.location = this.titleField.getValue();
+        eventData.start = this.startField.getValue();
+        eventData.end = this.endField.getValue();
+        eventData.repeat = this.repeatField.getValue();
+
+        return eventData;
+    }
+
+    function saveEvent(newEvent) {
+
+      //Retrieve events for date from local storage
+      var events = window.localStorage.getItem(eventDate);
+
+      //Check if any events exist
+      if(events === null){
+        //Initialize events to array
+        events = [];
+      }else{
+        //Parse events array from string
+        events = JSON.parse(events);
+      }
+
+      //create new event object from input - TBD in Calling Function
+
+      //Object schema:
+      //{date: eventToBeSaved.date, 
+        // start: eventToBeSaved.start, 
+        // end: eventEndTime, 
+        // title: eventTitle, 
+        // description: eventBody};
+      
+      //add new event to events array
+      events.push(newEvent);
+      //Store updated events array in local storage
+      window.localStorage.setItem(eventDate, JSON.stringify(events));
+    }
 
     module.exports = AddEventView;
 });

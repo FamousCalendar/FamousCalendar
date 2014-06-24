@@ -5,10 +5,14 @@ define(function(require, exports, module) {
   var Surface         = require('famous/core/Surface');
   var Transform       = require('famous/core/Transform');
   var StateModifier   = require('famous/modifiers/StateModifier');
+  var Event = require('views/EventView');
   
   function EventsView() {
     View.apply(this, arguments);
+    this.add(new Surface({
+      size: [true, true],
 
+    }))
 
   }
 
