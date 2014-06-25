@@ -6,6 +6,9 @@ define(function(require, exports, module) {
   var Transform       = require('famous/core/Transform');
   var StateModifier   = require('famous/modifiers/StateModifier');
   var Event = require('views/EventView');
+  var Utilities = require('utilities');
+
+  var utilities = new Utilities();
   
   function EventsView() {
     View.apply(this, arguments);
