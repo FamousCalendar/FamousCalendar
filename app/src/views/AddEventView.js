@@ -13,16 +13,13 @@ define(function(require, exports, module) {
     var Modifier = require('famous/core/Modifier');
     var Utility = require('utilities');
     var Easing = require('famous/transitions/Easing');
+    var RenderNode = require('famous/core/RenderNode');
 
     var hUnits = window.innerHeight / 450;
     var wUnits = window.innerWidth / 500;
 
     // Constructor function for our SlideShowView class
     function AddEventView() {
-
-        // Applies View's constructor function to AddEventView class
-        // View.apply(this, arguments);
-
 
         View.apply(this, arguments);
         
@@ -33,18 +30,26 @@ define(function(require, exports, module) {
         // });
 
         // this.sequenceFrom(this.viewSequence);
+
+        this.node = new RenderNode({
+
+        });
         
 
         this.background = new Surface({
             size: [undefined, undefined],
+            position: [100, 100],
             properties: {
                 backgroundColor: '#FAFAFA'
             }
         });
         var backgroundMod = new Modifier({
-            transform: Transform.behind,
+            origin: [0.5, 0.5],
+            align: [0.5, 0.5],
         });
-        var backgroundNode = this.add(backgroundMod).add(this.background);
+
+        // setTransform(Transform.translate(0,0,0), { duration: 300000, curve: Easing.inOutElastic});
+        this.node.add(backgroundMod).add(this.background);
         //Focus Title Field
 
         //Access app header??? But not this:
@@ -62,24 +67,9 @@ define(function(require, exports, module) {
             align: [0.5, 0.5]
         })
 
-        this.startLabel = new Surface({
-            content: 'Starts at:',
-            properties: {
-                fontFamily: 'sans-serif',
-                borderBottom: '1px solid lightgrey'
-            },
-            size: [undefined, true]
-        });
-        var startLabelModifier = new Modifier({
-            origin: [0.5, 0.5],
-            align: [0.5, 0.1],
-            transform: Transform.translate(0, 110*hUnits, 0)
-        });
-        this.add(startLabelModifier).add(this.startLabel);
-
         //TBD: Add Cancel and Done buttons on Header
 
-        this.add(headerMod).add(this.header);
+        this.node.add(headerMod).add(this.header);
 
         this.titleField = new InputSurface({
             placeholder: 'Title',
@@ -96,7 +86,7 @@ define(function(require, exports, module) {
             align: [0.5, 0.1],
             transform: Transform.translate(0, 20 * hUnits, 0)
         });
-        this.add(titleFieldModifier).add(this.titleField);
+        this.node.add(titleFieldModifier).add(this.titleField);
 
         //Focus in title field
         this.titleField.focus();
@@ -114,7 +104,7 @@ define(function(require, exports, module) {
             align: [0.5, 0.1],
             transform: Transform.translate(0, 50 * hUnits, 0)
         });
-        this.add(locationModifier).add(this.locationField);
+        this.node.add(locationModifier).add(this.locationField);
 
         this.dateField = new InputSurface({
             placeholder: 'Date',
@@ -130,7 +120,22 @@ define(function(require, exports, module) {
             align: [0.5, 0.1],
             transform: Transform.translate(0, 80 * hUnits, 0)
         });
-        this.add(dateModifier).add(this.dateField);
+        this.node.add(dateModifier).add(this.dateField);
+
+        this.startLabel = new Surface({
+            content: 'Starts at:',
+            properties: {
+                fontFamily: 'sans-serif',
+                borderBottom: '1px solid lightgrey'
+            },
+            size: [undefined, true]
+        });
+        var startLabelModifier = new Modifier({
+            origin: [0.5, 0.5],
+            align: [0.5, 0.1],
+            transform: Transform.translate(0, 110*hUnits, 0)
+        });
+        this.node.add(startLabelModifier).add(this.startLabel);
 
         this.startField = new InputSurface({
             type: 'time',
@@ -144,7 +149,7 @@ define(function(require, exports, module) {
             align: [0.5, 0.1],
             transform: Transform.translate(0, 125 * hUnits, 0)
         })
-        this.add(startFieldModifier).add(this.startField);
+        this.node.add(startFieldModifier).add(this.startField);
 
 
 
@@ -161,7 +166,7 @@ define(function(require, exports, module) {
             align: [0.5, 0.1],
             transform: Transform.translate(0, 150*hUnits, 0)
         });
-        this.add(endLabelModifier).add(this.endLabel);
+        this.node.add(endLabelModifier).add(this.endLabel);
 
 
         this.endField = new InputSurface({
@@ -177,7 +182,7 @@ define(function(require, exports, module) {
             transform: Transform.translate(0, 175 * hUnits, 0),
             align: [0.5, 0.1]
         })
-        this.add(endFieldModifier).add(this.endField);
+        this.node.add(endFieldModifier).add(this.endField);
 
         this.repeatField = new Surface({
             content: 'Repeat     Never >',
@@ -197,12 +202,7 @@ define(function(require, exports, module) {
                 fontFamily: 'sans-serif'
             }
         });
-        this.add(repeatFieldModifier).add(this.repeatField);
-
-        //On Save
-        //newEvent = _createEvent.call(this);
-
-        //saveEvent(newEvent);
+        this.node.add(repeatFieldModifier).add(this.repeatField);
 
         this.saveButton = new InputSurface({
             type: 'button',
@@ -221,8 +221,18 @@ define(function(require, exports, module) {
         var saveModifier = new Modifier({
             transform: Transform.translate(0, 300 * hUnits, 0),
             align: [0.5, 0.1]
-        })
-        this.add(saveModifier).add(this.saveButton);
+        });
+        this.node.add(saveModifier).add(this.saveButton);
+
+        var mainModifier = new Modifier({
+            transform: Transform.translate(0, 450 * hUnits, 0)
+        });
+
+        this.add(mainModifier).add(this.node);
+
+
+        //ANIMATIONS
+        mainModifier.setTransform(Transform.translate(0,0,0), { duration: 1500, curve: Easing.inOutElastic});
 
     }
 
@@ -232,7 +242,6 @@ define(function(require, exports, module) {
 
     // Default options for AddEventView class
     AddEventView.DEFAULT_OPTIONS = {
-
         transition: {
             duration: 300,
             curve: Easing.inOutElastic
@@ -250,6 +259,8 @@ define(function(require, exports, module) {
             // eventData.repeat = this.repeatField.getValue();
         };
     }
+
+
 
     module.exports = AddEventView;
 });
