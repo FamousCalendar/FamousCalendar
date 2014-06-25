@@ -2,19 +2,22 @@
 
 define(function(require, exports, module){
 
+	var calendar;
+
 	var Utilities = {};
+
 	Utilities.saveEvent = function saveEvent(newEvent) {
 	  var eventDate = newEvent.date;
-	  console.log(eventDate);
 
 	  //Retrieve events for date from local storage
-	  var events = window.localStorage.getItem(eventDate);
+	  var events = window.localStorage.getItem('calendar');
+
 
 	  //Check if any events exist
 	  if(events === null){
 
-	    //Initialize events to array
-	    events = [];
+	    //Initialize events to object
+	    events = {};
 	  }else{
 
 	    //Parse events array from string
@@ -29,18 +32,26 @@ define(function(require, exports, module){
 	  // end: eventEndTime, 
 	  // title: eventTitle, 
 	  // description: eventBody};
-	  
+
+	  events.eventDate = events.eventDate || [];
 	  //add new event to events array
-	  events.push(newEvent);
+	  events.eventDate.push(newEvent);
+	  
 
 	  //Store updated events array in local storage
-	  window.localStorage.setItem(eventDate, JSON.stringify(events));
+	  window.localStorage.setItem('calendar', JSON.stringify(events));
 	};
+
+	Utilities.getCalendar = function(){
+		calendar = JSON.parse(window.localStorage.getItem('calendar'));
+		return calendar;
+	}
 
 	Utilities.getEvents = function getEvents(date){
 
 	  //returns events array for given date
-	  return JSON.parse(window.localStorage.getItem(date));
+	  return calendar.date;
+
 	};
 
 	module.exports = Utilities;
