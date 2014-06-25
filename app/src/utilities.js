@@ -46,11 +46,11 @@ define(function(require, exports, module){
 	  		_calendar.repeat['weekly'][dateObj.getDay()] = _calendar.repeat['weekly'][dateObj.getDay()] || [];
 	  		_calendar.repeat['weekly'][dateObj.getDay()].push(newEvent);
 	  	}else if(recurrence === 'monthly'){
-	  		_calendar.repeat.recurrence[eventDate.slice(-2)] = _calendar.repeat.recurrence[eventDate.slice(-2)] || [];
-	  		_calendar.repeat.recurrence[eventDate.slice(-2)].push(newEvent);
+	  		_calendar.repeat[recurrence][eventDate.slice(-2)] = _calendar.repeat.recurrence[eventDate.slice(-2)] || [];
+	  		_calendar.repeat[recurrence][eventDate.slice(-2)].push(newEvent);
 	  	}else if(recurrence === 'yearly'){
-	  		_calendar.repeat.recurrence[eventDate.slice(5)] = _calendar.repeat.recurrence[eventDate.slice(5)] || [];
-	  		_calendar.repeat.recurrence[eventDate.slice(5)].push(newEvent);
+	  		_calendar.repeat[recurrence][eventDate.slice(5)] = _calendar.repeat.recurrence[eventDate.slice(5)] || [];
+	  		_calendar.repeat[recurrence][eventDate.slice(5)].push(newEvent);
 	  	}
 	  	_calendar.repeat[recurrence][day] = newEvent;
 	  }
@@ -68,9 +68,14 @@ define(function(require, exports, module){
 	}
 
 	Utilities.getEvents = function getEvents(date){
+      var result = [];
+      var dailyEvents = _calendar.repeat.daily || [];
+      var weeklyEvents = _calendar.repeat.weekly[new Date(date).getDay()] || [];
+      var monthlyEvents = _calendar.repeat.monthly[date.slice(-2)] || [];
+      var yearlyEvents = _calendar.repeat.yearly[date.slice(5)] || [];
 
 	  //returns _calendar array for given date
-	  return _calendar.date;
+	  return result.concat(_calendar.date, dailyEvents, weeklyEvents, monthlyEvents, yearlyEvents);
 
 	};
 
