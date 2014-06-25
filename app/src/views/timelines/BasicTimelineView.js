@@ -1,4 +1,4 @@
-/*** TimelineView.js ***
+/*** BasicTimelineView.js ***
  *  Wayland Woodruff
  *  WaylandWoodruff@gmail.com
  */
@@ -9,6 +9,9 @@ define(function(require, exports, module) {
   var Transform       = require('famous/core/Transform');
   var StateModifier   = require('famous/modifiers/StateModifier');
   
+  var AppSettings     = require('config/AppSettings');
+  var tlSettings      = AppSettings.timelineView;
+  
   function TimelineView() {
     View.apply(this, arguments);
     
@@ -16,22 +19,19 @@ define(function(require, exports, module) {
   }
   
   TimelineView.DEFAULT_OPTIONS = {
-    timeUnits: 30,
-    _12HourClock: true,
-    timebarSize: [45, ((1440 / 30) * 30)],  //  Replace second index with getNumberRows * notchSpacing
-    timelineSize: [1, ((1440 / 30) * 30)],  //  Replace second index with getNumberRows * notchSpacing
-    timebarFontSize: 10,
-    notchSize: [5, 1],
-    notchSpacing: 30,                 //  Change to get current row height
-    timelineBackgroundColor: '#EEEEEE',
-    timelineLineColor: '#4444AA'
+    timeUnits: AppSettings.time.getTimeUnits(),
+    _12HourClock: AppSettings.time.is12HourClock(),
+    timebarSize: [tlSettings.getTimebarWidth(), ((1440 / AppSettings.time.getTimeUnits()) * tlSettings.getNotchSpacing())],
+    timebarLineWidth: tlSettings.getTimebarLineWidth(),
+    timebarColor: tlSettings.getTimebarColor(),
+    notchSize: [tlSettings.getNotchLength(), tlSettings.getNotchWidth()],
+    notchSpacing: tlSettings.getNotchSpacing(),
+    notchColor: tlSettings.getNotchColor(),
+    timelineBackgroundColor: tlSettings.getBGColor()
   };
   
   TimelineView.prototype = Object.create(View.prototype);
   TimelineView.prototype.constructor = TimelineView;
-  TimelineView.prototype.getSize = function getSize() {
-    return [this.options.timebarSize[0], this.options.timebarSize[1], 0];
-  };
   
   function _createGraphic() {
     var timebarModifier = new StateModifier({
@@ -58,7 +58,7 @@ define(function(require, exports, module) {
   function _addTimeline(node) {
     var timelineSurface = new Surface({
       properties: {
-        backgroundColor: this.options.timelineLineColor,
+        backgroundColor: this.options.timebarColor,
         zIndex: 1
       }
     });
@@ -66,17 +66,17 @@ define(function(require, exports, module) {
     var timelineModifier = new StateModifier({
       origin: [1, 0],
       align: [0.85, 0],
-      size: this.options.timelineSize
+      size: this.options.timeLineSize
     });
     
     node.add(timelineModifier).add(timelineSurface);
   }
   
   function _addNotches(node) {
-    for (var i = 0; i < (1440 / 30); i++) {
+    for (var i = 0; i < (1440 / this.options.timeUnits); i++) {
       var notchSurface = new Surface({
         properties: {
-          backgroundColor: this.options.timelineLineColor,
+          backgroundColor: this.options.timebarColor,
           zIndex: 1
         }
       });
@@ -114,7 +114,7 @@ define(function(require, exports, module) {
         content: time,
         properties: {
           backgroundColor: 'rgba(0, 0, 0, 0)',
-          color: this.options.timelineLineColor,
+          color: this.options.timebarColor,
           fontSize: '' + this.options.timebarFontSize + 'px',
           zIndex: 1
         }

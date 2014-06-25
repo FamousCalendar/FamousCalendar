@@ -10,10 +10,10 @@ define(function(require, exports, module) {
     View.apply(this, arguments);
   }
   
+  EventsView.DEFAULT_OPTIONS = {};
+  
   EventsView.prototype = Object.create(View.prototype);
   EventsView.prototype.constructor = EventsView;
-  
-  EventsView.DEFAULT_OPTIONS = {};
   
   module.exports = EventsView;
 });
