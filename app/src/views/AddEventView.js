@@ -19,12 +19,17 @@ define(function(require, exports, module) {
     var hUnits = window.innerHeight / 450;
     var wUnits = window.innerWidth / 500;
 
+
+    //Create repeat selector to access value
+    var repeatValue = document.createElement('select');
+    repeatValue.innerHTML = '<option value="false">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option>';
+
     // Constructor function for our SlideShowView class
     function AddEventView() {
 
         View.apply(this, arguments);
         
-
+        Utility.getCalendar();
         this.node = new RenderNode({
 
         });
@@ -45,23 +50,24 @@ define(function(require, exports, module) {
 
         this.node.add(backgroundMod).add(this.back);
 
-        var backIcon = new Surface({
+        var cancelIcon = new Surface({
           size: [true, true],
           content:'Cancel',
           properties: {
             color: 'red',
-            fontFamily: 'sans-serif'
+            fontFamily: 'sans-serif',
+            cursor: 'pointer'
           }
         });
 
-        var backIconModifier = new Modifier({
+        var cancelIconModifier = new Modifier({
           align: [0.045, 0.04],
           origin: [0.5, 0.5]
         });
 
 
 
-        this.node.add(backIconModifier).add(backIcon);
+        this.node.add(cancelIconModifier).add(cancelIcon);
         //Focus Title Field
 
         this.header = new Surface({
@@ -94,7 +100,7 @@ define(function(require, exports, module) {
         });
         var titleFieldModifier = new Modifier({
             origin: [0.5, 0.5],
-            align: [0.5, 0.15],
+            align: [0.5, 0.1],
             transform: Transform.translate(0, 0, 0)
         });
         this.node.add(titleFieldModifier).add(this.titleField);
@@ -112,7 +118,7 @@ define(function(require, exports, module) {
             }
         });
         var locationModifier = new Modifier({
-            align: [0.5, 0.23],
+            align: [0.5, 0.2],
             transform: Transform.translate(0, 0, 0)
         });
         this.node.add(locationModifier).add(this.locationField);
@@ -124,7 +130,12 @@ define(function(require, exports, module) {
             properties: {
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey',
-                color: 'red'
+                color: 'red',
+                cursor: 'pointer',
+                // display: 'block',
+                // letterSpacing: '4px',     
+                // textShadow: "0 0 2px black",       
+                // wordSpacing: '20px'    
             }
         });
         var dateModifier = new Modifier({
@@ -153,11 +164,12 @@ define(function(require, exports, module) {
             size: [undefined, true],
             properties: {
                 fontFamily: 'sans-serif',
-                borderBottom: '1px solid lightgrey'
+                borderBottom: '1px solid lightgrey',
+                color: 'red'
             }
         });
         var startFieldModifier = new Modifier({
-            align: [0.5, 0.4],
+            align: [0.5, 0.43],
             transform: Transform.translate(0, 0, 0)
         })
         this.node.add(startFieldModifier).add(this.startField);
@@ -174,7 +186,7 @@ define(function(require, exports, module) {
         });
         var endLabelModifier = new Modifier({
             origin: [0.5, 0.5],
-            align: [0.5, 0.44],
+            align: [0.5, 0.5],
             transform: Transform.translate(0, 0, 0)
         });
         this.node.add(endLabelModifier).add(this.endLabel);
@@ -186,31 +198,44 @@ define(function(require, exports, module) {
             properties: {
                 backgroundColor: 'white',
                 fontFamily: 'sans-serif',
-                borderBottom: '1px solid lightgrey'
+                borderBottom: '1px solid lightgrey',
+                color: 'red'
             }
         });
         var endFieldModifier = new Modifier({
             transform: Transform.translate(0, 0, 0),
-            align: [0.5, 0.46]
+            align: [0.5, 0.55]
         })
         this.node.add(endFieldModifier).add(this.endField);
 
+        this.repeatLabel = new Surface({
+            content: 'Repeat:',
+            properties: {
+                fontFamily: 'sans-serif',
+                borderBottom: '1px solid lightgrey'
+            },
+            size: [undefined, true]
+        });
+        var repeatLabelModifier = new Modifier({
+            origin: [0.5, 0.5],
+            align: [0.5, 0.63],
+            transform: Transform.translate(0, 0, 0)
+        });
+        this.node.add(repeatLabelModifier).add(this.repeatLabel);
+
         this.repeatField = new Surface({
-            content: 'Repeat     Never >',
+            content: repeatValue,
             size: [undefined, true],
             properties: {
                 backgroundColor: 'white',
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey'
             }
-            //Is there a true/false input type?
-            //Or implement as link to new view  like in iOS cal
         });
         var repeatFieldModifier = new Modifier({
             transform: Transform.translate(0, 0, 0),
-            align: [0.5, 0.55],
+            align: [0.5, 0.7],
             properties: {
-                fontFamily: 'sans-serif'
             }
         });
         this.node.add(repeatFieldModifier).add(this.repeatField);
@@ -221,7 +246,8 @@ define(function(require, exports, module) {
             value: 'Save',
             properties: {
                 backgroundColor: 'white',
-                fontFamily: 'sans-serif'
+                fontFamily: 'sans-serif',
+                cursor: 'pointer'
             }
         });
         this.saveButton.on('click', function(){
@@ -229,7 +255,7 @@ define(function(require, exports, module) {
             _outTransition.call(this);
         }.bind(this));
 
-        backIcon.on('click', function(){
+        cancelIcon.on('click', function(){
             _outTransition.call(this);
         }.bind(this));
 
@@ -277,7 +303,8 @@ define(function(require, exports, module) {
             date : this.dateField.getValue(),
             location : this.locationField.getValue(),
             start : this.startField.getValue(),
-            end : this.endField.getValue()
+            end : this.endField.getValue(),
+            repeat : repeatValue.value
             // eventData.repeat = this.repeatField.getValue();
         };
     }
