@@ -11,17 +11,34 @@ define(function(require, exports, module) {
     var Settings = require('config/AppSettings');
 
     // Constructor function for our EventView class
-    function EventView() {
+    function EventView(event) {
 
         // Applies View's constructor function to EventView class
         View.apply(this, arguments);
 
+
+        //Stub event height
+        var hourHeight = 100;
+
+        //Calculate length of event in minutes
+        var duration = (parseInt(event.end.slice(0, 2), 10) * 60 + parseInt(event.end.slice(3), 10)) 
+            - (parseInt(event.start.slice(0, 2), 10) * 60 + parseInt(event.start.slice(3), 10));
+
         this.add(new Surface({
-            size: [true, true],
+            size: [undefined, duration/60 * hourHeight],
+            content: '<h>' + event.title + '</h>',
             properties: {
-                backgroundColor: '#7201ce'
+                backgroundColor: '#7201ce',
+                fontFamily: 'sans-serif',
+                borderBottom: '1px solid lightgrey'
             }
-        }))
+        }));
+
+        // title : this.titleField.getValue(),
+        // date : this.dateField.getValue(),
+        // location : this.locationField.getValue(),
+        // start : this.startField.getValue(),
+        // end : this.endField.getValue()
     }
 
     // Establishes prototype chain for EventView class to inherit from View
