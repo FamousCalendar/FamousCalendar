@@ -14,9 +14,11 @@ define(function(require, exports, module) {
     var Utility = require('utilities');
     var Easing = require('famous/transitions/Easing');
     var RenderNode = require('famous/core/RenderNode');
+    var Transitionable = require('famous/transitions/Transitionable');
 
     var hUnits = window.innerHeight / 450;
     var wUnits = window.innerWidth / 500;
+    var flipTransitionable = new Transitionable(-Math.PI / 2);
 
     // Constructor function for our SlideShowView class
     function AddEventView() {
@@ -36,7 +38,7 @@ define(function(require, exports, module) {
         });
         
 
-        this.background = new Surface({
+        this.back = new Surface({
             size: [undefined, undefined],
             position: [100, 100],
             properties: {
@@ -49,7 +51,7 @@ define(function(require, exports, module) {
         });
 
         // setTransform(Transform.translate(0,0,0), { duration: 300000, curve: Easing.inOutElastic});
-        this.node.add(backgroundMod).add(this.background);
+        this.node.add(backgroundMod).add(this.back);
         //Focus Title Field
 
         //Access app header??? But not this:
@@ -83,8 +85,8 @@ define(function(require, exports, module) {
         });
         var titleFieldModifier = new Modifier({
             origin: [0.5, 0.5],
-            align: [0.5, 0.1],
-            transform: Transform.translate(0, 20 * hUnits, 0)
+            align: [0.5, 0.15],
+            transform: Transform.translate(0, 0, 0)
         });
         this.node.add(titleFieldModifier).add(this.titleField);
 
@@ -101,8 +103,8 @@ define(function(require, exports, module) {
             }
         });
         var locationModifier = new Modifier({
-            align: [0.5, 0.1],
-            transform: Transform.translate(0, 50 * hUnits, 0)
+            align: [0.5, 0.23],
+            transform: Transform.translate(0, 0, 0)
         });
         this.node.add(locationModifier).add(this.locationField);
 
@@ -117,8 +119,8 @@ define(function(require, exports, module) {
             }
         });
         var dateModifier = new Modifier({
-            align: [0.5, 0.1],
-            transform: Transform.translate(0, 80 * hUnits, 0)
+            align: [0.5, 0.3],
+            transform: Transform.translate(0, 0, 0)
         });
         this.node.add(dateModifier).add(this.dateField);
 
@@ -132,8 +134,8 @@ define(function(require, exports, module) {
         });
         var startLabelModifier = new Modifier({
             origin: [0.5, 0.5],
-            align: [0.5, 0.1],
-            transform: Transform.translate(0, 110*hUnits, 0)
+            align: [0.5, 0.38],
+            transform: Transform.translate(0, 0, 0)
         });
         this.node.add(startLabelModifier).add(this.startLabel);
 
@@ -146,8 +148,8 @@ define(function(require, exports, module) {
             }
         });
         var startFieldModifier = new Modifier({
-            align: [0.5, 0.1],
-            transform: Transform.translate(0, 125 * hUnits, 0)
+            align: [0.5, 0.4],
+            transform: Transform.translate(0, 0, 0)
         })
         this.node.add(startFieldModifier).add(this.startField);
 
@@ -163,8 +165,8 @@ define(function(require, exports, module) {
         });
         var endLabelModifier = new Modifier({
             origin: [0.5, 0.5],
-            align: [0.5, 0.1],
-            transform: Transform.translate(0, 150*hUnits, 0)
+            align: [0.5, 0.44],
+            transform: Transform.translate(0, 0, 0)
         });
         this.node.add(endLabelModifier).add(this.endLabel);
 
@@ -179,8 +181,8 @@ define(function(require, exports, module) {
             }
         });
         var endFieldModifier = new Modifier({
-            transform: Transform.translate(0, 175 * hUnits, 0),
-            align: [0.5, 0.1]
+            transform: Transform.translate(0, 0, 0),
+            align: [0.5, 0.46]
         })
         this.node.add(endFieldModifier).add(this.endField);
 
@@ -196,8 +198,8 @@ define(function(require, exports, module) {
             //Or implement as link to new view  like in iOS cal
         });
         var repeatFieldModifier = new Modifier({
-            transform: Transform.translate(0, 200 * hUnits, 0),
-            align: [0.5, 0.1],
+            transform: Transform.translate(0, 0, 0),
+            align: [0.5, 0.55],
             properties: {
                 fontFamily: 'sans-serif'
             }
@@ -215,7 +217,9 @@ define(function(require, exports, module) {
         });
         this.saveButton.on('click', function(){
             Utility.saveEvent(_createEvent.call(this));
-            mainModifier.setTransform(Transform.translate(0, 450* hUnits, 0), {duration: 990, curve: Easing.inOutExpo});
+            // flipTransitionable.set(Math.PI/2, { duration: 500, curve: 'easeOut' });
+            // dateModifier.setTransform(Transform.rotateX(flipTransitionable.get()));
+            mainModifier.setTransform(Transform.translate(0, 450 * hUnits, 0), {duration: 990, curve: Easing.inOutExpo});
         }.bind(this));
 
 
@@ -227,12 +231,17 @@ define(function(require, exports, module) {
 
         var mainModifier = new Modifier({
             transform: Transform.translate(0, 450 * hUnits, 0)
+
         });
+
+        // dateModifier.transformFrom(function() {return Transform.rotateX(flipTransitionable.get())});
+
 
         this.add(mainModifier).add(this.node);
 
 
         //ANIMATIONS
+        // flipTransitionable.set(0, { duration: 500, curve: 'easeOut' });
         mainModifier.setTransform(Transform.translate(0,0,0), { duration: 990, curve: Easing.inOutExpo});
 
     }
