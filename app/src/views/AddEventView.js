@@ -18,25 +18,18 @@ define(function(require, exports, module) {
 
     var hUnits = window.innerHeight / 450;
     var wUnits = window.innerWidth / 500;
-    var flipTransitionable = new Transitionable(-Math.PI / 2);
 
     // Constructor function for our SlideShowView class
     function AddEventView() {
 
         View.apply(this, arguments);
         
-        // this.inputFields = [];
-
-        // this.viewSequence = new ViewSequence({
-        //   array: this.inputFields
-        // });
-
-        // this.sequenceFrom(this.viewSequence);
 
         this.node = new RenderNode({
 
         });
         
+
 
         this.back = new Surface({
             size: [undefined, undefined],
@@ -50,11 +43,27 @@ define(function(require, exports, module) {
             align: [0.5, 0.5],
         });
 
-        // setTransform(Transform.translate(0,0,0), { duration: 300000, curve: Easing.inOutElastic});
         this.node.add(backgroundMod).add(this.back);
+
+        var backIcon = new Surface({
+          size: [true, true],
+          content:'Cancel',
+          properties: {
+            color: 'red',
+            fontFamily: 'sans-serif'
+          }
+        });
+
+        var backIconModifier = new Modifier({
+          align: [0.045, 0.04],
+          origin: [0.5, 0.5]
+        });
+
+
+
+        this.node.add(backIconModifier).add(backIcon);
         //Focus Title Field
 
-        //Access app header??? But not this:
         this.header = new Surface({
             content:'Add Event',
             size: [true, undefined],
@@ -217,9 +226,11 @@ define(function(require, exports, module) {
         });
         this.saveButton.on('click', function(){
             Utility.saveEvent(_createEvent.call(this));
-            // flipTransitionable.set(Math.PI/2, { duration: 500, curve: 'easeOut' });
-            // dateModifier.setTransform(Transform.rotateX(flipTransitionable.get()));
-            mainModifier.setTransform(Transform.translate(0, 450 * hUnits, 0), {duration: 990, curve: Easing.inOutExpo});
+            _outTransition.call(this);
+        }.bind(this));
+
+        backIcon.on('click', function(){
+            _outTransition.call(this);
         }.bind(this));
 
 
@@ -229,20 +240,17 @@ define(function(require, exports, module) {
         });
         this.node.add(saveModifier).add(this.saveButton);
 
-        var mainModifier = new Modifier({
+        this.mainModifier = new Modifier({
             transform: Transform.translate(0, 450 * hUnits, 0)
 
         });
 
-        // dateModifier.transformFrom(function() {return Transform.rotateX(flipTransitionable.get())});
 
-
-        this.add(mainModifier).add(this.node);
+        this.add(this.mainModifier).add(this.node);
 
 
         //ANIMATIONS
-        // flipTransitionable.set(0, { duration: 500, curve: 'easeOut' });
-        mainModifier.setTransform(Transform.translate(0,0,0), { duration: 990, curve: Easing.inOutExpo});
+        this.mainModifier.setTransform(Transform.translate(0,0,0), { duration: 990, curve: Easing.inOutExpo});
 
     }
 
@@ -259,6 +267,10 @@ define(function(require, exports, module) {
     };
 
     // Define your helper functions and prototype methods here
+    function _outTransition(){
+        this.mainModifier.setTransform(Transform.translate(0, 450 * hUnits, 0), {duration: 990, curve: Easing.inOutExpo});
+    }
+
     function _createEvent(){
         return {
             title : this.titleField.getValue(),
