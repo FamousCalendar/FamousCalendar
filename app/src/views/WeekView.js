@@ -22,54 +22,54 @@ define(function(require, exports, module) {
   WeekView.prototype.constructor = WeekView;
 
   WeekView.DEFAULT_OPTIONS = {
-    startDay: 1,
-    weekNumber: 1,
+    startDay: 0, // day of week, for first week of month
+    startDate: 1, // day of month week starts on
+    week: 1,
     daysInMonth: 30,
     year: 2014,
-    month: 'January'
+    month: 0
   };
 
     function _createDaysOfWeek() {
     var fontColor;
-    var dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var day;
+    var dayModifier;
+    var modifier;
     var grid = new GridLayout({
       dimensions: [7, 1]
     });
 
     grid.sequenceFrom(this.days);
-    var day;
+
     for (var i = 0; i < 7; i++) {
-      if (this.options.startDate + i > this.options.daysInMonth) {
-        var day = new DayBoxView({
-          number: '',
-          fontColor: fontColor,
+      if (i < this.options.startDay || this.options.startDate + i > this.options.daysInMonth) {
+        day = new DayBoxView({
+          day: 0
         });
-
-        this.days.push(day);
-          var modifier = new Modifier({
-          size: [undefined, undefined],
-          transform: Transform.translate(0, 0, 0.1)
-        });
-
-        continue;
+      } else {
+        day = new DayBoxView({
+          day: this.options.startDate - this.options.startDay + i,
+          month: this.options.month,
+          year: this.options.year,
+          week: this.options.week,
+          weekDay: i
+        }); 
       }
 
-      fontColor = (i === 0 || i === 6) ? 'grey' : 'black';
-      
-      day = new DayBoxView({
-        number: this.options.startDate + i,
-        fontColor: fontColor,
-        id: dayNames[i] + '-' + this.options.month + '-' + (this.options.startDate + i) + '-' + this.options.year + '-' + this.options.weekNumber
+      dayModifier = new Modifier({
+        size: [undefined, undefined],
+        transform: Transform.translate(0, 0, 0.1)
       });
 
       this.days.push(day);
+
       day.on('click', function(data) {
         this._eventOutput.emit('click', data);
       }.bind(this));
     }
 
 
-    var modifier = new Modifier({
+    modifier = new Modifier({
       size: [undefined, undefined],
       transform: Transform.translate(0, 0, 0.1)
     });
@@ -77,5 +77,4 @@ define(function(require, exports, module) {
     this.add(modifier).add(grid);
   }
 
-  module.exports = WeekView;
-});
+  module.exports = WeekView;});

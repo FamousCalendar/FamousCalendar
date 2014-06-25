@@ -1,0 +1,126 @@
+/*** AddEventView ***/
+
+// define this module in Require.JS
+define(function(require, exports, module) {
+
+    // Import additional modules to be used in this view 
+    var View = require('famous/core/View');
+    var Surface = require('famous/core/Surface');
+    var Transform = require('famous/core/Transform');
+    var StateModifier = require('famous/modifiers/StateModifier');
+    var InputSurface = require('famous/surfaces/InputSurface');
+
+    // Constructor function for our SlideShowView class
+    function AddEventView() {
+
+        // Applies View's constructor function to AddEventView class
+        // View.apply(this, arguments);
+
+        ScrollView.apply(this, arguments);
+        
+        this.inputFields = [];
+
+        this.viewSequence = new ViewSequence({
+          array: this.inputFields
+        });
+
+        this.sequenceFrom(this.viewSequence);
+        
+
+        //Access app header??? But not this:
+        this.header = new Surface({
+            content:'Add Event'
+        });
+
+        //TBD: Add Cancel and Done buttons on Header
+
+        this.add(this.header);
+
+        this.titleField = new InputSurface({
+            placeholder: 'Title',
+            type: 'text'
+        });
+        this.inputFields.push(this.titleField);
+
+        this.locationField = new InputSurface({
+            placeholder: 'Location',
+            type: 'text'
+        });
+        this.inputFields.push(this.locationField);
+
+        this.startField = new InputSurface({
+            placeholder: 'Starts',
+            type: 'dateTime'
+        });
+        this.inputFields.push(this.startField);
+
+        this.endField = new InputSurface({
+            placeholder: 'Ends'.
+            type: 'time'
+        });
+        this.inputFields.push(this.endField);
+
+        this.repeatField = new Surface({
+            content: 'Repeat     Never >'
+            //Is there a true/false input type?
+            //Or implement as link to new view  like in iOS cal
+        });
+        this.inputFields.push(this.repeatField);
+
+        //On Save
+        //newEvent = createEvent.call(this);
+
+        //saveEvent(newEvent);
+
+    }
+
+    // Establishes prototype chain for AddEventView class to inherit from View
+    AddEventView.prototype = Object.create(View.prototype);
+    AddEventView.prototype.constructor = AddEventView;
+
+    // Default options for AddEventView class
+    AddEventView.DEFAULT_OPTIONS = {};
+
+    // Define your helper functions and prototype methods here
+    function createEvent(){
+        var eventData = {};
+        eventData.title = this.titleField.getValue();
+        eventData.location = this.titleField.getValue();
+        eventData.start = this.startField.getValue();
+        eventData.end = this.endField.getValue();
+        eventData.repeat = this.repeatField.getValue();
+
+        return eventData;
+    }
+
+    function saveEvent(newEvent) {
+
+      //Retrieve events for date from local storage
+      var events = window.localStorage.getItem(eventDate);
+
+      //Check if any events exist
+      if(events === null){
+        //Initialize events to array
+        events = [];
+      }else{
+        //Parse events array from string
+        events = JSON.parse(events);
+      }
+
+      //create new event object from input - TBD in Calling Function
+
+      //Object schema:
+      //{date: eventToBeSaved.date, 
+        // start: eventToBeSaved.start, 
+        // end: eventEndTime, 
+        // title: eventTitle, 
+        // description: eventBody};
+      
+      //add new event to events array
+      events.push(newEvent);
+      //Store updated events array in local storage
+      window.localStorage.setItem(eventDate, JSON.stringify(events));
+    }
+
+    module.exports = AddEventView;
+});
