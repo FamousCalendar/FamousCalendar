@@ -35,6 +35,7 @@ define(function(require, exports, module) {
     scrollView: null
   };
 
+  // layout is 7 rows, row1=title surface, row2-7=WeekViews (7x2=14 surfaces per WeekView)
   function _createLayout() {
     var grid = new GridLayout({
       dimensions: [1, 7]
@@ -104,6 +105,9 @@ define(function(require, exports, module) {
       var weekNumber = data.data.getDate().week;
       var clickYPosition = data.click.y;
       var position = this.options.scrollView.getPosition();
+
+      // hacky mess to try any get the animation to work no matter the position of the scrollView
+      // this is not fully working!
       if (weekNumber > 3 && clickYPosition < 140 && position > 300) {
         offset = position;
       } else if (weekNumber <= 3 && clickYPosition > (window.innerHeight - 140) && position < 300) {
@@ -112,20 +116,24 @@ define(function(require, exports, module) {
         offset = position > 300 ? -(window.innerHeight - 60) + position : position;
       }
 
+      // if day of the month is 0 then surface is a spacer and should do nothing
       if (data.data.getDate().day === 0) return;
-      console.log(data.data.getDate());
-      console.log(window.innerHeight);
+
+
       if (this.selectedDay) {
+        // do nothing if selected day is the same as the previously selected day
         if (this.selectedDay === data.data) return;
+
+        // transition between selected days
         data.difference = this.selectedDay.getDate().weekDay - data.data.getDate().weekDay;
         _unselectDay.call(this);
         this.selectedDay = data.data;
         this.selectedRow = data.data.getDate().week;
         this._eventOutput.emit('changeDate', data.data);
       } else {
+        // set the selected day and fire the transition into the dayView
         this.selectedDay = data.data;
         this.selectedRow = data.data.getDate().week;
-        console.log('yello');
         this._eventOutput.emit('dayView', data.data);
         _animateWeeks.call(this, (-(this.selectedRow) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60) + offset, this.selectedRow);
       }
@@ -141,6 +149,7 @@ define(function(require, exports, module) {
     }.bind(this));
   }
 
+  // unselect current selected day when selecting new day so only 1 appears selected
   function _unselectDay() {
     // saturday and sunday should be grey
     var color = this.selectedDay.isWeekend() ? 'grey' : 'black';
@@ -154,12 +163,14 @@ define(function(require, exports, module) {
     this.selectedDay = undefined;
   }
 
+  // when the user selects a day when in the monthView state
   function _animateWeeks(amount, row) {
     var bottomMovement = amount ? 600 : 0;
     var bottomDuration = amount ? 1000 : 500;
     var backgroundOpacity = amount ? 0.01 : 0.99;
     var zIndex = amount ? 4 : 0;
 
+    // to tell the MonthScrollView to transition adjacent months in scroller too (this hacky setup doesn't perform well visually)
     this._eventOutput.emit('moveAdjacentMonths', [amount, { movement: bottomMovement, duration: bottomDuration }]);
 
     for (var i = 0; i < this.mods.length; i++) {
@@ -175,11 +186,13 @@ define(function(require, exports, module) {
           curve: Easing.outQuart
         });
       } else if (i < row) {
+        // rows above selected row get pushed up
         this.mods[i].setTransform(Transform.translate(0, amount, 0), {
           duration: 500,
           curve: Easing.outQuart
         });
       } else {
+        // rows below selected row get pushed down
         this.mods[i].setTransform(Transform.translate(0, bottomMovement, 0), {
           duration: bottomDuration,
           curve: Easing.outCubic

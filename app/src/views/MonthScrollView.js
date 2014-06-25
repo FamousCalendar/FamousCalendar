@@ -8,6 +8,7 @@ define(function(require, exports, module) {
   
   var MonthView = require('views/MonthView');
   
+  // currently this is 85*4=340 surfaces
   function MonthScrollView() {
     ScrollView.apply(this, arguments);
     this.setOptions(MonthScrollView.DEFAULT_OPTIONS);
@@ -31,7 +32,8 @@ define(function(require, exports, module) {
   
   MonthScrollView.prototype = Object.create(ScrollView.prototype);
   MonthScrollView.prototype.constructor = MonthScrollView;
-
+  
+  // responcible for animating adjacent months that might be in view off the screen when day is selected
   MonthScrollView.prototype.moveAdjacentMonths = function(amount) {
     var before = (this.selectedIndex + this.monthViews.length - 1) % this.monthViews.length;
     var after = (this.selectedIndex + 1) % this.monthViews.length;
@@ -75,8 +77,6 @@ define(function(require, exports, module) {
           break;
         }
       }
-      // need to figure out a way to pass the amount that the selected month view is moving
-      // this.moveAdjacentMonths(300);
       this._eventOutput.emit('dayView', data);
     }.bind(this));
 
@@ -89,8 +89,6 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this._eventInput.on('back', function(data) {
-      // pass the select month along with the data
-      // this.moveAdjacentMonths(0);
       this._eventOutput.emit('back', { data: data, month: this.selectedMonth });
     }.bind(this));
 

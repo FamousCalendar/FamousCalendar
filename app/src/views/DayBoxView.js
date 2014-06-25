@@ -74,7 +74,9 @@ define(function(require, exports, module) {
 
     this.backgroundModifier = new Modifier();
 
+    // source for click event on content portion of app layout
     this.backgroundSurface.on('click', function(data) {
+      // highlight selected day
       this.numberSurface.setProperties({
         color: 'white',
         fontWeight: 'bold',
@@ -83,6 +85,7 @@ define(function(require, exports, module) {
         borderRadius: '50px'
       });
 
+      // passes along the DayBoxView (has all date information) along with the click data
       this._eventOutput.emit('click', { data: this, click: data });
     }.bind(this));
 

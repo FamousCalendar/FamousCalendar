@@ -34,6 +34,7 @@ define(function(require, exports, module) {
     headerSize: 60
   };
 
+  // root layout
   function _createLayout() {
     this.layout = new HeaderFooterLayout({
       headerSize: this.options.headerSize,
@@ -181,22 +182,32 @@ define(function(require, exports, module) {
   }
 
   function _setListeners() {
+    // when user clicks the button in header (the text not the back icon currently)
     this.titleSurface.on('click', function(data) {
+      // short-circuited when in monthView because there currently is no yearView yet
       if (this.state === 'monthView') return;
 
       _setTitleSurface.call(this, '2014');
+
+      // emit back event to MonthScrollView -> MonthView
       this._eventOutput.emit('back', data);
     }.bind(this));
 
+    // user clicked on a date -- bubbled up from DayBoxView -> WeekView -> MonthView -> AppView
     this._eventInput.on('dayView', function(data) {
-      console.log(this.monthScrollView.getPosition());
       this.state = 'dayView';
       this.currentRow = data.getDate().week;
+
+      // transition in day scroller
       this.dayScrollModifier.halt();
       this.dayScrollModifier.setTransform(Transform.translate(0, ((window.innerHeight - 60)/6) * this.currentRow, 0));
       this.dayScrollModifier.setOpacity(0.99);
       this.dayScrollModifier.setTransform(Transform.translate(0, 130, 0), {duration: 500, curve: Easing.outQuart });
+
+      // update content of back/title surface with month name
       _setTitleSurface.call(this, DateConstants.monthNames[data.getDate().month]);
+
+      // transition header size based on current state
       _toggleHeaderSize.call(this, data);
     }.bind(this));
 
@@ -212,11 +223,13 @@ define(function(require, exports, module) {
       _toggleHeaderSize.call(this, data);
     }.bind(this));
 
-    this._eventInput.on('changeDate', function(data) {
+    // user clicks another day while one is already selected in header
+    this._eventInput.on('changeDate', function(data) { 
       _transitionDateString.call(this, data);
     }.bind(this));
   }
 
+  // transition for updating content in back/title surface, called whenever there is a change in state
   function _setTitleSurface(title) {
     this.titleModifier.halt();
     this.titleModifier.setOpacity(0.001, { duration: 200, curve: 'easeIn' }, function() {
@@ -225,6 +238,7 @@ define(function(require, exports, module) {
     }.bind(this));
   }
 
+  // header bar transition
   function _toggleHeaderSize(data) {
     var height = (this.state === 'dayView') ? 130 : 60;
     this.headerTransition.halt();
@@ -245,6 +259,7 @@ define(function(require, exports, module) {
     }
   }
 
+  // transitions displayed date string in header when going between selected dates 
   function _transitionDateString(data) {
     var date = data.getDate();
     this.dateStringModifier.halt();

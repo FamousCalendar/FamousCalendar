@@ -66,6 +66,7 @@ define(function(require, exports, module) {
 
       this.days.push(day);
 
+      // passes click events up from DayBoxView to MonthView
       day.on('click', function(data) {
         this._eventOutput.emit('click', data);
       }.bind(this));
@@ -80,4 +81,6 @@ define(function(require, exports, module) {
     this.add(modifier).add(grid);
   }
 
-  module.exports = WeekView;});
+  module.exports = WeekView;
+});
+
