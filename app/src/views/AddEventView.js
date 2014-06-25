@@ -215,6 +215,7 @@ define(function(require, exports, module) {
         });
         this.saveButton.on('click', function(){
             Utility.saveEvent(_createEvent.call(this));
+            mainModifier.setTransform(Transform.translate(0, 450* hUnits, 0), {duration: 990, curve: Easing.inOutExpo});
         }.bind(this));
 
 
@@ -232,7 +233,7 @@ define(function(require, exports, module) {
 
 
         //ANIMATIONS
-        mainModifier.setTransform(Transform.translate(0,0,0), { duration: 1500, curve: Easing.inOutElastic});
+        mainModifier.setTransform(Transform.translate(0,0,0), { duration: 990, curve: Easing.inOutExpo});
 
     }
 
