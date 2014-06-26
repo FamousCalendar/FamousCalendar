@@ -61,8 +61,8 @@ define(function(require, exports, module) {
         });
 
         var cancelIconModifier = new Modifier({
-          align: [0.045, 0.04],
-          origin: [0.5, 0.5]
+          align: [0.04, 0.03],
+          origin: [0, 0]
         });
 
 
@@ -252,6 +252,7 @@ define(function(require, exports, module) {
         });
         this.saveButton.on('click', function(){
             Utility.saveEvent(_createEvent.call(this));
+            console.log(Utility.getEvents('2014-06-25'));
             _outTransition.call(this);
         }.bind(this));
 
@@ -261,8 +262,8 @@ define(function(require, exports, module) {
 
 
         var saveModifier = new Modifier({
-            transform: Transform.translate(0, 300 * hUnits, 0),
-            align: [0.5, 0.1]
+            transform: Transform.translate(0, 0, 0),
+            align: [0.5, 0.8]
         });
         this.node.add(saveModifier).add(this.saveButton);
 
