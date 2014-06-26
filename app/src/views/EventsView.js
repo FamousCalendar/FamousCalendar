@@ -20,7 +20,7 @@ define(function(require, exports, module) {
     //Instantiate Event views from local storage
     for (var i = 0; i < eventsArray.length; i++){
       newEvent = new Event();
-      newEvent.setContent(<p>eventsArray[i].title</p>);
+      newEvent.setContent('<p>eventsArray[i].title</p>');
       this.add(newEvent);
 
     }

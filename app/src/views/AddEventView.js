@@ -15,6 +15,7 @@ define(function(require, exports, module) {
     var Easing = require('famous/transitions/Easing');
     var RenderNode = require('famous/core/RenderNode');
     var Transitionable = require('famous/transitions/Transitionable');
+    var EventView = require('views/EventView');
 
     var hUnits = window.innerHeight / 450;
     var wUnits = window.innerWidth / 500;
@@ -252,8 +253,12 @@ define(function(require, exports, module) {
         });
         this.saveButton.on('click', function(){
             Utility.saveEvent(_createEvent.call(this));
-            console.log(Utility.getEvents('2014-06-25'));
-            _outTransition.call(this);
+
+            //*****For Testing Only
+            this.node.add(new EventView(_createEvent.call(this)));
+
+            //Uncomment this ********
+            // _outTransition.call(this);
         }.bind(this));
 
         cancelIcon.on('click', function(){
