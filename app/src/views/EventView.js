@@ -18,27 +18,55 @@ define(function(require, exports, module) {
 
 
         //Stub event height
-        var hourHeight = 100;
+        var hourHeight = 60;
 
         //Calculate length of event in minutes
         var duration = (parseInt(event.end.slice(0, 2), 10) * 60 + parseInt(event.end.slice(3), 10)) 
             - (parseInt(event.start.slice(0, 2), 10) * 60 + parseInt(event.start.slice(3), 10));
 
-        this.add(new Surface({
-            size: [undefined, duration/60 * hourHeight],
+
+        var eventSize = new Transitionable(0);
+        var eventOpacity = new Transitionable();
+
+
+        this.eventSurface = new Surface({
+            size: [window.innerWidth/2, duration/60 * hourHeight],
             content: '<h>' + event.title + '</h>',
             properties: {
                 backgroundColor: '#7201ce',
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey'
             }
-        }));
+        });
 
-        // title : this.titleField.getValue(),
-        // date : this.dateField.getValue(),
-        // location : this.locationField.getValue(),
-        // start : this.startField.getValue(),
-        // end : this.endField.getValue()
+        eventModifier = new Modifier({
+            origin: [0.5, 0.5],
+            align: [0.5, 0.5],
+            transform: function(){
+                var x = window.innerWidth/2 + window.innerWidth/2 * eventSize.get();
+                var y = duration/60 * hourHeight + (window.innerHeight-duration/60 * hourHeight) * eventSize.get();
+                return Transform.translate(10, 10, 100);
+            }
+        });
+
+        // this.eventSurface.setSize(function(){return eventSize.get()});
+
+        // eventModifier.sizeFrom(Transform.scale(eventSize.get()).bind(this));
+
+        this.add(eventModifier).add(this.eventSurface);
+
+
+        this.eventSurface.on('click', function(){
+            //expand
+            eventSize.set(1, {duration: 10000, curve: Easing.inOutBack});
+            this.eventSurface.setContent('<div class="eventDetails"><h>' + 
+                event.title + '</h><p>' + event.date + 
+                '</p><p>' + event.location + '</p></div>');
+            // eventModifier.setTransform({
+            //     Transform.translate()
+            // })
+        }.bind(this));
+
     }
 
     // Establishes prototype chain for EventView class to inherit from View
