@@ -9,14 +9,9 @@ define(function(require, exports, module) {
     var Transform = require('famous/core/Transform');
     var StateModifier = require('famous/modifiers/StateModifier');
     var Settings = require('config/AppSettings');
-    var Transitionable = require('famous/transitions/Transitionable');
-    var Modifier = require('famous/core/Modifier');
-    var Easing = require('famous/transitions/Easing');
 
     // Constructor function for our EventView class
     function EventView(event) {
-
-        var eventModifier;
 
         // Applies View's constructor function to EventView class
         View.apply(this, arguments);
@@ -59,11 +54,7 @@ define(function(require, exports, module) {
         // eventModifier.sizeFrom(Transform.scale(eventSize.get()).bind(this));
 
         this.add(eventModifier).add(this.eventSurface);
-        // title : this.titleField.getValue(),
-        // date : this.dateField.getValue(),
-        // location : this.locationField.getValue(),
-        // start : this.startField.getValue(),
-        // end : this.endField.getValue()
+
 
         this.eventSurface.on('click', function(){
             //expand
@@ -75,6 +66,7 @@ define(function(require, exports, module) {
             //     Transform.translate()
             // })
         }.bind(this));
+
     }
 
     // Establishes prototype chain for EventView class to inherit from View

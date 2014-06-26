@@ -39,9 +39,10 @@ define(function(require, exports, module) {
 
   EventsView.DEFAULT_OPTIONS = {};
   
+  EventsView.DEFAULT_OPTIONS = {};
+  
   EventsView.prototype = Object.create(View.prototype);
   EventsView.prototype.constructor = EventsView;
-  
   
   module.exports = EventsView;
 });

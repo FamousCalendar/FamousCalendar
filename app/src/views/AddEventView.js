@@ -253,12 +253,7 @@ define(function(require, exports, module) {
         });
         this.saveButton.on('click', function(){
             Utility.saveEvent(_createEvent.call(this));
-
-            //*****For Testing Only
-            this.node.add(new EventView(_createEvent.call(this)));
-
-            //Uncomment this ********
-            // _outTransition.call(this);
+            _outTransition.call(this);
         }.bind(this));
 
         cancelIcon.on('click', function(){

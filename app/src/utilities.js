@@ -2,7 +2,6 @@
 
 define(function(require, exports, module){
 
-
 	 //Retrieve _calendar for date from local storage
 	var _calendar = JSON.parse(window.localStorage.getItem('calendar')) || {};
 	_calendar.repeat = _calendar.repeat || {};
@@ -14,17 +13,14 @@ define(function(require, exports, module){
 	var Utilities = {};
 
 
-
 	Utilities.saveEvent = function saveEvent(newEvent) {
 
 	  var eventDate = newEvent.date;
 	  var dateObj = new Date(newEvent.date);
 	  var recurrence = newEvent.repeat;
 
-
 	  // //Check if any _calendar exist
 	  // if(_calendar === null){
-
 	  //   //Initialize _calendar to object
 	  //   _calendar = {};
 	  // }else{
@@ -41,7 +37,6 @@ define(function(require, exports, module){
 	  // repeat: eventRepetition,
 	  // title: eventTitle, 
 	  // description: eventBody};
-
 	  if(recurrence !== 'false'){
 	  	if(recurrence === 'daily'){
 	  		
