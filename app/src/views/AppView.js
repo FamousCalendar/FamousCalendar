@@ -1,20 +1,22 @@
-define(function(require, exports, module) {
-  // import dependencies
-  var View = require('famous/core/View');
-  var Surface = require('famous/core/Surface');
-  var Modifier = require('famous/core/Modifier');
-  var Transform = require('famous/core/Transform');
-  var RenderNode = require('famous/core/RenderNode');
-  var HeaderFooterLayout = require('famous/views/HeaderFooterLayout');
-  var GridLayout = require("famous/views/GridLayout");
-  var Transitionable = require('famous/transitions/Transitionable');
-  var ImageSurface = require('famous/surfaces/ImageSurface');
-  var MonthView = require('views/MonthView');
-  var Easing = require('famous/transitions/Easing');
-  var DayView = require('views/DayView');
-  var DayScrollView = require('views/DayScrollView');
-  var DateConstants = require('config/DateConstants');
+/*** AppView.js ***/
 
+define(function(require, exports, module) {
+  var Modifier    = require('famous/core/Modifier');
+  var RenderNode  = require('famous/core/RenderNode');
+  var Surface     = require('famous/core/Surface');
+  var Transform   = require('famous/core/Transform');
+  var View        = require('famous/core/View');
+  
+  var ImageSurface        = require('famous/surfaces/ImageSurface');
+  var Easing              = require('famous/transitions/Easing');
+  var Transitionable      = require('famous/transitions/Transitionable');
+  var GridLayout          = require("famous/views/GridLayout");
+  var HeaderFooterLayout  = require('famous/views/HeaderFooterLayout');
+  
+  var DateConstants = require('config/DateConstants');
+  var MonthView     = require('views/MonthView');
+  var DayScrollView = require('views/DayScrollView');
+  
   function AppView() {
     View.apply(this, arguments);
     this.headerTransition = new Transitionable([undefined, 60]);
@@ -25,27 +27,27 @@ define(function(require, exports, module) {
     _createContent.call(this);
     _setListeners.call(this);
   }
-
+  
   AppView.prototype = Object.create(View.prototype);
   AppView.prototype.constructor = AppView;
-
+  
   AppView.DEFAULT_OPTIONS = {
     headerSize: 60
   };
-
+  
   function _createLayout() {
     this.layout = new HeaderFooterLayout({
       headerSize: this.options.headerSize,
       footerSize: 0
     });
-
+    
     var layoutModifier = new Modifier({
       transform: Transform.translate(0, 0, 0.1)
     });
-
+    
     this.add(layoutModifier).add(this.layout);
   }
-
+  
   function _createHeader() {
     // background surface
     var backgroundSurface = new Surface({
@@ -54,11 +56,11 @@ define(function(require, exports, module) {
         borderBottom: '1px solid lightgrey'
       }
     });
-
+    
     this.backgroundModifier = new Modifier({
       transform: Transform.translate(0, 0, 3)
     });
-
+    
     
     // static days of the week bar
     var fontColor;
