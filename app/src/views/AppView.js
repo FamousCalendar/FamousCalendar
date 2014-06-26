@@ -188,6 +188,8 @@ define(function(require, exports, module) {
   function _setListeners() {
     this._eventInput.on('dayView', function(data) {
       this.state = 'dayView';
+      console.dir(data);
+      //this.dayScrollView.setToDate(/*'YYYY-MM-DD*/, false);
       this.currentRow = data.getDate().week;
       this.dayScrollModifier.setTransform(Transform.translate(0, ((window.innerHeight - 60)/6) * this.currentRow, 0));
       this.dayScrollModifier.setOpacity(0.99);
