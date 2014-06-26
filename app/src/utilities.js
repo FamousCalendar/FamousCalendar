@@ -48,7 +48,7 @@ define(function(require, exports, module){
 	}
 
 	Utilities.getEvents = function getEvents(date){
-
+    if (!calendar) return {};
 	  //returns events array for given date
 	  return calendar.date;
 
