@@ -9,6 +9,8 @@ define(function(require, exports, module) {
     var Transform = require('famous/core/Transform');
     var StateModifier = require('famous/modifiers/StateModifier');
     var Settings = require('config/AppSettings');
+    var Transitionable = require('famous/transitions/Transitionable');
+       var Modifier = require('famous/core/Modifier');
 
     // Constructor function for our EventView class
     function EventView(event) {
