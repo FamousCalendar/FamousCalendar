@@ -56,7 +56,8 @@ define(function(require, exports, module) {
     backgroundColor: 'white',
     borderColor: 'lightgrey',
     selectedColor: 'black',
-    font: 'sans-serif'
+    font: 'sans-serif',
+    scrollView: null
   };
 
   function _createBackground() {
@@ -73,7 +74,9 @@ define(function(require, exports, module) {
 
     this.backgroundModifier = new Modifier();
 
+    // source for click event on content portion of app layout
     this.backgroundSurface.on('click', function(data) {
+      // highlight selected day
       this.numberSurface.setProperties({
         color: 'white',
         fontWeight: 'bold',
@@ -82,9 +85,11 @@ define(function(require, exports, module) {
         borderRadius: '50px'
       });
 
-      this._eventOutput.emit('click', this);
+      // passes along the DayBoxView (has all date information) along with the click data
+      this._eventOutput.emit('click', { data: this, click: data });
     }.bind(this));
 
+    this.backgroundSurface.pipe(this.options.scrollView);
     this.add(this.backgroundModifier).add(this.backgroundSurface);
   }
 

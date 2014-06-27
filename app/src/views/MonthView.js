@@ -29,9 +29,37 @@ define(function(require, exports, module) {
   MonthView.prototype = Object.create(View.prototype);
   MonthView.prototype.constructor = MonthView;
 
+  MonthView.prototype.getMonth = function() {
+    return { month: this.options.month, year: this.options.year };
+  };
+
+  MonthView.prototype.setMonth = function(month, year) {
+    console.log(month, year);
+    this.options.month = month;
+    this.options.year = year;
+    this.firstDay = new Date(this.options.year, this.options.month, 1).getDay();
+    this.daysInMonth = new Date(this.options.year, this.options.month + 1, 0).getDate();
+
+    // update month name
+    this.weeks[0].setContent('&nbsp;&nbsp;' + DateConstants.monthNames[this.options.month].substr(0, 3).toUpperCase());
+
+    // update weeks of month
+    for (var i = 0; i < 6; i++) {
+      this.weeks[i + 1].setWeek({
+        startDay: i ? 0 : this.firstDay,
+        startDate: i ? (7 - (this.firstDay) + ((i - 1) * 7)) + 1 : 1,
+        daysInMonth: this.daysInMonth,
+        month: this.options.month,
+        year: this.options.year,
+      });
+    }
+  };
+
   MonthView.DEFAULT_OPTIONS = {
     month: 0,
-    year: 2014
+    year: 2014,
+    scrollView: null,
+    highlightModifier: null
   };
 
   function _createLayout() {
@@ -40,7 +68,7 @@ define(function(require, exports, module) {
     });
 
     grid.sequenceFrom(this.gridWeeks);
-    this.monthGridModifier = new Modifier({});
+    this.monthGridModifier = new Modifier();
     this.add(this.monthGridModifier).add(grid);
   }
 
@@ -51,7 +79,7 @@ define(function(require, exports, module) {
       properties: {
         lineHeight: '100px',
         fontFamily: 'sans-serif',
-        fontSize: '16px',
+        // fontSize: '16px',
         color: 'red',
         backgroundColor: 'white',
       }
@@ -66,7 +94,7 @@ define(function(require, exports, module) {
     node.add(slideMod).add(monthName);
     this.gridWeeks.push(node);
     this.weeks.push(monthName);
-
+    monthName.pipe(this.options.scrollView);
     // this.add(slideMod).add(monthName);
   }
 
@@ -82,7 +110,8 @@ define(function(require, exports, module) {
         daysInMonth: this.daysInMonth,
         month: this.options.month,
         year: this.options.year,
-        week: i + 1
+        week: i + 1,
+        scrollView: this.options.scrollView
       });
 
       weekModifier = new Modifier();
@@ -97,31 +126,51 @@ define(function(require, exports, module) {
   }
 
   function _setListeners() {
+    this._eventInput.on('dateSelected', function(weekView) {
+      this._eventOutput.emit('dateSelected', weekView);
+    }.bind(this));
+
     this._eventInput.on('click', function(data) {
-      if (data.getDate().day === 0) return;
+      var offset = this.options.scrollView.determineOffset();
+
+      // if day of the month is 0 then surface is a spacer and should do nothing
+      if (data.data.getDate().day === 0) return;
+
 
       if (this.selectedDay) {
-        if (this.selectedDay === data) return;
-        data.difference = this.selectedDay.getDate().weekDay - data.getDate().weekDay;
-        _unselectDay.call(this);
-        this.selectedDay = data;
-        this.selectedRow = data.getDate().week;
-        this._eventOutput.emit('changeDate', data);
+        // do nothing if selected day is the same as the previously selected day
+        if (this.selectedDay === data.data.getDate()) return;
+
+        // transition between selected days
+        data.difference = this.weekDay - data.data.getDate().weekDay;
+        // _unselectDay.call(this);
+        this.selectedDay = data.data.getDate();
+        this.selectedRow = data.data.getDate().week;
+        this._eventOutput.emit('changeDate', data.data);
       } else {
-        this.selectedDay = data;
-        this.selectedRow = data.getDate().week;
+        // set the selected day and fire the transition into the dayView
+        this.selectedDay = data.data.getDate();
+        this.selectedRow = data.data.getDate().week;
+
+        // this._eventOutput.emit('dayView', data.data);
         this._eventOutput.emit('dayView', data);
-        _animateWeeks.call(this, (-(this.selectedRow) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60), this.selectedRow);
+        _animateWeeks.call(this, (-(this.selectedRow) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60) + offset, this.selectedRow);
       }
     }.bind(this));
 
     this._eventInput.on('back', function(data) {
-      _unselectDay.call(this);
-      this._eventOutput.emit('monthView', data);
+      // only continue if this month is the selected month
+      // if (this.options.month !== data.month) return;
+
+      // _unselectDay.call(this);
+      this.selectedDay = undefined;
+      this.selectedRow = undefined;
+      this._eventOutput.emit('monthView', data.data);
       _animateWeeks.call(this, 0, this.selectedRow);
     }.bind(this));
   }
 
+  // unselect current selected day when selecting new day so only 1 appears selected
   function _unselectDay() {
     // saturday and sunday should be grey
     var color = this.selectedDay.isWeekend() ? 'grey' : 'black';
@@ -133,38 +182,6 @@ define(function(require, exports, module) {
         borderRadius: '0px'
     });
     this.selectedDay = undefined;
-  }
-
-  function _animateWeeks(amount, row) {
-    var bottomMovement = amount ? 600 : 0;
-    var bottomDuration = amount ? 1000 : 500;
-    var backgroundOpacity = amount ? 0.01 : 0.99;
-    var zIndex = amount ? 4 : 0;
-
-    for (var i = 0; i < this.mods.length; i++) {
-      this.mods[i].halt();
-      if (i === row) {
-        // fade out backgroundsurface/border of days in selected week so it doesn't show in header
-        for (var j = 0; j < this.weeks[i].days.length; j++) {
-          this.weeks[i].days[j].backgroundModifier.halt();
-          this.weeks[i].days[j].backgroundModifier.setOpacity(backgroundOpacity, {duration: 50, curve: Easing.inQuint});
-        }
-        this.mods[i].setTransform(Transform.translate(0, amount, zIndex), {
-          duration: 500,
-          curve: Easing.outQuart
-        });
-      } else if (i < row) {
-        this.mods[i].setTransform(Transform.translate(0, amount, 0), {
-          duration: 500,
-          curve: Easing.outQuart
-        });
-      } else {
-        this.mods[i].setTransform(Transform.translate(0, bottomMovement, 0), {
-          duration: bottomDuration,
-          curve: Easing.outCubic
-        });
-      }
-    }
   }
 
   module.exports = MonthView;

@@ -14,7 +14,9 @@ define(function(require, exports, module) {
   var DayView = require('views/DayView');
   var DayScrollView = require('views/DayScrollView');
   var DateConstants = require('config/DateConstants');
-  var AddEventView = require('views/AddEventView');
+  var MonthScrollView = require('views/MonthScrollView');
+  var FlexibleLayout = require('famous/views/FlexibleLayout');
+  var HeaderView = require('views/HeaderView');
 
   function AppView() {
     View.apply(this, arguments);
@@ -23,6 +25,7 @@ define(function(require, exports, module) {
 
     _createLayout.call(this);
     _createHeader.call(this);
+    _createHighlightSurface.call(this);
     _createContent.call(this);
     _setListeners.call(this);
   }
@@ -34,11 +37,20 @@ define(function(require, exports, module) {
     headerSize: 60
   };
 
+  // root layout
   function _createLayout() {
     this.layout = new HeaderFooterLayout({
       headerSize: this.options.headerSize,
       footerSize: 0
     });
+    // var ratios = [1, 9];
+    // this.layout = new FlexibleLayout({
+    //   direction: 1,
+    //   ratios: ratios
+    // });
+
+    // this.views = [];
+    // this.layout.sequenceFrom(this.views);
 
     var layoutModifier = new Modifier({
       transform: Transform.translate(0, 0, 0.1)
@@ -48,6 +60,8 @@ define(function(require, exports, module) {
   }
 
   function _createHeader() {
+    // this.views.push(new HeaderView({ appView: this }));
+    // return;
     // background surface
     var backgroundSurface = new Surface({
       properties: {
@@ -125,14 +139,6 @@ define(function(require, exports, module) {
       }
     });
 
-    this.titleSurface.on('click', function(data) {
-      if (this.state === 'monthView') return;
-
-
-      _setTitleSurface.call(this, '2014');
-      this._eventOutput.emit('back', data);
-    }.bind(this));
-
     this.titleModifier = new Modifier({
       align: [0.24, 0.5],
       origin: [0.5, 0.5],
@@ -199,9 +205,13 @@ define(function(require, exports, module) {
 
 
   function _createContent() {
-    this.monthView = new MonthView({
-      month: 6,
-      year: 2014
+    // this.monthView = new MonthView({
+    //   month: 6,
+    //   year: 2014
+    // });
+
+    this.monthScrollView = new MonthScrollView({
+      highlightModifier: this.highlightModifier
     });
 
     this.monthMod = new Modifier({
@@ -210,46 +220,66 @@ define(function(require, exports, module) {
 
     this.dayScrollView = new DayScrollView();
 
-    this.dayScrollModifier = new Modifier({
-      opacity: 0.01,
-      transform: Transform.translate(0, 130, 0)
-    });
+    this.dayScrollModifier = new Modifier();
 
     this.layout.content.add(this.dayScrollModifier).add(this.dayScrollView);
-    this.layout.content.add(this.monthMod).add(this.monthView);
-    this.monthView.subscribe(this._eventOutput);
-    this._eventInput.subscribe(this.monthView._eventOutput);
+    this.layout.content.add(this.monthMod).add(this.monthScrollView);
+    this.monthScrollView.subscribe(this._eventOutput);
+    this._eventInput.subscribe(this.monthScrollView._eventOutput);
+  }
+
+  function _positionHighlighter() {
+    var offset = this.monthScrollView.determineOffset();
+    var date = this.monthScrollView.selectedWeek.getDate();
+    var y = ((date.week) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60) - offset + (((window.innerHeight - 60)/14));
+    var x = ((window.innerWidth / 7) * date.weekDay) + (window.innerWidth/ 14);
+    this.highlightModifier.setAlign([x/(window.innerWidth), y/(window.innerHeight - 60)]);
+  }
+
+  function _setHighlighter(data) {
+    console.log(data);
+    this.highlightModifier.halt();
+    this.highlightModifier.setOpacity(0.01);
+    this.highlightSurface.setContent(data.selectedDay);
+    _positionHighlighter.call(this);
+    this.highlightModifier.setOpacity(0.99);
   }
 
   function _setListeners() {
-    this._eventInput.on('dayView', function(data) {
-      this.state = 'dayView';
-      console.dir(data);
-      //this.dayScrollView.setToDate(/*'YYYY-MM-DD*/, false);
-      this.currentRow = data.getDate().week;
-      this.dayScrollModifier.setTransform(Transform.translate(0, ((window.innerHeight - 60)/6) * this.currentRow, 0));
-      this.dayScrollModifier.setOpacity(0.99);
-      this.dayScrollModifier.setTransform(Transform.translate(0, 130, 0), {duration: 500, curve: Easing.outQuart });
-      _setTitleSurface.call(this, DateConstants.monthNames[data.getDate().month]);
-      _toggleHeaderSize.call(this, data);
-    }.bind(this));
+    // when user clicks the button in header (the text not the back icon currently)
+    this.titleSurface.on('click', function(clickData) {
+      console.log(clickData);
+      // short-circuited when in monthView because there currently is no yearView yet
+      if (this.state === 'monthView') return;
 
-    this._eventInput.on('monthView', function(data) {
       this.state = 'monthView';
-      this.dayScrollModifier.halt();
-      this.dayScrollModifier.setTransform(Transform.translate(0, 70 * this.currentRow, 0),
-        {duration: 500, curve: Easing.outQuart }, function() {
-          this.dayScrollModifier.setOpacity(0.01);
-        }.bind(this));
-      _setTitleSurface.call(this, '2014');
-      _toggleHeaderSize.call(this, data);
+      this.highlightModifier.setOpacity(0.01);
+      _setTitleSurface.call(this, this.monthScrollView.year);
+      _toggleHeaderSize.call(this);
+      // emit back event to MonthScrollView -> MonthView
+      this._eventOutput.emit('back', clickData);
+
     }.bind(this));
 
-    this._eventInput.on('changeDate', function(data) {
-      _transitionDateString.call(this, data);
+    this._eventInput.on('stateChangeDayView', function(weekView) {
+      this.state = 'dayView';
+
+      _setHighlighter.call(this, weekView);
+      _setTitleSurface.call(this, DateConstants.monthNames[weekView.getDate().month]);
+      _toggleHeaderSize.call(this, weekView);
+    }.bind(this));
+
+    this._eventInput.on('toggleSelectedDate', function(weekView) {
+      _setHighlighter.call(this, weekView);
+      _transitionDateString.call(this, weekView);
+    }.bind(this));
+
+    this._eventInput.on('updateYear', function(year) {
+      _setTitleSurface.call(this, year);
     }.bind(this));
   }
 
+  // transition for updating content in back/title surface, called whenever there is a change in state
   function _setTitleSurface(title) {
     this.titleModifier.halt();
     this.titleModifier.setOpacity(0.001, { duration: 200, curve: 'easeIn' }, function() {
@@ -258,7 +288,8 @@ define(function(require, exports, module) {
     }.bind(this));
   }
 
-  function _toggleHeaderSize(data) {
+  // header bar transition
+  function _toggleHeaderSize() {
     var height = (this.state === 'dayView') ? 130 : 60;
     this.headerTransition.halt();
     this.backgroundModifier.halt();
@@ -267,7 +298,8 @@ define(function(require, exports, module) {
     this.backgroundModifier.sizeFrom(this.headerTransition);
 
     if (height === 130) {
-      var date = data.getDate();
+      var date = this.monthScrollView.selectedDate;
+      console.log(date);
       this.dateStringSurface.setContent(DateConstants.daysOfWeek[date.weekDay] + 
         ' ' + DateConstants.monthNames[date.month] + ' ' + date.day + ', ' + date.year);
       this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 650, curve: Easing.outExpo });
@@ -278,6 +310,7 @@ define(function(require, exports, module) {
     }
   }
 
+  // transitions displayed date string in header when going between selected dates 
   function _transitionDateString(data) {
     var date = data.getDate();
     this.dateStringModifier.halt();
@@ -295,6 +328,33 @@ define(function(require, exports, module) {
       this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 700, curve: Easing.outQuart });
     }
   }
+
+  function _createHighlightSurface() {
+    this.highlightSurface = new Surface({
+      size: [34, 34],
+      content: '',
+      properties: {
+        color: 'white',
+        textAlign: 'center',
+        lineHeight: '34px',
+        fontWeight: 'bold',
+        fontSize: '18px',
+        fontFamily: 'sans-serif',
+        backgroundColor: 'black',
+        borderRadius: '50px',
+        zIndex: 6,
+        pointerEvents: 'none'
+      }
+    });
+    this.highlightModifier = new Modifier({
+      align: [0, 0],
+      origin: [0.5, 0.5],
+      opacity: 0.01,
+      transform: Transform.translate(0, 0, 6)
+    });
+    // this.add(this.highlightModifier).add(this.highlightSurface);
+    this.layout.content.add(this.highlightModifier).add(this.highlightSurface);
+  };
 
   module.exports = AppView;
 });
