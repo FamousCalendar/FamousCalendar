@@ -25,6 +25,32 @@ define(function(require, exports, module) {
     });
 
     this.sequenceFrom(this.viewSequence);
+
+    this.updateNodeBuffer = function(oldNode, currentNode, indexOffset, targetIndex, currentIndex) {
+      var currentYear = this.months[currentIndex].getMonth().year;
+      if (this.year !== currentYear) {
+        this._eventOutput.emit('updateYear', currentYear);
+        this.year = currentYear;
+      }
+
+      oldNode = this.months[targetIndex];
+
+      if (indexOffset < 0) {
+        var oldMonth = this.months[(targetIndex + 1) % this.months.length].getMonth();
+        if (oldMonth.month === 0) {
+          oldNode.setMonth(11, oldMonth.year - 1);
+        } else {
+          oldNode.setMonth(oldMonth.month - 1, oldMonth.year);
+        }
+      } else {
+        var oldMonth = this.months[(targetIndex - 1 + this.months.length) % this.months.length].getMonth();
+        if (oldMonth.month  === 11) {
+          oldNode.setMonth(0, oldMonth.year + 1);
+        } else {
+          oldNode.setMonth(oldMonth.month + 1, oldMonth.year);
+        }
+      }
+    };
     
     _createMonthViews.call(this);
   }
@@ -36,24 +62,16 @@ define(function(require, exports, module) {
   MonthScrollView.prototype = Object.create(InfiniteScrollView.prototype);
   MonthScrollView.prototype.constructor = MonthScrollView;
 
-  MonthScrollView.prototype.updateNodeBuffer = function(oldNode, currentNode, indexOffset, targetIndex, currentIndex) {
+  this.updateNodeBuffer = function(oldNode, currentNode, indexOffset, targetIndex, currentIndex) {
     var currentYear = this.months[currentIndex].getMonth().year;
     if (this.year !== currentYear) {
       this._eventOutput.emit('updateYear', currentYear);
       this.year = currentYear;
     }
 
-    // var arr = [];
-    // for (var i = 0; i < this.months.length; i++) {
-    //   arr.push(this.months[i].getMonth().month);
-    // }
-    // console.log(arr, currentIndex, targetIndex);
-    // arr = [];
-    // // check velocity do that thing if its speeding
     oldNode = this.months[targetIndex];
-    // console.log('update', oldNode, currentNode, indexOffset);
+
     if (indexOffset < 0) {
-      // var oldMonth = this.months[(targetIndex - 1 + this.months.length) % this.months.length].getMonth();
       var oldMonth = this.months[(targetIndex + 1) % this.months.length].getMonth();
       if (oldMonth.month === 0) {
         oldNode.setMonth(11, oldMonth.year - 1);
@@ -61,7 +79,6 @@ define(function(require, exports, module) {
         oldNode.setMonth(oldMonth.month - 1, oldMonth.year);
       }
     } else {
-      // var oldMonth = this.months[(targetIndex + 1) % this.months.length].getMonth();
       var oldMonth = this.months[(targetIndex - 1 + this.months.length) % this.months.length].getMonth();
       if (oldMonth.month  === 11) {
         oldNode.setMonth(0, oldMonth.year + 1);
@@ -69,10 +86,6 @@ define(function(require, exports, module) {
         oldNode.setMonth(oldMonth.month + 1, oldMonth.year);
       }
     }
-    // for (var i = 0; i < this.months.length; i++) {
-    //   arr.push(this.months[i].getMonth().month);
-    // }
-    // console.log(arr, currentIndex, targetIndex);
   };
   
   MonthScrollView.prototype.moveAdjacentMonths = function(amount) {
