@@ -201,13 +201,13 @@ define(function(require, exports, module) {
     offset      = Math.floor(arrayLength / 2);
     targetIndex = currentIndex - offset;
     if (targetIndex < 0) targetIndex += arrayLength;
-    this.updateNodeBuffer(nodeArray[targetIndex], nodeArray[currentIndex], -offset);
+    this.updateNodeBuffer(nodeArray[targetIndex], nodeArray[currentIndex], -offset, targetIndex, currentIndex);
     
     //  Set data for furthest forward node
     offset      = Math.floor((arrayLength - 0.5) / 2);
     targetIndex = currentIndex + offset;
     if (targetIndex >= arrayLength) targetIndex -= nodeArray.length;
-    this.updateNodeBuffer(nodeArray[targetIndex], nodeArray[currentIndex], offset);
+    this.updateNodeBuffer(nodeArray[targetIndex], nodeArray[currentIndex], offset, targetIndex, currentIndex);
   }
   
   module.exports = InfiniteScrollview;
