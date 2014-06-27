@@ -187,7 +187,7 @@ define(function(require, exports, module) {
 
     this.dayScrollModifier = new Modifier();
 
-    // this.layout.content.add(this.dayScrollModifier).add(this.dayScrollView);
+    this.layout.content.add(this.dayScrollModifier).add(this.dayScrollView);
     this.layout.content.add(this.monthMod).add(this.monthScrollView);
     this.monthScrollView.subscribe(this._eventOutput);
     this._eventInput.subscribe(this.monthScrollView._eventOutput);
