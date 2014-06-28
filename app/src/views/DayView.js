@@ -12,6 +12,7 @@ define(function(require, exports, module) {
   var Transform     = require('famous/core/Transform');
   
   var AppSettings   = require('config/AppSettings');
+  var TimeUtil      = require('util/TimeUtil');
   var TimelineView  = require('views/TimelineView');
   var EventView     = require('views/EventView');
   
@@ -22,12 +23,13 @@ define(function(require, exports, module) {
     this._eventsNode  = new RenderNode();
     this.add(this._eventsNode);
     
-    _createBackground.call(this);
     _createTimeline.call(this);
+    _createBackground.call(this);
   }
   
   DayView.DEFAULT_OPTIONS = {
     scrollView: null,
+    sizeY: ((1440 / AppSettings.time.getTimeUnits()) * AppSettings.timelineView.getNotchSpacing()),
     startTime: AppSettings.dayView.getStartTime()
   };
   
@@ -35,29 +37,32 @@ define(function(require, exports, module) {
   DayView.prototype = Object.create(View.prototype);
   DayView.prototype.constructor = DayView;
   
-  /**
-   * Description
-   * @method Name
+  /**@method buildEvents
+   * 
+   * Removes any existing events from the DayView, then instantiates an entirely
+   * new set of events based on the date currently assigned to the DayView. This
+   * function is typically called either when being looped from one end of the
+   * sequence to the other on a scroll action or when a day is selected from the
+   * full-screen MonthView.
    *
-   * @param {type} paramIdent description
-   * @return {type} description
+   * @param {array} events : An array of objects, each object being a set of EventView
+   *                         options which are supplied to the EventView constructor.
    */
   DayView.prototype.buildEvents = function buildEvents(events) {
-    //  Instantiates the collection of event surfaces and their modifiers for a given day.
-    //  Called each time the ScrollView cycles a DayView from one end of the collection to the other
     if (!events || !(events instanceof Array)) events = [];
     if (events[0] === undefined) events = [];
     
+    //_clearEvents.call(this);  //  Reference for future implementation
     this._eventsNode._child = null;
     this._eventsNode._hasMultipleChildren = false;
     
     for (var i = 0; i < events.length; i++) {
       var eventNode = new RenderNode();
       
-      var start     = _timeStrToArr(events[i].start);
-      var end       = _timeStrToArr(events[i].end);
+      var start     = TimeUtil.timeStrToArr(events[i].start);
+      var end       = TimeUtil.timeStrToArr(events[i].end);
       var duration  = ((end[0] * 60) + end[1]) - ((start[0] * 60) + start[1]);  //  TODO: Fix; currently assumes 1 minute:1 pixel ratio
-      var posY      = _timeArrToPixels(start);
+      var posY      = TimeUtil.timeArrToPixels(start);
       
       var eventModifier = new StateModifier({
         origin: [0, 0],
@@ -73,55 +78,49 @@ define(function(require, exports, module) {
     }
   };  //  End DayView.prototype.loadEvents
   
-  /**
-   * Description
-   * @method Name
+  /**@method getDate
+   * 
+   * Returns the DayView's currently assigned date.
    *
-   * @param {type} paramIdent description
-   * @return {type} description
+   * @return {string} A date string in format "yyyy-mm-dd"
    */
   DayView.prototype.getDate = function getDate() {
     return this._date;
   };  //  End DayView.prototype.getDate
   
-  /**
-   * Description
-   * @method Name
+  /**@method getSize
+   * 
+   * Returns the dimensions of the entire DayView; used by the scroller to scroll
+   * each DayView in sequence without gaps.
    *
-   * @param {type} paramIdent description
-   * @return {type} description
+   * @return {array} A three-index array in format [x, y, z]
    */
   DayView.prototype.getSize = function getSize() {
-    //  This function is called by scrollview to determine spacing of each element in the scroll's collection
     return (this.timeline)
       ? [true, this.timeline.getSize()[1], 0]
-      : [true, 1440, 0];
+      : [true, this.options.sizeY, 0];
   };  //  End DayView.prototype.getSize
   
-  /**
-   * Description
-   * @method Name
+  /**@method setDate
+   * 
+   * Assigns a date string to the DayView's _date variable.
    *
-   * @param {type} paramIdent description
-   * @return {type} description
+   * @param {string} date : The date string in format "yyyy-mm-dd" to assign to the DayView.
    */
   DayView.prototype.setDate = function setDate(date) {
-    if (date && typeof date === 'string') this._date = date;
+    if (date && typeof date === 'string' && date.length === 10) this._date = date;
   };  //  End DayView.prototype.setDate
   
   //  Helper Functions
-  /**
-   * Description
-   * @method Name
-   *
-   * @param {type} paramIdent description
-   * @return {type} description
+  /**@method _createBackground
+   * 
+   * Builds a surface to fill visual negative space. Pipes events to this.options.Scrollview.
    */
   function _createBackground() {
+    var bgSize = [undefined, this.getSize()];
     var bgModifier = new StateModifier({
       origin: [0, 0],
       align: [0, 0],
-      //size: this.getSize()
       size: [undefined, 1440]
     });
     
@@ -136,62 +135,14 @@ define(function(require, exports, module) {
     this.add(bgModifier).add(bgSurface);
   } //  End _createBackground
   
-  /**
-   * Description
-   * @method Name
-   *
-   * @param {type} paramIdent description
-   * @return {type} description
+  /**@method _createTimeline
+   * 
+   * Builds the timebar measuring time units on the DayView.
    */
   function _createTimeline() {
-    this.timeline = new TimelineView();
+    this._timeline = new TimelineView();
     this.add(this.timeline);
   } //  End _createTimeline
-  
-  /**
-   * Description
-   * @method Name
-   *
-   * @param {type} paramIdent description
-   * @return {type} description
-   */
-  function _timeArrToPixels(time) {
-    if (!time || !(time instanceof Array)) return;
-    var units   = AppSettings.time.getTimeUnits();
-    var spacing = AppSettings.timelineView.getNotchSpacing();
-    var pixToMin  = spacing / units;
-    
-    return (((time[0] * 60) + time[1]) * pixToMin);
-  } //  End _timeArrToPixels
-  
-  /**
-   * Description
-   * @method Name
-   *
-   * @param {type} paramIdent description
-   * @return {type} description
-   */
-  function _timeStrToArr(time) {
-    if (time instanceof Array) return time;
-    if (typeof time !== 'string') return null;
-    return [+(time.slice(0, 2)), +(time.slice(3))];
-  } //  End _timeStrToArr
-  
-  /**
-   * Description
-   * @method Name
-   *
-   * @param {type} paramIdent description
-   * @return {type} description
-   */
-  function _timeToPositionPercentage(time) {
-    //  Takes time as array: [hour, minutes] (military time)
-    if (!time || !(time instanceof Array)) return null;
-    
-    return (time instanceof Array && time.length >= 2)
-      ? (((time[0] * 60) + time[1]) / 1440)
-      : null;
-  } //  End _timeToPositionPercentage
   
   module.exports = DayView;
 });

@@ -171,59 +171,6 @@ define(function(require, exports, module) {
     };
   } //  End _setEventsUpdater
   
-  /**@method timeDiffMin
-   * 
-   * Calculates the total number of minutes between two specified date and times.
-   * The time of each day is determined by the position of the current DayView and
-   * the default position of a dayview.
-   *
-   * @param {array} target : A three-index array in format [year, month, day] representing
-   *                         the date offset from the current DayView.
-   * @param {array} current : A three-index array in format [year, month, day]
-   *                          representing the current DayView's date.
-   * @param {array} targetTime : A tuple array in format [hour, minute] marking
-   *                             the target date's time.
-   * @param {array} currentTime : A tuple array in format [hour, minute] marking
-   *                              the current date's time.
-   * @return {number} The total number of minutes between the two specified dates.
-   *                  If negative, target's date precedes current date. Otherwise,
-   *                  the current date precedes the target.
-   */
-  function _timeDiffMin(target, current, targetTime, currentTime) {
-    targetPos = (typeof targetPos === 'number') ? targetPos : 0;
-    currentPos = (typeof currentPos === 'number') ? currentPos : 0;
-    
-    if ((target[0] === current[0])
-       && (target[1] === current[1]) 
-       && (target[2] === current[2])) {
-      return (((targetTime[0] * 60) + targetTime[1]) - ((currentTime[0] * 60) + currentTime[1]));
-    }
-    
-    var isTargetAfter = (((target[0] * 10000) + (target[1] * 100) + target[2]) > ((current[0] * 10000) + (current[1] * 100) + current[2]));
-    var result = TimeUtil.timeDiffDays(target, current) * 1440; /////////////////////////////////////////////////////////////////////////////////<=- FIX
-    result = (isTargetAfter) 
-      ? (result + (1440 - this.getPosition()) + ((targetTime[0] * 60) + targetTime[1])) 
-      : (-result - this.getPosition() - (1440 - ((targetTime[0] * 60) + targetTime[1])));
-    
-    return result;
-  } //  End _timeDiffMin
-  
-  /**
-   * Description
-   * @method Name
-   *
-   * @param {type} paramIdent description
-   * @return {type} description
-   */
-  function _timeToPositionPercentage(time) {
-    //  Takes time as array: [hour, minutes] (military time)
-    if (!time || !(time instanceof Array)) return null;
-    
-    return (time instanceof Array && time.length >= 2)
-      ? (((time[0] * 60) + time[1]) / 1440)
-      : null;
-  } //  End _timeToPositionPercentage
-  
   module.exports = DayScrollview;
 });
 

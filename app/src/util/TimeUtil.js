@@ -140,7 +140,7 @@ define(function(require, exports, module) {
   timeUtil.isLeapYear = function _isLeapYear(year) {
     if (typeof year === 'string') year = +year;
     return ((year % 400 === 0) || ((year % 100 !== 0) && (year % 4 === 0)));
-  }
+  } //  isLeapYear
   
   /**@method timeDiffDays
    * 
@@ -166,7 +166,7 @@ define(function(require, exports, module) {
     
     function daysFromEndMonth(date) {
       if ((1 << date[DATE.MONTH]) && _31DayMonths) return 31 - date[DATE.DAY];
-      else if (date[DATE.MONTH] === 2) return (TimeUtil.isLeapYear(date[DATE.YEAR])) ? 29 - date[DATE.DAY] : 28 - date[DATE.DAY];
+      else if (date[DATE.MONTH] === 2) return (_isLeapYear(date[DATE.YEAR])) ? 29 - date[DATE.DAY] : 28 - date[DATE.DAY];
       else return 30 - date[DATE.DAY];
     }
     
@@ -242,7 +242,75 @@ define(function(require, exports, module) {
     }
   } //  End _timeDiffDays
   
-  module.exports = timeUtil;
+  /**@method timeDiffMin
+   * 
+   * Calculates the total number of minutes between two specified date and times.
+   * The time of each day is determined by the position of the current DayView and
+   * the default position of a dayview.
+   *
+   * @param {array} target : A three-index array in format [year, month, day] representing
+   *                         the date offset from the current DayView.
+   * @param {array} current : A three-index array in format [year, month, day]
+   *                          representing the current DayView's date.
+   * @param {array} targetTime : A tuple array in format [hour, minute] marking
+   *                             the target date's time.
+   * @param {array} currentTime : A tuple array in format [hour, minute] marking
+   *                              the current date's time.
+   * @return {number} The total number of minutes between the two specified dates.
+   *                  If negative, target's date precedes current date. Otherwise,
+   *                  the current date precedes the target.
+   */
+  timeUtil.timeDiffMin = function _timeDiffMin(target, current, targetTime, currentTime) {
+    targetPos = (typeof targetPos === 'number') ? targetPos : 0;
+    currentPos = (typeof currentPos === 'number') ? currentPos : 0;
+    
+    if ((target[DATE.YEAR] === current[DATE.YEAR])
+       && (target[DATE.MONTH] === current[DATE.MONTH]) 
+       && (target[DATE.DAY] === current[DATE.DAY])) {
+      return (((targetTime[TIME.HOUR] * 60) + targetTime[TIME.MIN]) - ((currentTime[TIME.HOUR] * 60) + currentTime[TIME.MIN]));
+    }
+    
+    var isTargetAfter = (((target[DATE.YEAR] * 10000) + (target[DATE.MONTH] * 100) + target[DATE.DAY]) > ((current[DATE.YEAR] * 10000) + (current[DATE.MONTH] * 100) + current[DATE.DAY]));
+    var result = _timeDiffDays(target, current) * 1440;
+    result = (isTargetAfter)
+      ? (result + (1440 - this.getPosition()) + ((targetTime[TIME.HOUR] * 60) + targetTime[TIME.MIN])) 
+      : (-result - this.getPosition() - (1440 - ((targetTime[TIME.HOUR] * 60) + targetTime[TIME.MIN])));
+    
+    return result;
+  } //  End timeDiffMin
+  
+  /**@method timeArrToPixels
+   * 
+   * Converts a time array into a string ([hour, minute] to "hh:mm")
+   *
+   * @param {array} array : The array in format [hour, minute] to convert to a string.
+   * @return {string} The time as a string in format "hh:mm".
+   */
+  timeUtil.timeArrToPixels = function _timeArrToPixels(time) {
+    if (!time || !(time instanceof Array) || time.length < 2) return;
+    var units   = AppSettings.time.getTimeUnits();
+    var spacing = AppSettings.timelineView.getNotchSpacing();
+    var pixToMin  = spacing / units;
+    
+    return (((time[TIME.HOUR] * 60) + time[TIME.MIN]) * pixToMin);
+  } //  End timeArrToPixels
+  
+  /**@method timeStrToArr
+   * 
+   * Converts a time string into an array ("hh:mm" to [hour, min])
+   *
+   * @param {string} time : A time string in format "hh:mm" to be converted to an array.
+   * @return {array} A tuple array in format [hour, minute]
+   */
+  timeeUtil.timeStrToArr = function _timeStrToArr(time) {
+    if (time instanceof Array) return time;
+    if (typeof time !== 'string' || time.length !== 5) return null;
+    return [+(time.slice(0, 2)), +(time.slice(3))];
+  } //  End _timeStrToArr
+  
+  
+  
+module.exports = timeUtil;
   
 });
 
