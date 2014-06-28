@@ -166,6 +166,41 @@ define(function(require, exports, module) {
     this.layout.header.add(this.titleModifier).add(this.titleSurface);
     this.layout.header.add(backIconModifier).add(backIcon);
     this.add(letterGridModifier).add(letterGrid);
+
+
+    
+    var addIcon = new Surface({
+      size: [30, 30],
+      content: '+',
+      properties: {
+        color: 'red',
+        textAlign: 'center',
+        lineHeight: '48px',
+        fontSize: '48px',
+        fontFamily: 'sans-serif'
+      }
+    });
+
+    var addIconModifier = new Modifier({
+      align: [0.92, 0.4],
+      origin: [1, 1],
+      transform: Transform.translate(0, 0, 3)
+    });
+
+
+    addIcon.on('click', function(){
+      // alert('click');
+      var addEventView = new AddEventView();
+      var addEventViewModifier = new Modifier({
+        transform: Transform.translate(0,0,30),
+        origin: [0.5, 0.5],
+        align: [0.5, 0.5],
+
+      });
+      this.add(addEventViewModifier).add(addEventView);
+    }.bind(this));
+
+    this.layout.header.add(addIconModifier).add(addIcon);
   }
 
 
