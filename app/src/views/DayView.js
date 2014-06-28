@@ -35,21 +35,27 @@ define(function(require, exports, module) {
   DayView.prototype = Object.create(View.prototype);
   DayView.prototype.constructor = DayView;
   
-  DayView.prototype.buildEvents = function buildEvents(dates) {
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
+  DayView.prototype.buildEvents = function buildEvents(events) {
     //  Instantiates the collection of event surfaces and their modifiers for a given day.
     //  Called each time the ScrollView cycles a DayView from one end of the collection to the other
-    console.log( dates);
-    if (!dates || !(dates instanceof Array)) dates = [];
-    if (dates[0] === undefined) dates = [];
+    if (!events || !(events instanceof Array)) events = [];
+    if (events[0] === undefined) events = [];
     
     this._eventsNode._child = null;
     this._eventsNode._hasMultipleChildren = false;
     
-    for (var i = 0; i < dates.length; i++) {
+    for (var i = 0; i < events.length; i++) {
       var eventNode = new RenderNode();
       
-      var start     = _timeStrToArr(dates[i].start);
-      var end       = _timeStrToArr(dates[i].end);
+      var start     = _timeStrToArr(events[i].start);
+      var end       = _timeStrToArr(events[i].end);
       var duration  = ((end[0] * 60) + end[1]) - ((start[0] * 60) + start[1]);  //  TODO: Fix; currently assumes 1 minute:1 pixel ratio
       var posY      = _timeArrToPixels(start);
       
@@ -60,17 +66,31 @@ define(function(require, exports, module) {
         transform: Transform.translate(0, posY, 0)
       });
       
-      var event = new EventView(dates[i]);
+      var event = new EventView(events[i]);
       
       eventNode.add(eventModifier).add(event);
       this._eventsNode.add(eventNode);
     }
   };  //  End DayView.prototype.loadEvents
   
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
   DayView.prototype.getDate = function getDate() {
     return this._date;
   };  //  End DayView.prototype.getDate
   
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
   DayView.prototype.getSize = function getSize() {
     //  This function is called by scrollview to determine spacing of each element in the scroll's collection
     return (this.timeline)
@@ -78,11 +98,25 @@ define(function(require, exports, module) {
       : [true, 1440, 0];
   };  //  End DayView.prototype.getSize
   
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
   DayView.prototype.setDate = function setDate(date) {
     if (date && typeof date === 'string') this._date = date;
   };  //  End DayView.prototype.setDate
   
   //  Helper Functions
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
   function _createBackground() {
     var bgModifier = new StateModifier({
       origin: [0, 0],
@@ -102,11 +136,25 @@ define(function(require, exports, module) {
     this.add(bgModifier).add(bgSurface);
   } //  End _createBackground
   
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
   function _createTimeline() {
     this.timeline = new TimelineView();
     this.add(this.timeline);
   } //  End _createTimeline
   
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
   function _timeArrToPixels(time) {
     if (!time || !(time instanceof Array)) return;
     var units   = AppSettings.time.getTimeUnits();
@@ -116,12 +164,26 @@ define(function(require, exports, module) {
     return (((time[0] * 60) + time[1]) * pixToMin);
   } //  End _timeArrToPixels
   
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
   function _timeStrToArr(time) {
     if (time instanceof Array) return time;
     if (typeof time !== 'string') return null;
     return [+(time.slice(0, 2)), +(time.slice(3))];
   } //  End _timeStrToArr
   
+  /**
+   * Description
+   * @method Name
+   *
+   * @param {type} paramIdent description
+   * @return {type} description
+   */
   function _timeToPositionPercentage(time) {
     //  Takes time as array: [hour, minutes] (military time)
     if (!time || !(time instanceof Array)) return null;
