@@ -5,8 +5,9 @@ define(function(require, exports, module){
 	 //Retrieve _calendar for date from local storage
 	var _calendar = JSON.parse(window.localStorage.getItem('calendar')) || {};
 	_calendar.repeat = _calendar.repeat || {};
-	_calendar.repeat['daily'] = _calendar.repeat['daily'] || {};
+	_calendar.repeat.daily ? console.log(_calendar.repeat.daily) : _calendar.repeat.daily = {};
 	_calendar.repeat['weekly'] = _calendar.repeat['weekly'] || {};
+	console.dir(_calendar);
 	_calendar.repeat['monthly'] = _calendar.repeat['monthly'] || {};
 	_calendar.repeat['yearly'] = _calendar.repeat['yearly'] || {};
 
@@ -68,11 +69,12 @@ define(function(require, exports, module){
 	}
 
 	Utilities.hasEvents = function hasEvents(date){
+		var dateEvents = _calendar[date] || [];
 		var dailyEvents = _calendar.repeat.daily || [];
 		var weeklyEvents = _calendar.repeat.weekly[new Date(date).getDay()] || [];
 		var monthlyEvents = _calendar.repeat.monthly[date.slice(-2)] || [];
 		var yearlyEvents = _calendar.repeat.yearly[date.slice(5)] || [];
-		if(_calendar[date].concat(dailyEvents, weeklyEvents, monthlyEvents, yearlyEvents) !== undefined){
+		if(dateEvents.concat(dailyEvents, weeklyEvents, monthlyEvents, yearlyEvents).length > 0){
 			return true;
 		}
 		return false;
@@ -90,7 +92,7 @@ define(function(require, exports, module){
 
 	};
   
-  var testing = true;
+  var testing = false;
   if (testing) {
     for (var y = 2010; y < 2020; y++) {
       for (var m = 1; m < 13; m++) {
@@ -113,8 +115,7 @@ define(function(require, exports, module){
         }
       }
     }
-    
-    _calendar['repeat'] = {};
+
   }
 
 	module.exports = Utilities;
