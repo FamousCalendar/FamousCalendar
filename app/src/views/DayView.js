@@ -38,6 +38,7 @@ define(function(require, exports, module) {
   DayView.prototype.buildEvents = function buildEvents(dates) {
     //  Instantiates the collection of event surfaces and their modifiers for a given day.
     //  Called each time the ScrollView cycles a DayView from one end of the collection to the other
+    console.log( dates);
     if (!dates || !(dates instanceof Array)) dates = [];
     if (dates[0] === undefined) dates = [];
     
@@ -58,6 +59,7 @@ define(function(require, exports, module) {
         size: [undefined, duration],
         transform: Transform.translate(0, posY, 0)
       });
+      
       var event = new EventView(dates[i]);
       
       eventNode.add(eventModifier).add(event);

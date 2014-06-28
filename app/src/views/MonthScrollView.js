@@ -200,7 +200,7 @@ define(function(require, exports, module) {
 
   function _getSelectedIndex() {
     for (var i = 0; i < this.monthViews.length; i++) {
-      console.log(this.monthViews[i].get());
+      //  console.log(this.monthViews[i].get());  //  Returning a Modifier
       if (this.months[i].options.month === this.selectedDate.month && this.months[i].options.year === this.selectedDate.year) {
         return i;
       }
@@ -210,15 +210,15 @@ define(function(require, exports, module) {
   }
 
   function _animateWeeks(amount, row) {
-    console.log(amount, row);
-    console.log('selected', this.selectedIndex);
+    //  console.log(amount, row);
+    //  console.log('selected', this.selectedIndex);
     var bottomMovement = amount ? window.innerHeight : 0;
     var bottomDuration = amount ? 1000 : 500;
     var backgroundOpacity = amount ? 0.01 : 0.99;
     var zIndex = amount ? 4 : 0.1;
     var borderTop = amount ? 'lightgrey' : '';
     var currentMonth = this.months[this.selectedIndex];
-    console.log(currentMonth);
+    //  console.log(currentMonth);
 
     this.moveAdjacentMonths([amount, bottomMovement]);
 

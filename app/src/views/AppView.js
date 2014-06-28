@@ -16,7 +16,7 @@ define(function(require, exports, module) {
   var DateConstants = require('config/DateConstants');
   var MonthScrollView = require('views/MonthScrollView');
   var FlexibleLayout = require('famous/views/FlexibleLayout');
-  var HeaderView = require('views/HeaderView');
+  //var HeaderView = require('views/HeaderView');
 
   function AppView() {
     View.apply(this, arguments);

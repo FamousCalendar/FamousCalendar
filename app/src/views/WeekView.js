@@ -101,7 +101,7 @@ define(function(require, exports, module) {
 
     this.surface.on('click', function(data) {
       var day = this.determineClickedDay(data.x);
-      console.log(day);
+      //console.log(day);
 
       // check if user clicked on an actual day
       if (day == null) return;

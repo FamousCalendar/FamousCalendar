@@ -42,6 +42,7 @@ define(function(require, exports, module) {
   
   DayScrollview.prototype.setToDate = function setToDate(date, scrollToDate) {
     //  Called when a day is selected from the month view
+    
     scrollToDate = (scrollToDate !== undefined) ? scrollToDate : false;
     ///////////////////////////////////////////////////////////////////////////////////////////////
       _resetDayViews.call(this, date);
