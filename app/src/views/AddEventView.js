@@ -246,16 +246,26 @@ define(function(require, exports, module) {
             size: [undefined, true],
             value: 'Save',
             properties: {
-                backgroundColor: 'white',
+                backgroundColor: '#FAFAFA',
+                color: 'red',
                 fontFamily: 'sans-serif',
                 cursor: 'pointer'
             }
         });
+
+        //Save event
         this.saveButton.on('click', function(){
-            Utility.saveEvent(_createEvent.call(this));
-            _outTransition.call(this);
+            var newEvent = _createEvent.call(this);
+            if(newEvent.date.length > 0 && newEvent.start.length > 0 && newEvent.end.length > 0) {
+                Utility.saveEvent(_createEvent.call(this));
+                _outTransition.call(this);
+            }else{
+                alert('Please complete event form');
+            }
         }.bind(this));
 
+
+        //Cancel event creation
         cancelIcon.on('click', function(){
             _outTransition.call(this);
         }.bind(this));
