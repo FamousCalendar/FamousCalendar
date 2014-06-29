@@ -5,9 +5,8 @@ define(function(require, exports, module){
 	 //Retrieve _calendar for date from local storage
 	var _calendar = JSON.parse(window.localStorage.getItem('calendar')) || {};
 	_calendar.repeat = _calendar.repeat || {};
-	_calendar.repeat.daily ? console.log(_calendar.repeat.daily) : _calendar.repeat.daily = {};
+	_calendar.repeat['daily'] = _calendar.repeat['daily'] || {};
 	_calendar.repeat['weekly'] = _calendar.repeat['weekly'] || {};
-	console.dir(_calendar);
 	_calendar.repeat['monthly'] = _calendar.repeat['monthly'] || {};
 	_calendar.repeat['yearly'] = _calendar.repeat['yearly'] || {};
 
@@ -91,32 +90,7 @@ define(function(require, exports, module){
 	  return result.concat(_calendar[date], dailyEvents, weeklyEvents, monthlyEvents, yearlyEvents);
 
 	};
-  
-  var testing = false;
-  if (testing) {
-    for (var y = 2010; y < 2020; y++) {
-      for (var m = 1; m < 13; m++) {
-        for (var d = 1; d < 29; d++) {
-          var day = (d < 10) ? '0'+d : ''+d;
-          var mon = (m < 10) ? '0'+m : ''+m;
-          var date = '' + y + '-' + mon + '-' + day;
-          var start = Math.floor((Math.random() * 4) + 8);
-          var end = Math.floor((Math.random() * 2) + 1) + start;
-          start = '' + ((start < 10) ? '0' + start : '' + start) + ':00';
-          end = '' + ((end < 10) ? '0' + end : '' + end) + ':00';
-          
-          _calendar[date] = [{
-            'date': date,
-            'start': start,
-            'end' : end,
-            'title': 'Event for ' + date,
-            'description': ''
-          }];
-        }
-      }
-    }
 
-  }
 
 	module.exports = Utilities;
 });
