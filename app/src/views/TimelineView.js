@@ -48,7 +48,8 @@ define(function(require, exports, module) {
     
     var bgSurface = new Surface({
       properties: {
-        backgroundColor: this.options.timelineBackgroundColor
+        backgroundColor: this.options.timelineBackgroundColor,
+        zIndex: 1
       }
     });
     
@@ -59,7 +60,7 @@ define(function(require, exports, module) {
     var timelineSurface = new Surface({
       properties: {
         backgroundColor: this.options.timelineLineColor,
-        zIndex: 1
+        zIndex: 2
       }
     });
     
@@ -77,7 +78,7 @@ define(function(require, exports, module) {
       var notchSurface = new Surface({
         properties: {
           backgroundColor: this.options.timelineLineColor,
-          zIndex: 1
+          zIndex: 3
         }
       });
       
@@ -116,7 +117,7 @@ define(function(require, exports, module) {
           backgroundColor: 'rgba(0, 0, 0, 0)',
           color: this.options.timelineLineColor,
           fontSize: '' + this.options.timebarFontSize + 'px',
-          zIndex: 1
+          zIndex: 4
         }
       });
     };

@@ -57,13 +57,13 @@ define(function(require, exports, module) {
     scrollToDate = (scrollToDate !== undefined) ? scrollToDate : false;
     ///////////////////////////////////////////////////////////////////////////////////////////////
       _resetDayViews.call(this, date);
-      this.setPosition(1440 * _timeToPositionPercentage(this.options.startTime));
+      this.setPosition(1440 * TimeUtil.timeToPositionPercentage(this.options.startTime));
     ///////////////////////////////////////////////////////////////////////////////////////////////
     
     /*
     if (!scrollToDate) {
       _resetDayViews.call(this, date);
-      this.setPosition(1440 * _timeToPositionPercentage(this.options.startTime));
+      this.setPosition(1440 * TimeUtil.timeToPositionPercentage(this.options.startTime));
     } else {
       var currentIndex = this._node.getIndex();
       var now = TimeUtil.dateStrToArr(this.dayViews[currentIndex].getDate());

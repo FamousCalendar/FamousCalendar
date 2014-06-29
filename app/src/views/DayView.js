@@ -62,7 +62,7 @@ define(function(require, exports, module) {
       var start     = TimeUtil.timeStrToArr(events[i].start);
       var end       = TimeUtil.timeStrToArr(events[i].end);
       var duration  = ((end[0] * 60) + end[1]) - ((start[0] * 60) + start[1]);  //  TODO: Fix; currently assumes 1 minute:1 pixel ratio
-      var posY      = TimeUtil.timeArrToPixels(start);
+      var posY      = TimeUtil.timeToPixels(start);
       
       var eventModifier = new StateModifier({
         origin: [0, 0],
@@ -141,7 +141,8 @@ define(function(require, exports, module) {
    */
   function _createTimeline() {
     this._timeline = new TimelineView();
-    this.add(this.timeline);
+    
+    this.add(this._timeline);
   } //  End _createTimeline
   
   module.exports = DayView;

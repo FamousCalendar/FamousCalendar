@@ -279,15 +279,21 @@ define(function(require, exports, module) {
     return result;
   } //  End timeDiffMin
   
-  /**@method timeArrToPixels
+  /**@method timeToPixels
    * 
-   * Converts a time array into a string ([hour, minute] to "hh:mm")
+   * Converts a time array or string to pixel value to match timeline.
    *
-   * @param {array} array : The array in format [hour, minute] to convert to a string.
-   * @return {string} The time as a string in format "hh:mm".
+   * @param {array/string} time : The array [hour, min] or string "hh:mm" from
+   *                              which to calculate the pixel value.
+   * @return {number} The number of pixels from the DayView's origin along the
+   *                  timeline axis representing the supplied length of time.
    */
-  timeUtil.timeArrToPixels = function _timeArrToPixels(time) {
-    if (!time || !(time instanceof Array) || time.length < 2) return;
+  timeUtil.timeToPixels = function _timeToPixels(time) {
+    if (!time) return;
+    if (!(time instanceof Array) && !(typeof time !== 'string')) return;
+    else if (time instanceof Array && time.length < 2) return;
+    else if (typeof time === 'string' && time.length !== 5) return;
+    
     var units   = AppSettings.time.getTimeUnits();
     var spacing = AppSettings.timelineView.getNotchSpacing();
     var pixToMin  = spacing / units;
@@ -295,20 +301,51 @@ define(function(require, exports, module) {
     return (((time[TIME.HOUR] * 60) + time[TIME.MIN]) * pixToMin);
   } //  End timeArrToPixels
   
-  /**@method timeStrToArr
+  /**@method timeArrToStr
    * 
    * Converts a time string into an array ("hh:mm" to [hour, min])
    *
    * @param {string} time : A time string in format "hh:mm" to be converted to an array.
    * @return {array} A tuple array in format [hour, minute]
    */
-  timeeUtil.timeStrToArr = function _timeStrToArr(time) {
+  timeUtil.timeStrToArr = function _timeArrToStr(time) {
+    if (typeof time === 'string') return time;
+    if (!(time instanceof Array) || time.length < 2) return null;
+    return ((time[TIME.HOUR] < 10) ? ('0' + time[TIME.HOUR]) : ('' + time[TIME.HOUR])) + ':' + ((time[TIME.MIN] < 10) ? ('0' + time[TIME.MIN]) : ('' + time[TIME.MIN]));
+  } //  End _timeStrToArr
+  
+/**@method timeStrToArr
+   * 
+   * Converts a time string into an array ("hh:mm" to [hour, min])
+   *
+   * @param {string} time : A time string in format "hh:mm" to be converted to an array.
+   * @return {array} A tuple array in format [hour, minute]
+   */
+  timeUtil.timeStrToArr = function _timeStrToArr(time) {
     if (time instanceof Array) return time;
     if (typeof time !== 'string' || time.length !== 5) return null;
     return [+(time.slice(0, 2)), +(time.slice(3))];
   } //  End _timeStrToArr
   
-  
+  /**@method timeToPositionPercentage
+   *
+   * Converts either a time array or string into a clamped value between 1 and 0
+   * along the timeline axis. This can be used to place renderables based on
+   * alignment.
+   * 
+   * @param {array/string} time : The time array [hour, min] or string ("hh:mm")
+   *                              to be converted to a percentage of the DayView's
+   *                              total pixel height.
+   * @return {number} A clamped value between 0 and 1 that is the percentage of
+   *                  the DayView's total size along the timeline axis.
+   */
+  timeUtil.timeToPositionPercentage = function _timeToPositionPercentage(time) {
+    if (!time) return;
+    if (typeof time === 'string') time = (time.length === 5) ? _timeStrToArr(time) : [];
+    if (time instanceof Array && time.length < 2) return;
+    
+    return ((time[TIME.HOUR] * 60) + time[TIME.MIN]) / 1440;
+  };
   
 module.exports = timeUtil;
   
