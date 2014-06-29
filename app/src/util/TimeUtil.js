@@ -28,7 +28,7 @@ define(function(require, exports, module) {
    * @param {string} dateStr : A date supplied in string format "yyyy-mm-dd"
    * @return {array} A three-index array [year, month, day]
    */
-  timeUtil.dateStrToArr = function _dateStrToArr(dateStr) {
+  var _dateStrToArr = timeUtil.dateStrToArr = function _dateStrToArr(dateStr) {
     if (dateStr instanceof Array) return dateStr;
     if (!dateStr || dateStr.length !== 10) return;
     
@@ -47,7 +47,7 @@ define(function(require, exports, module) {
    * @param {array} dateArr : A 3-index array in this order: [year, month, day]
    * @return {string} A hyphen-delimited date in form of "yyyy-mm-dd"
    */
-  timeUtil.dateArrToStr = function _dateArrToStr(dateArr) {
+  timeUtil.dateArrToStr = _dateArrToStr = function _dateArrToStr(dateArr) {
     if (!dateArr || !(dateArr instanceof Array) || (dateArr.length < 3)) return;
     
     var result = '';
@@ -76,7 +76,7 @@ define(function(require, exports, module) {
    * @return {array} A three-index date in format [year, month, day] of the date that
    *                 is 'offset' number of days apart from 'date'
    */
-  timeUtil.findOffsetDate = function _findOffsetDate(date, offset) {
+  timeUtil.findOffsetDate = _findOffsetDate = function _findOffsetDate(date, offset) {
     if (!date) return null;
     
     var _31DayMonths = 5546;  //  ...0 0001 0101 1010 1010
@@ -137,7 +137,7 @@ define(function(require, exports, module) {
    * @param {number} year : A year to test.
    * @return {boolean} true if the argument is a leap year, false if not.
    */
-  timeUtil.isLeapYear = function _isLeapYear(year) {
+  timeUtil.isLeapYear = _isLeapYear = function _isLeapYear(year) {
     if (typeof year === 'string') year = +year;
     return ((year % 400 === 0) || ((year % 100 !== 0) && (year % 4 === 0)));
   } //  isLeapYear
@@ -157,7 +157,7 @@ define(function(require, exports, module) {
    *                  indicates the target date is before the current date, a positive
    *                  value indicates target date falls after current date.
    */
-  timeUtil.timeDiffDays = function _timeDiffDays(target, current) {
+  timeUtil.timeDiffDays = _timeDiffDays = function _timeDiffDays(target, current) {
     var _31DayMonths = 5546;
     
     function daysFromBeginMonth(date) {
@@ -260,9 +260,9 @@ define(function(require, exports, module) {
    *                  If negative, target's date precedes current date. Otherwise,
    *                  the current date precedes the target.
    */
-  timeUtil.timeDiffMin = function _timeDiffMin(target, current, targetTime, currentTime) {
-    targetPos = (typeof targetPos === 'number') ? targetPos : 0;
-    currentPos = (typeof currentPos === 'number') ? currentPos : 0;
+  timeUtil.timeDiffMin = _timeDiffMin = function _timeDiffMin(target, current, targetTime, currentTime) {
+    targetTime = (targetTime instanceof Array) ? targetTime : [0, 0];
+    currentTime = (currentTime instanceof Array) ? currentTime : [0, 0];
     
     if ((target[DATE.YEAR] === current[DATE.YEAR])
        && (target[DATE.MONTH] === current[DATE.MONTH]) 
@@ -288,7 +288,7 @@ define(function(require, exports, module) {
    * @return {number} The number of pixels from the DayView's origin along the
    *                  timeline axis representing the supplied length of time.
    */
-  timeUtil.timeToPixels = function _timeToPixels(time) {
+  timeUtil.timeToPixels = _timeToPixels = function _timeToPixels(time) {
     if (!time) return;
     if (!(time instanceof Array) && !(typeof time !== 'string')) return;
     else if (time instanceof Array && time.length < 2) return;
@@ -308,7 +308,7 @@ define(function(require, exports, module) {
    * @param {string} time : A time string in format "hh:mm" to be converted to an array.
    * @return {array} A tuple array in format [hour, minute]
    */
-  timeUtil.timeArrToStr = function _timeArrToStr(time) {
+  timeUtil.timeArrToStr = _timeArrToStr = function _timeArrToStr(time) {
     if (typeof time === 'string') return time;
     if (!(time instanceof Array) || time.length < 2) return null;
     return ((time[TIME.HOUR] < 10) ? ('0' + time[TIME.HOUR]) : ('' + time[TIME.HOUR])) + ':' + ((time[TIME.MIN] < 10) ? ('0' + time[TIME.MIN]) : ('' + time[TIME.MIN]));
@@ -321,7 +321,7 @@ define(function(require, exports, module) {
    * @param {string} time : A time string in format "hh:mm" to be converted to an array.
    * @return {array} A tuple array in format [hour, minute]
    */
-  timeUtil.timeStrToArr = function _timeStrToArr(time) {
+  timeUtil.timeStrToArr = _timeArrToStr = function _timeStrToArr(time) {
     if (time instanceof Array) return time;
     if (typeof time !== 'string' || time.length !== 5) return null;
     return [+(time.slice(0, 2)), +(time.slice(3))];
@@ -339,7 +339,7 @@ define(function(require, exports, module) {
    * @return {number} A clamped value between 0 and 1 that is the percentage of
    *                  the DayView's total size along the timeline axis.
    */
-  timeUtil.timeToPositionPercentage = function _timeToPositionPercentage(time) {
+  timeUtil.timeToPositionPercentage = _timeToPositionPercentage = function _timeToPositionPercentage(time) {
     if (!time) return;
     if (typeof time === 'string') time = (time.length === 5) ? _timeStrToArr(time) : [];
     if (time instanceof Array && time.length < 2) return;
