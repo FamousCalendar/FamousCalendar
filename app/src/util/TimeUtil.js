@@ -21,6 +21,14 @@ define(function(require, exports, module) {
 
   var timeUtil = {};
   
+  /** @method calcTimeArr
+   */
+  timeUtil.calcTimeArr = _calcTimeArray = function _calcTimeeArray(position) {
+    var minPerPix = AppSettings.time.getTimeUnits() / AppSettings.timelineView.getNotchSpacing();
+    var minutes   = position * minPerPix;
+    return [Math.floor(minutes / 60), (minutes % 60)];
+  };
+  
   /** @method dateStrToArr
    * 
    * Converts a date in the form of a string to an array.
@@ -28,7 +36,7 @@ define(function(require, exports, module) {
    * @param {string} dateStr : A date supplied in string format "yyyy-mm-dd"
    * @return {array} A three-index array [year, month, day]
    */
-  var _dateStrToArr = timeUtil.dateStrToArr = function _dateStrToArr(dateStr) {
+  timeUtil.dateStrToArr = _dateStrToArr = function _dateStrToArr(dateStr) {
     if (dateStr instanceof Array) return dateStr;
     if (!dateStr || dateStr.length !== 10) return;
     
@@ -274,7 +282,7 @@ define(function(require, exports, module) {
     var result = _timeDiffDays(target, current) * 1440;
     result = (isTargetAfter)
       ? (result + (1440 - this.getPosition()) + ((targetTime[TIME.HOUR] * 60) + targetTime[TIME.MIN])) 
-      : (-result - this.getPosition() - (1440 - ((targetTime[TIME.HOUR] * 60) + targetTime[TIME.MIN])));
+      : (result - this.getPosition() - (1440 - ((targetTime[TIME.HOUR] * 60) + targetTime[TIME.MIN])));
     
     return result;
   } //  End timeDiffMin
@@ -289,10 +297,9 @@ define(function(require, exports, module) {
    *                  timeline axis representing the supplied length of time.
    */
   timeUtil.timeToPixels = _timeToPixels = function _timeToPixels(time) {
+    if (typeof time === 'string') time = _timeStrToArr(time);
     if (!time) return;
-    if (!(time instanceof Array) && !(typeof time !== 'string')) return;
-    else if (time instanceof Array && time.length < 2) return;
-    else if (typeof time === 'string' && time.length !== 5) return;
+    else if (!(time instanceof Array) || time.length < 2) return;
     
     var units   = AppSettings.time.getTimeUnits();
     var spacing = AppSettings.timelineView.getNotchSpacing();
