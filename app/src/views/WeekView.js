@@ -10,11 +10,14 @@ define(function(require, exports, module) {
   var Transitionable = require('famous/transitions/Transitionable');
   var ImageSurface = require('famous/surfaces/ImageSurface');
   var DayBoxView = require('views/DayBoxView');
+  var Utilities = require('utilities');
 
   function WeekView() {
     View.apply(this, arguments);
     this.selectedDay;
+    this.dayArray;
 
+    _createBackgroundLayer.call(this);
     _createDaysOfWeek.call(this);
   }
 
@@ -39,23 +42,55 @@ define(function(require, exports, module) {
     this.options.year = options.year;
 
     this.selectedDay = undefined;
+    this.dayArray = undefined;
     this.surface.setContent(this.generateWeekHTML());
+    this.backgroundSurface.setContent(this.generateBackgroundHTML());
   }
 
-  WeekView.prototype.generateWeekHTML = function() {
-    var arr = [];
+  WeekView.prototype.generateDayArray = function() {
+    this.dayArray = [];
+    var dayOfWeek;
+    var dayOfMonth;
+    var isPreviousMonth;
+    var isNextMonth;
 
-    for (var i = 0; i < 7; i++) {
-      if (i < this.options.startDay || this.options.startDate + (i - this.options.startDay) > this.options.daysInMonth) {
-        arr.push('');
+    for (dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+      dayOfMonth = this.options.startDate + (dayOfWeek - this.options.startDay);
+      isPreviousMonth = dayOfWeek < this.options.startDay;
+      isNextMonth = dayOfMonth > this.options.daysInMonth;
+      if (isPreviousMonth || isNextMonth) {
+        this.dayArray.push('');
       } else {
-        arr.push(this.options.startDate + (i - this.options.startDay));
+        this.dayArray.push(dayOfMonth);
+      }
+    }
+  }
+
+  WeekView.prototype.generateBackgroundHTML = function() {
+    this.dayArray || this.generateDayArray();
+    var html = '<table><tr>';
+    for (var i = 0; i < this.dayArray.length; i++) {
+      var month = this.options.month + 1 < 10 ? '0' + (this.options.month + 1) : this.options.month + 1;
+      var day = this.dayArray[i] < 10 ? '0' + this.dayArray[i] : this.dayArray[i];
+      var dateString = [this.options.year, month, day].join('-');
+      if (this.dayArray[i] && Utilities.getEvents(dateString).length) { // call function to determine if events exist on this day here
+        html += '<td class="day event">.</td>';
+      } else {
+        html += '<td class="space"></td>';
       }
     }
 
-    return '<table><tr><td style="color:grey">' + arr[0] + '</td><td>' + arr[1] + '</td><td>' + 
-           arr[2] + '</td><td>' + arr[3] + '</td><td>' + arr[4] + '</td><td>' +
-           arr[5] + '</td><td style="color:grey">' + arr[6] + '</td></tr></table>';
+    return html + '</tr></table>';
+  };
+
+  WeekView.prototype.generateWeekHTML = function() {
+    this.dayArray || this.generateDayArray();
+    var html = '<table><tr>';
+    for (var i = 0; i < this.dayArray.length; i++) {
+      html += '<td>' + this.dayArray[i] + '</td>';
+    }
+
+    return html + '</tr></table>';
   };
 
   WeekView.prototype.determineClickedDay = function(x) {
@@ -80,6 +115,26 @@ define(function(require, exports, module) {
     };
   };
 
+  function _createBackgroundLayer() {
+    this.backgroundSurface = new Surface({
+      size: [undefined, undefined],
+      content: this.generateBackgroundHTML(),
+      properties: {
+        color: 'grey',
+        backgroundColor: 'white',
+        fontFamily: 'sans-serif',
+        textAlign: 'center',
+        zIndex: 0
+      }
+    });
+
+    this.backgroundModifier = new Modifier({
+      transform: Transform.translate(0, 0, 0)
+    });
+
+    this.add(this.backgroundModifier).add(this.backgroundSurface);
+  }
+
   function _createDaysOfWeek() {
     var day;
     
@@ -87,9 +142,7 @@ define(function(require, exports, module) {
       size: [undefined, undefined],
       content: this.generateWeekHTML(),
       properties: {
-        // backgroundColor: 'white',
         fontFamily: 'sans-serif',
-        borderTop: '1px solid lightgrey',
         zIndex: 1
       }
     });
@@ -101,7 +154,6 @@ define(function(require, exports, module) {
 
     this.surface.on('click', function(data) {
       var day = this.determineClickedDay(data.x);
-      //console.log(day);
 
       // check if user clicked on an actual day
       if (day == null) return;
