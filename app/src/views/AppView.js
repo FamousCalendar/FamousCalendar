@@ -43,14 +43,6 @@ define(function(require, exports, module) {
       headerSize: this.options.headerSize,
       footerSize: 0
     });
-    // var ratios = [1, 9];
-    // this.layout = new FlexibleLayout({
-    //   direction: 1,
-    //   ratios: ratios
-    // });
-
-    // this.views = [];
-    // this.layout.sequenceFrom(this.views);
 
     var layoutModifier = new Modifier({
       transform: Transform.translate(0, 0, 0.1)
@@ -66,7 +58,8 @@ define(function(require, exports, module) {
     var backgroundSurface = new Surface({
       properties: {
         backgroundColor: '#FAFAFA',
-        borderBottom: '1px solid lightgrey'
+        borderBottom: '1px solid lightgrey',
+        zIndex: 3
       }
     });
 
@@ -77,34 +70,29 @@ define(function(require, exports, module) {
     
     // static days of the week bar
     var fontColor;
-    var letterSurface;
-    var letterSurfaces = [];
-    var letterGridModifier;
+    var daysSurface;
+    var daysModifier;
     var dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    var letterGrid = new GridLayout({
-      dimensions: [7, 1]
+
+    var html = '<table><tr>';
+    for (var i = 0; i < dayLetters.length; i++) {
+      html += '<td>' + dayLetters[i] + '</td>';
+    }
+    html + '</tr></table>';
+
+    daysSurface = new Surface({
+      size: [undefined, 14],
+      content: html,
+      properties: {
+        textAlign: 'center',
+        fontFamily: 'sans-serif',
+        fontSize: '10px',
+        color: fontColor,
+        zIndex: 5
+      }
     });
 
-    letterGrid.sequenceFrom(letterSurfaces);
-
-    for (var i = 0; i < dayLetters.length; i++) {
-      fontColor = (i === 0 || i === 6) ? 'grey' : 'black';
-
-      letterSurface = new Surface({
-        size: [undefined, 14],
-        content: dayLetters[i],
-        properties: {
-          textAlign: 'center',
-          fontFamily: 'sans-serif',
-          fontSize: '10px',
-          color: fontColor
-        }
-      });
-
-      letterSurfaces.push(letterSurface);
-    }
-
-    letterGridModifier = new Modifier({
+    daysModifier = new Modifier({
       size: [undefined, 14],
       transform: Transform.translate(0, 44, 5)
     });
@@ -115,7 +103,8 @@ define(function(require, exports, module) {
       size: [30, 30],
       content:'content/images/back_arrow.png',
       properties: {
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        zIndex: 3
       }
     });
 
@@ -135,7 +124,8 @@ define(function(require, exports, module) {
         textAlign: 'left',
         lineHeight: '48px',
         fontSize: '16px',
-        fontFamily: 'sans-serif'
+        fontFamily: 'sans-serif',
+        zIndex: 3
       }
     });
 
@@ -152,7 +142,8 @@ define(function(require, exports, module) {
       properties: {
         textAlign: 'center',
         fontFamily: 'sans-serif',
-        fontSize: '16px'
+        fontSize: '16px',
+        zIndex: 5
       }
     });
 
@@ -160,14 +151,6 @@ define(function(require, exports, module) {
       opacity: 0.001,
       transform: Transform.translate(0, 140, 5)
     });
-
-    this.layout.header.add(this.dateStringModifier).add(this.dateStringSurface);
-    this.layout.header.add(this.backgroundModifier).add(backgroundSurface);
-    this.layout.header.add(this.titleModifier).add(this.titleSurface);
-    this.layout.header.add(backIconModifier).add(backIcon);
-    this.add(letterGridModifier).add(letterGrid);
-
-
     
     var addIcon = new Surface({
       size: [30, 30],
@@ -184,7 +167,7 @@ define(function(require, exports, module) {
     var addIconModifier = new Modifier({
       align: [0.92, 0.4],
       origin: [1, 1],
-      transform: Transform.translate(0, 0, 3)
+      transform: Transform.translate(0, 0, 5)
     });
 
 
@@ -201,15 +184,15 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this.layout.header.add(addIconModifier).add(addIcon);
+    this.layout.header.add(daysModifier).add(daysSurface);
+    this.layout.header.add(this.dateStringModifier).add(this.dateStringSurface);
+    this.layout.header.add(this.backgroundModifier).add(backgroundSurface);
+    this.layout.header.add(this.titleModifier).add(this.titleSurface);
+    this.layout.header.add(backIconModifier).add(backIcon);
   }
 
 
   function _createContent() {
-    // this.monthView = new MonthView({
-    //   month: 6,
-    //   year: 2014
-    // });
-
     this.monthScrollView = new MonthScrollView({
       highlightModifier: this.highlightModifier
     });
@@ -237,7 +220,6 @@ define(function(require, exports, module) {
   }
 
   function _setHighlighter(data) {
-    console.log(data);
     this.highlightModifier.halt();
     this.highlightModifier.setOpacity(0.01);
     this.highlightSurface.setContent(data.selectedDay);
@@ -248,7 +230,6 @@ define(function(require, exports, module) {
   function _setListeners() {
     // when user clicks the button in header (the text not the back icon currently)
     this.titleSurface.on('click', function(clickData) {
-      console.log(clickData);
       // short-circuited when in monthView because there currently is no yearView yet
       if (this.state === 'monthView') return;
 
@@ -263,7 +244,11 @@ define(function(require, exports, module) {
 
     this._eventInput.on('stateChangeDayView', function(weekView) {
       this.state = 'dayView';
-
+      var date = weekView.getDate();
+      var month = date.month + 1 < 10 ? '0' + (date.month + 1) : date.month + 1;
+      var day = date.day < 10 ? '0' + date.day : date.day;
+      var dateString = [date.year, month, day].join('-');
+      this.dayScrollView.setToDate(dateString, false);
       _setHighlighter.call(this, weekView);
       _setTitleSurface.call(this, DateConstants.monthNames[weekView.getDate().month]);
       _toggleHeaderSize.call(this, weekView);
@@ -299,7 +284,6 @@ define(function(require, exports, module) {
 
     if (height === 130) {
       var date = this.monthScrollView.selectedDate;
-      console.log(date);
       this.dateStringSurface.setContent(DateConstants.daysOfWeek[date.weekDay] + 
         ' ' + DateConstants.monthNames[date.month] + ' ' + date.day + ', ' + date.year);
       this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 650, curve: Easing.outExpo });
@@ -346,13 +330,14 @@ define(function(require, exports, module) {
         pointerEvents: 'none'
       }
     });
+
     this.highlightModifier = new Modifier({
       align: [0, 0],
       origin: [0.5, 0.5],
       opacity: 0.01,
       transform: Transform.translate(0, 0, 6)
     });
-    // this.add(this.highlightModifier).add(this.highlightSurface);
+
     this.layout.content.add(this.highlightModifier).add(this.highlightSurface);
   };
 
