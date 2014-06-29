@@ -25,68 +25,16 @@ define(function(require, exports, module) {
     });
 
     this.sequenceFrom(this.viewSequence);
-
-    this.updateNodeBuffer = function(oldNode, currentNode, indexOffset, targetIndex, currentIndex) {
-      var currentYear = this.months[currentIndex].getMonth().year;
-      if (this.year !== currentYear) {
-        this._eventOutput.emit('updateYear', currentYear);
-        this.year = currentYear;
-      }
-
-      oldNode = this.months[targetIndex];
-
-      if (indexOffset < 0) {
-        var oldMonth = this.months[(targetIndex + 1) % this.months.length].getMonth();
-        if (oldMonth.month === 0) {
-          oldNode.setMonth(11, oldMonth.year - 1);
-        } else {
-          oldNode.setMonth(oldMonth.month - 1, oldMonth.year);
-        }
-      } else {
-        var oldMonth = this.months[(targetIndex - 1 + this.months.length) % this.months.length].getMonth();
-        if (oldMonth.month  === 11) {
-          oldNode.setMonth(0, oldMonth.year + 1);
-        } else {
-          oldNode.setMonth(oldMonth.month + 1, oldMonth.year);
-        }
-      }
-    };
-    
+    this.updateNodeBuffer = _updateNodeBuffer;
     _createMonthViews.call(this);
   }
   
   MonthScrollView.DEFAULT_OPTIONS = {
-    maxMonthViews: 24
+    maxMonthViews: 24,
   };
   
   MonthScrollView.prototype = Object.create(InfiniteScrollView.prototype);
   MonthScrollView.prototype.constructor = MonthScrollView;
-
-  this.updateNodeBuffer = function(oldNode, currentNode, indexOffset, targetIndex, currentIndex) {
-    var currentYear = this.months[currentIndex].getMonth().year;
-    if (this.year !== currentYear) {
-      this._eventOutput.emit('updateYear', currentYear);
-      this.year = currentYear;
-    }
-
-    oldNode = this.months[targetIndex];
-
-    if (indexOffset < 0) {
-      var oldMonth = this.months[(targetIndex + 1) % this.months.length].getMonth();
-      if (oldMonth.month === 0) {
-        oldNode.setMonth(11, oldMonth.year - 1);
-      } else {
-        oldNode.setMonth(oldMonth.month - 1, oldMonth.year);
-      }
-    } else {
-      var oldMonth = this.months[(targetIndex - 1 + this.months.length) % this.months.length].getMonth();
-      if (oldMonth.month  === 11) {
-        oldNode.setMonth(0, oldMonth.year + 1);
-      } else {
-        oldNode.setMonth(oldMonth.month + 1, oldMonth.year);
-      }
-    }
-  };
   
   MonthScrollView.prototype.moveAdjacentMonths = function(amount) {
     var before = (this.selectedIndex + this.monthViews.length - 1) % this.monthViews.length;
@@ -99,14 +47,6 @@ define(function(require, exports, module) {
       duration: 1000,
       curve: Easing.outQuart
     });
-  };
-
-  MonthScrollView.prototype.moveWeeks = function(amount) {
-
-  };
-
-  MonthScrollView.prototype.unselectDay = function() {
-
   };
 
   MonthScrollView.prototype.determineOffset = function() {
@@ -139,6 +79,7 @@ define(function(require, exports, module) {
     var year = date.getFullYear();
     this.year = year;
     var startArr = [];
+    var endArr = [];
     var nextMonth;
     var prevMonth;
 
@@ -152,12 +93,14 @@ define(function(require, exports, module) {
     month = date.getMonth();
     year = date.getFullYear();
 
-    for (var i = Math.floor(this.options.maxMonthViews / 2); i > 0; i--) {
-      startArr.push({ month: month, year: year });
+    for (var i = 0; i < Math.floor(this.options.maxMonthViews / 2); i++) {
       prevMonth = _calcPriorMonth(month, year);
       month = prevMonth.month;
       year = prevMonth.year;
+      endArr.push({ month: month, year: year });
     }
+
+    startArr = startArr.concat(endArr.reverse());
 
     for (var views = 0; views < startArr.length; views++) {
       var monthView = new MonthView({
@@ -210,42 +153,28 @@ define(function(require, exports, module) {
   }
 
   function _animateWeeks(amount, row) {
-    //  console.log(amount, row);
-    //  console.log('selected', this.selectedIndex);
     var bottomMovement = amount ? window.innerHeight : 0;
     var bottomDuration = amount ? 1000 : 500;
     var backgroundOpacity = amount ? 0.01 : 0.99;
-    var zIndex = amount ? 4 : 0.1;
+    var zIndex = amount ? 2 : 1;
     var borderTop = amount ? 'lightgrey' : '';
     var currentMonth = this.months[this.selectedIndex];
-    //  console.log(currentMonth);
 
     this.moveAdjacentMonths([amount, bottomMovement]);
 
     for (var i = 0; i < currentMonth.weeks.length; i++) {
       currentMonth.mods[i].halt();
       if (i === row) {
-        // fade out backgroundsurface/border of days in selected week so it doesn't show in header
-        currentMonth.weeks[i].surface.setProperties({zIndex: 4});
         currentMonth.weeks[i].modifier.halt();
         this.options.highlightModifier.halt();
-        // !amount && this.options.highlightModifier.setOpacity(0.01);
         this.options.highlightModifier.setTransform(Transform.translate(0, amount, 6), {
           duration: 500,
           curve: Easing.outQuart
         });
-        // this.weeks[i].modifier.setOpacity(backgroundOpacity, {duration: 50, curve: Easing.inQuint});
         currentMonth.mods[i].setTransform(Transform.translate(0, amount, zIndex), {
           duration: 500,
           curve: Easing.outQuart
         });
-        setTimeout(function (context, i, amount) {
-          return function() {
-            currentMonth.weeks[i].surface.setProperties({
-              borderTop: amount ? '' : '1px solid lightgrey'
-            });
-          }.bind(context);
-        }(this, i, amount), 100);
       } else if (i < row) {
         // rows above selected row get pushed up
         currentMonth.mods[i].setTransform(Transform.translate(0, amount, 0), {
@@ -283,6 +212,32 @@ define(function(require, exports, module) {
 
     return nextMonth;
   }
+
+  function _updateNodeBuffer(oldNode, currentNode, indexOffset, targetIndex, currentIndex) {
+    var currentYear = this.months[currentIndex].getMonth().year;
+    if (this.year !== currentYear) {
+      this._eventOutput.emit('updateYear', currentYear);
+      this.year = currentYear;
+    }
+
+    oldNode = this.months[targetIndex];
+
+    if (indexOffset < 0) {
+      var oldMonth = this.months[(targetIndex + 1) % this.months.length].getMonth();
+      if (oldMonth.month === 0) {
+        oldNode.setMonth(11, oldMonth.year - 1);
+      } else {
+        oldNode.setMonth(oldMonth.month - 1, oldMonth.year);
+      }
+    } else {
+      var oldMonth = this.months[(targetIndex - 1 + this.months.length) % this.months.length].getMonth();
+      if (oldMonth.month === 11) {
+        oldNode.setMonth(0, oldMonth.year + 1);
+      } else {
+        oldNode.setMonth(oldMonth.month + 1, oldMonth.year);
+      }
+    }
+  };
   
   module.exports = MonthScrollView;
 });
