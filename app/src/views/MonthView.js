@@ -34,14 +34,14 @@ define(function(require, exports, module) {
   };
 
   MonthView.prototype.setMonth = function(month, year) {
-    console.log(month, year);
     this.options.month = month;
     this.options.year = year;
     this.firstDay = new Date(this.options.year, this.options.month, 1).getDay();
     this.daysInMonth = new Date(this.options.year, this.options.month + 1, 0).getDate();
 
     // update month name
-    this.weeks[0].setContent('&nbsp;&nbsp;' + DateConstants.monthNames[this.options.month].substr(0, 3).toUpperCase());
+    this.weeks[0].setContent('&nbsp;' + DateConstants.monthNames[this.options.month].substr(0, 3).toUpperCase());
+    this.monthNameMod.setTransform(Transform.translate(this.firstDay * (window.innerWidth / 7), 0, 1));
 
     // update weeks of month
     for (var i = 0; i < 6; i++) {
@@ -73,15 +73,23 @@ define(function(require, exports, module) {
   }
 
   function _createMonthName() {
-    var monthName = new Surface({
+    this.monthNameView = new View();
+    var backgroundSurface = new Surface({
       size: [undefined, undefined],
-      content: '&nbsp;&nbsp;' + DateConstants.monthNames[this.options.month].substr(0, 3).toUpperCase(),
       properties: {
-        lineHeight: '100px',
-        fontFamily: 'sans-serif',
-        // fontSize: '16px',
-        color: 'red',
         backgroundColor: 'white',
+        zIndex: 0.1
+      }
+    });
+
+
+    var monthName = new Surface({
+      size: [true, true],
+      content: '&nbsp;' + DateConstants.monthNames[this.options.month].substr(0, 3).toUpperCase(),
+      properties: {
+        fontFamily: 'sans-serif',
+        color: 'red',
+        zIndex: 0
       }
     });
 
@@ -89,11 +97,20 @@ define(function(require, exports, module) {
       transform: Transform.translate(0, 0, 1)
     });
 
+    this.monthNameMod = new Modifier({
+      align: [0, 0.9],
+      origin: [0, 1],
+      transform: Transform.translate(this.firstDay * (window.innerWidth / 7), 0, 1)
+    });
+
+    this.monthNameView.add(backgroundSurface);
+    this.monthNameView.add(this.monthNameMod).add(monthName);
     var node = new RenderNode();
     this.mods.push(slideMod);
-    node.add(slideMod).add(monthName);
+    node.add(slideMod).add(this.monthNameView);
     this.gridWeeks.push(node);
     this.weeks.push(monthName);
+    backgroundSurface.pipe(this.options.scrollView);
     monthName.pipe(this.options.scrollView);
     // this.add(slideMod).add(monthName);
   }
