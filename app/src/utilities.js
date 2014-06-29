@@ -5,7 +5,7 @@ define(function(require, exports, module){
 	 //Retrieve _calendar for date from local storage
 	var _calendar = JSON.parse(window.localStorage.getItem('calendar')) || {};
 	_calendar.repeat = _calendar.repeat || {};
-	_calendar.repeat['daily'] = _calendar.repeat['daily'] || {};
+	_calendar.repeat['daily'] = _calendar.repeat['daily'] || [];
 	_calendar.repeat['weekly'] = _calendar.repeat['weekly'] || {};
 	_calendar.repeat['monthly'] = _calendar.repeat['monthly'] || {};
 	_calendar.repeat['yearly'] = _calendar.repeat['yearly'] || {};
