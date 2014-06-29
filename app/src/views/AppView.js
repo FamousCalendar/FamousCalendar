@@ -16,6 +16,7 @@ define(function(require, exports, module) {
   var DateConstants = require('config/DateConstants');
   var MonthScrollView = require('views/MonthScrollView');
   var FlexibleLayout = require('famous/views/FlexibleLayout');
+  var AddEventView = require('views/AddEventView');
 
 
   function AppView() {
@@ -158,15 +159,15 @@ define(function(require, exports, module) {
       properties: {
         color: 'red',
         textAlign: 'center',
-        lineHeight: '48px',
-        fontSize: '48px',
+        lineHeight: '36px',
+        fontSize: '36px',
         fontFamily: 'sans-serif'
       }
     });
 
     var addIconModifier = new Modifier({
-      align: [0.92, 0.4],
-      origin: [1, 1],
+      align: [0.92, 0.3],
+      origin: [0.5, 0.5],
       transform: Transform.translate(0, 0, 5)
     });
 
