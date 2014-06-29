@@ -10,7 +10,8 @@ define(function(require, exports, module) {
     var StateModifier = require('famous/modifiers/StateModifier');
     var Settings = require('config/AppSettings');
     var Transitionable = require('famous/transitions/Transitionable');
-       var Modifier = require('famous/core/Modifier');
+    var Modifier = require('famous/core/Modifier');
+    var Easing = require('famous/transitions/Easing');
 
     // Constructor function for our EventView class
     function EventView(event) {
@@ -28,11 +29,11 @@ define(function(require, exports, module) {
 
 
         var eventSize = new Transitionable(0);
-        var eventOpacity = new Transitionable();
+        var eventOpacity = new Transitionable(0);
 
 
         this.eventSurface = new Surface({
-            size: [window.innerWidth/2, duration/60 * hourHeight],
+            size: [window.outerWidth/2, duration/60 * hourHeight],
             content: '<h>' + event.title + '</h>',
             properties: {
                 backgroundColor: '#7201ce',
@@ -41,14 +42,15 @@ define(function(require, exports, module) {
             }
         });
 
-        eventModifier = new Modifier({
+
+        var eventModifier = new Modifier({
             origin: [0.5, 0.5],
             align: [0.5, 0.5],
             transform: function(){
-                var x = window.innerWidth/2 + window.innerWidth/2 * eventSize.get();
-                var y = duration/60 * hourHeight + (window.innerHeight-duration/60 * hourHeight) * eventSize.get();
-                return Transform.translate(10, 10, 100);
-            }
+                var x = /*window.innerWidth/2*/ 1 + (1 * eventSize.get());
+                var y = /*duration/60 * hourHeight*/1 + ((window.outerHeight/(duration/60 * hourHeight)) * eventSize.get());
+                return Transform.scale(x, y, 6);
+            }.bind(this)
         });
 
         // this.eventSurface.setSize(function(){return eventSize.get()});
@@ -60,10 +62,12 @@ define(function(require, exports, module) {
 
         this.eventSurface.on('click', function(){
             //expand
-            eventSize.set(1, {duration: 10000, curve: Easing.inOutBack});
+            console.log(eventModifier);
+            // eventModifier.setTransform(Transform.translate(0, 0, 1000), {duration: 1000, curve: Easing.inExpo});
+            eventSize.set(.99, {duration: 1000, curve: Easing.inExpo});
             this.eventSurface.setContent('<div class="eventDetails"><h>' + 
                 event.title + '</h><p>' + event.date + 
-                '</p><p>' + event.location + '</p></div>');
+                '</p><p>' + event.location + '</p>' + '</div>');
             // eventModifier.setTransform({
             //     Transform.translate()
             // })

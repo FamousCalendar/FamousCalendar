@@ -308,7 +308,7 @@ define(function(require, exports, module) {
    * @param {string} time : A time string in format "hh:mm" to be converted to an array.
    * @return {array} A tuple array in format [hour, minute]
    */
-  timeUtil.timeStrToArr = function _timeArrToStr(time) {
+  timeUtil.timeArrToStr = function _timeArrToStr(time) {
     if (typeof time === 'string') return time;
     if (!(time instanceof Array) || time.length < 2) return null;
     return ((time[TIME.HOUR] < 10) ? ('0' + time[TIME.HOUR]) : ('' + time[TIME.HOUR])) + ':' + ((time[TIME.MIN] < 10) ? ('0' + time[TIME.MIN]) : ('' + time[TIME.MIN]));
