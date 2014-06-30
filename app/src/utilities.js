@@ -5,7 +5,7 @@ define(function(require, exports, module){
 	 //Retrieve _calendar for date from local storage
 	var _calendar = JSON.parse(window.localStorage.getItem('calendar')) || {};
 	_calendar.repeat = _calendar.repeat || {};
-	_calendar.repeat['daily'] = _calendar.repeat['daily'] || {};
+	_calendar.repeat['daily'] = _calendar.repeat['daily'] || [];
 	_calendar.repeat['weekly'] = _calendar.repeat['weekly'] || {};
 	_calendar.repeat['monthly'] = _calendar.repeat['monthly'] || {};
 	_calendar.repeat['yearly'] = _calendar.repeat['yearly'] || {};
@@ -81,13 +81,13 @@ define(function(require, exports, module){
 
 	Utilities.getEvents = function getEvents(date){
       var result = [];
+      var dateEvents = _calendar[date] || [];
       var dailyEvents = _calendar.repeat.daily || [];
       var weeklyEvents = _calendar.repeat.weekly[new Date(date).getDay()] || [];
       var monthlyEvents = _calendar.repeat.monthly[date.slice(-2)] || [];
       var yearlyEvents = _calendar.repeat.yearly[date.slice(5)] || [];
-      //console.log(_calendar);
 	  //returns _calendar array for given date
-	  return result.concat(_calendar[date], dailyEvents, weeklyEvents, monthlyEvents, yearlyEvents);
+	  return result.concat(dateEvents, dailyEvents, weeklyEvents, monthlyEvents, yearlyEvents);
 
 	};
 
