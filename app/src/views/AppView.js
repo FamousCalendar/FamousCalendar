@@ -94,7 +94,9 @@ define(function(require, exports, module) {
     });
 
     this.dayScrollView = new DayScrollView();
-    this.dayScrollModifier = new Modifier();
+    this.dayScrollModifier = new Modifier({
+      transform: Transform.translate(0, 70, 0)
+    });
 
     this.layout.content.add(this.dayScrollModifier).add(this.dayScrollView);
     this.layout.content.add(this.monthMod).add(this.monthScrollView);
@@ -134,14 +136,14 @@ define(function(require, exports, module) {
     this._eventInput.on('stateChangeDayView', function(weekView) {
       this.state = 'dayView';
       this.selectedWeek = weekView;
-      this.dayScrollView.setToDate(_generateDateString(weekView), false);
+      this.dayScrollView.setToDate(_generateDateString(weekView), weekView.weekDay, false);
       _setHighlighter.call(this, weekView);
       _setTitleSurface.call(this, DateConstants.monthNames[weekView.getDate().month]);
       _toggleHeaderSize.call(this, weekView);
     }.bind(this));
 
     this._eventInput.on('toggleSelectedDate', function(weekView) {
-      this.dayScrollView.setToDate(_generateDateString(weekView), false);
+      this.dayScrollView.setToDate(_generateDateString(weekView), weekView.weekDay, false);
       _setHighlighter.call(this, weekView);
       _transitionDateString.call(this, weekView);
     }.bind(this));
@@ -178,6 +180,12 @@ define(function(require, exports, module) {
       this.selectedWeek.options.weekDay += direction;
       _setHighlighter.call(this, this.selectedWeek);
       _transitionDateString.call(this, this.selectedWeek);
+    }.bind(this));
+
+    this._eventInput.on('changes', function() {
+      console.log('changes');
+      this.dayScrollView.resetDay();
+      _checkForEvents.call(this);
     }.bind(this));
   }
 
@@ -263,6 +271,12 @@ define(function(require, exports, module) {
     var month = date.month + 1 < 10 ? '0' + (date.month + 1) : date.month + 1;
     var day = date.day < 10 ? '0' + date.day : date.day;
     return [date.year, month, day].join('-');
+  }
+
+  function _checkForEvents() {
+    for (var i = 0; i < this.monthScrollView.months.length; i++) {
+      this.monthScrollView.months[i].refreshEvents();
+    }
   }
 
   module.exports = AppView;
