@@ -44,7 +44,7 @@ define(function(require, exports, module) {
       curve: Easing.outQuart
     });
     this.monthModifiers[after].setTransform(Transform.translate(0, amount[1], 0), {
-      duration: 1000,
+      duration: 500,
       curve: Easing.outQuart
     });
   };
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
 
   function _animateWeeks(amount, row) {
     var bottomMovement = amount ? window.innerHeight : 0;
-    var bottomDuration = amount ? 1000 : 500;
+    var bottomDuration = amount ? 500 : 500;
     var backgroundOpacity = amount ? 0.01 : 0.99;
     var zIndex = amount ? 2 : 1;
     var borderTop = amount ? 'lightgrey' : '';
