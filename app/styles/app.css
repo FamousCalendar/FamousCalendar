@@ -18,11 +18,11 @@ table {
 }
 
 tr > td:first-child, td:last-child {
-  color: lightgrey;
+  color: #C2C4C4;
 }
 
 .day {
-  border-top: 1px solid lightgrey;
+  border-top: 1px solid #C2C4C4;
 }
 
 .space {
@@ -32,7 +32,7 @@ tr > td:first-child, td:last-child {
 .event {
   font-size: 70px;
   font-family: serif;
-  color: lightgrey;
+  color: #C2C4C4;
   line-height: 60px;
   height: 50%;
 }
