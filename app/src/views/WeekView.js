@@ -73,8 +73,12 @@ define(function(require, exports, module) {
       var month = this.options.month + 1 < 10 ? '0' + (this.options.month + 1) : this.options.month + 1;
       var day = this.dayArray[i] < 10 ? '0' + this.dayArray[i] : this.dayArray[i];
       var dateString = [this.options.year, month, day].join('-');
-      if (this.dayArray[i] && Utilities.getEvents(dateString).length) { // call function to determine if events exist on this day here
-        html += '<td class="day event">.</td>';
+      if (this.dayArray[i]) {
+        if (Utilities.hasEvents(dateString)) {
+          html += '<td class="day event">.</td>';
+        } else {
+          html += '<td class="day event"></td>';
+        }
       } else {
         html += '<td class="space"></td>';
       }
