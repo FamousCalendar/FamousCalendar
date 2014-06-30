@@ -66,6 +66,10 @@ define(function(require, exports, module) {
     this._physicsEngine.detachAll();
   }
   
+  function _emitNodeChange(direction) {
+    if (this.emitNodeChange) this.emitNodeChange.call(this, direction);
+  } //  End _emitNodeChange
+  
   function _handleEdge(edgeDetected) {      //  Copy/Pasted here from Scrollview.js
     if (!this._onEdge && edgeDetected) {
       this.sync.setOptions({scale: this.options.edgeGrip});
@@ -107,6 +111,14 @@ define(function(require, exports, module) {
     this._needsPaginationCheck = false;
   }
   
+  function _nodeChange(direction) {
+    _updateNodeBuffer.call(this);
+    if (direction === 'next') direction = 1;
+    else if (direction === 'prev') direction = -1;
+    else direction = 0
+    _emitNodeChange.call(this, direction); 
+  } //  End _nodeChange
+  
   function _nodeSizeForDirection(node) {    //  Copy/Pasted here from Scrollview.js
     var direction = this.options.direction;
     var nodeSize = (node.getSize() || this._scroller.getSize())[direction];
@@ -124,7 +136,7 @@ define(function(require, exports, module) {
       position -= nodeSize;
       this._scroller.sequenceFrom(nextNode);
       this._node = nextNode;
-      _updateNodeBuffer.call(this);     //    <======= Added
+      _nodeChange.call(this, 'next');     //    <======= Added
       nextNode = this._node.getNext();
       nodeSize = _nodeSizeForDirection.call(this, this._node);
     }
@@ -136,7 +148,7 @@ define(function(require, exports, module) {
       previousNodeSize = _nodeSizeForDirection.call(this, previousNode);
       this._scroller.sequenceFrom(previousNode);
       this._node = previousNode;
-      _updateNodeBuffer.call(this);     //    <======= Added
+      _nodeChange.call(this, 'prev');     //    <======= Added
       _shiftOrigin.call(this, previousNodeSize);
       position += previousNodeSize;
       previousNode = this._node.getPrevious();
@@ -201,13 +213,13 @@ define(function(require, exports, module) {
     offset      = Math.floor(arrayLength / 2);
     targetIndex = currentIndex - offset;
     if (targetIndex < 0) targetIndex += arrayLength;
-    this.updateNodeBuffer(nodeArray[targetIndex], nodeArray[currentIndex], -offset, targetIndex, currentIndex);
+    if (this.updateNodeBuffer) this.updateNodeBuffer(nodeArray[targetIndex], nodeArray[currentIndex], -offset, targetIndex, currentIndex);
     
     //  Set data for furthest forward node
     offset      = Math.floor((arrayLength - 0.5) / 2);
     targetIndex = currentIndex + offset;
     if (targetIndex >= arrayLength) targetIndex -= nodeArray.length;
-    this.updateNodeBuffer(nodeArray[targetIndex], nodeArray[currentIndex], offset, targetIndex, currentIndex);
+    if (this.updateNodeBuffer) this.updateNodeBuffer(nodeArray[targetIndex], nodeArray[currentIndex], offset, targetIndex, currentIndex);
   }
   
   module.exports = InfiniteScrollview;

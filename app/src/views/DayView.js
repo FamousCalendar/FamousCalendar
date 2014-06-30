@@ -73,6 +73,7 @@ define(function(require, exports, module) {
       });
       
       var event = new EventView(events[i]);
+      event.eventSurface.pipe(this.options.scrollView);
       
       eventNode.add(eventModifier).add(event);
       this._eventsNode.add(eventNode);
@@ -141,7 +142,7 @@ define(function(require, exports, module) {
       }
     });
     
-    bgSurface.pipe(this.options.Scrollview);
+    bgSurface.pipe(this.options.scrollView);
     this.add(bgModifier).add(bgSurface);
   } //  End _createBackground
   
