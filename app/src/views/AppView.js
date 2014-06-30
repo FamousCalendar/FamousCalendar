@@ -18,6 +18,8 @@ define(function(require, exports, module) {
   var FlexibleLayout = require('famous/views/FlexibleLayout');
   var AddEventView = require('views/AddEventView');
   var HeaderView = require('views/HeaderView');
+  var Utility = require('utilities');
+  var EventDetailsView = require('views/EventDetailsView');
 
 
   function AppView() {

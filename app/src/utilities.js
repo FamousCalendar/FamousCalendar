@@ -93,39 +93,39 @@ define(function(require, exports, module){
 	};
 
 	function _findEvent(event, callback){
-		if(event.repeat === 'false'){
-			var dateArray = _calendar[event.date];
-			for(var x = 0; x < dateArray.length; x++){
-				if(dateArray[x] === event){
-					callback(dateArray, dateArray[x], x);
-				}
+		var dateArray = _calendar[event.date] || [];
+		for(var x = 0; x < dateArray.length; x++){
+			if(dateArray[x] === event){
+				callback(dateArray, dateArray[x], x);
 			}
-			// _calendar[event.date] = dateArray;
-		}else if(event.repeat === 'daily'){
+		}
+		if(event.repeat === 'daily'){
 			var dailyArray = _calendar.repeat.daily;
 			for(var x = 0; x < dailyArray.length; x++){
-				if(dailyArray[x] === event){
+				console.log(event, dailyArray[x]);
+				if(dailyArray[x].title === event.title && dailyArray[x].start === event.start){
+					console.log('found');
 					callback(dailyArray, dailyArray[x], x);
 				}
 			}
 		}else if(event.repeat === 'weekly'){
 			var weeklyArray = _calendar.repeat.weekly[new Date(event.date).getDay()];
 			for(var x = 0; x < weeklyArray.length; x++){
-				if(weeklyArray[x] === event){
+				if(weeklyArray[x].title === event.title && weeklyArray[x].start === event.start && weeklyArray[x].end === event.end){
 					callback(weeklyArray, weeklyArray[x], x);
 				}
 			}
 		}else if(event.repeat === 'monthly'){
 			var monthlyArray = _calendar.repeat.monthly[event.date.slice(-2)];
 			for(var x = 0; x < monthlyArray.length; x++){
-				if(monthlyArray[x] === event){
+				if(monthlyArray[x].title === event.title && monthlyArray[x].start === event.start && monthlyArray[x].end === event.end){
 					callback(monthlyArray, monthlyArray[x], x);
 				}
 			}
 		}else if(event.repeat === 'yearly'){
 			var yearlyArray = _calendar.repeat.yearly[event.date.slice(5)];
 			for(var x = 0; x < yearlyArray.length; x++){
-				if(yearlyArray[x] === event){
+				if(yearlyArray[x].title === event.title && yearlyArray[x].start === event.start && yearlyArray[x].end === event.end){
 					callback(yearlyArray, yearlyArray[x], x);
 				}
 			}
@@ -135,6 +135,7 @@ define(function(require, exports, module){
 	Utilities.deleteEvent = function(event){
 		_findEvent(event, function(arr, item, index){
 			arr.splice(index, 1);
+			console.log(arr);
 		});
 		window.localStorage.setItem('calendar', JSON.stringify(_calendar));
 	};
@@ -142,7 +143,9 @@ define(function(require, exports, module){
 	Utilities.editEvent = function(oldEvent, updatedEvent){
 		_findEvent(oldEvent, function(arr, item, index){
 			arr[index] = updatedEvent;
+			console.log('ok');
 		});
+		console.log('editing');
 		window.localStorage.setItem('calendar', JSON.stringify(_calendar));
 	};
 
@@ -154,7 +157,7 @@ define(function(require, exports, module){
 	        location : this.locationField.getValue(),
 	        start : this.startField.getValue(),
 	        end : this.endField.getValue(),
-	        repeat : repeatValue.value
+	        repeat : this.repeatValue.value
 	    };
 	}
 

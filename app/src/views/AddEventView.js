@@ -25,12 +25,11 @@ define(function(require, exports, module) {
     var repeatValue = document.createElement('select');
     repeatValue.innerHTML = '<option value="false">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option>';
 
-    // Constructor function for our SlideShowView class
+
     function AddEventView() {
 
         View.apply(this, arguments);
         
-        Utility.getCalendar();
         this.node = new RenderNode({
 
         });

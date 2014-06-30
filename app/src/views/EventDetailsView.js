@@ -304,6 +304,7 @@ define(function(require, exports, module) {
             titleFieldModifier.setOpacity(0);
             this.titleField = new InputSurface({
                 placeholder: event.title,
+                value: event.title,
                 type: 'text',
                 properties: {
                     // backgroundColor: 'red'
@@ -319,6 +320,7 @@ define(function(require, exports, module) {
             locationModifier.setOpacity(0);
             this.locationField = new InputSurface({
                 placeholder: event.location,
+                value: event.location,
                 size: [undefined, true],
                 properies: {
                     fontFamily: 'sans-serif',
@@ -378,13 +380,13 @@ define(function(require, exports, module) {
             this.node.add(endFieldModifier).add(this.endField);
             endFieldModifier.setOpacity(1);
 
-            var repeatContent = document.createElement('select');
-            repeatContent.innerHTML = '<option value="false">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option>';
+            this.repeatValue = document.createElement('select');
+            this.repeatValue.innerHTML = '<option value="false">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option>';
 
             repeatFieldModifier.setOpacity(0);
             this.repeatField = new Surface({
                 value: event.repeat,
-                content: repeatContent,
+                content: repeatValue,
                 size: [undefined, true],
                 properties: {
                     fontFamily: 'sans-serif',
@@ -413,14 +415,14 @@ define(function(require, exports, module) {
             this.node.add(saveIconModifier).add(saveIcon);
 
             saveIcon.on('click', function(){
-                var newEvent = Utilities.createEvent.call(this);
+                var newEvent = Utility.createEvent.call(this);
                 if(newEvent.date.length > 0 && newEvent.start.length > 0 && newEvent.end.length > 0) {
                     Utility.editEvent(this.event, newEvent);
                     _outTransition.call(this);
                 }else{
                     alert('Please complete event form');
                 }
-            })
+            }.bind(this))
         }.bind(this));
 
 
