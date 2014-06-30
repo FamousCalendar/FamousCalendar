@@ -136,10 +136,10 @@ define(function(require, exports, module) {
         scrollView: this
       }));
       this._eventInput.subscribe(this.dayViews[views]._eventOutput);
-      this._eventInput.on('showDetails', function(eventView) {
-        this._eventOutput.emit('showDetails', eventView);
-      }.bind(this));
     }
+    this._eventInput.on('showDetails', function(eventView) {
+      this._eventOutput.emit('showDetails', eventView);
+    }.bind(this));
   } //  End _createDayViews
   
   /**@method _resetDayViews

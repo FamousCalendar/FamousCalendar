@@ -61,7 +61,7 @@ define(function(require, exports, module) {
       fontAMColor: 'lightgrey',
       fontPMColor: '#4444AA',
       //  Background surface settings for TimelineView
-      timebarWidth: 60,
+      timebarWidth: 50,
       timebarLineWidth: 1,
       timebarColor: '#FAFAFA',
       //  TimelineView line settings

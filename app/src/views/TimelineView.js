@@ -29,7 +29,7 @@ define(function(require, exports, module) {
     fontAMColor: TimelineSettings.getFontAMColor(),
     fontPMColor: TimelineSettings.getFontPMColor(),
     timebarColor: TimelineSettings.getTimebarColor(),
-    notchSize: [TimelineSettings.getNotchLength(), TimelineSettings.getNotchWidth()],
+    notchSize: [window.innerWidth, TimelineSettings.getNotchWidth()],
     notchSpacing: TimelineSettings.getNotchSpacing(),                 //  Change to get current row height
     timelineLineColor: TimelineSettings.getLineColor()
   };
@@ -74,7 +74,7 @@ define(function(require, exports, module) {
     
     var timelineModifier = new StateModifier({
       origin: [1, 0],
-      align: [0.85, 0],
+      align: [1, 0],
       size: this.options.timelineSize
     });
     
@@ -85,14 +85,15 @@ define(function(require, exports, module) {
     for (var i = 0; i < (1440 / 30); i++) {
       var notchSurface = new Surface({
         properties: {
-          backgroundColor: this.options.timelineLineColor,
+          //backgroundColor: this.options.timelineLineColor,
+          background: '-webkit-linear-gradient(left, rgba(68, 68, 170, 0.75) 0%, rgba(68, 68, 170, 0) 75%)',
           zIndex: 3
         }
       });
       
       var notchModifier = new StateModifier({
-        origin: [1, 0],
-        align: [0.85, 0],
+        origin: [0, 0],
+        align: [1, 0],
         size: this.options.notchSize,
         transform: Transform.translate(0, (this.options.notchSpacing * i), 0)
       });
@@ -117,8 +118,8 @@ define(function(require, exports, module) {
         }
         time += '</font>';
         time += (rawTime[0] < 12) 
-          ? '<font style="color:' + this.options.fontAMColor + '"> a.m.</font>' 
-          : '<font style="color:' + this.options.fontPMColor + '"> p.m.</font>';
+          ? '<font style="color:' + this.options.fontAMColor + '"> am</font>' 
+          : '<font style="color:' + this.options.fontPMColor + '"> pm</font>';
       } else {
         time += rawTime[0] + (showMinutes ? (':' + rawTime[1]) : '');
       }
