@@ -25,6 +25,7 @@ define(function(require, exports, module) {
   function AppView() {
     View.apply(this, arguments);
     this.state = 'monthView';
+    this.selectedWeek;
 
     _createLayout.call(this);
     _createHeader.call(this);
@@ -99,6 +100,8 @@ define(function(require, exports, module) {
     this.layout.content.add(this.monthMod).add(this.monthScrollView);
     this.monthScrollView.subscribe(this._eventOutput);
     this._eventInput.subscribe(this.monthScrollView._eventOutput);
+    this._eventInput.subscribe(this.dayScrollView._eventOutput);
+    this.dayScrollView.subscribe(this._eventOutput);
   }
 
   function _positionHighlighter() {
@@ -128,6 +131,7 @@ define(function(require, exports, module) {
 
     this._eventInput.on('stateChangeDayView', function(weekView) {
       this.state = 'dayView';
+      this.selectedWeek = weekView;
       this.dayScrollView.setToDate(_generateDateString(weekView), false);
       _setHighlighter.call(this, weekView);
       _setTitleSurface.call(this, DateConstants.monthNames[weekView.getDate().month]);
@@ -145,11 +149,17 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this._eventInput.on('showDetails', function(eventView) {
-      console.log('showDetials');
+      console.log('showDetails');
     }.bind(this));
 
     this._eventInput.on('addEventView', function(clickData) {
       console.log('addEventView');
+    }.bind(this));
+
+    this._eventInput.on('nodeChange', function(direction, date) {
+      this.selectedWeek.selectedDay += direction;
+      _setHighlighter.call(this, this.selectedWeek);
+      _transitionDateString.call(this, weekView);
     }.bind(this));
   }
 
