@@ -78,10 +78,10 @@ define(function(require, exports, module) {
       eventNode.add(eventModifier).add(event);
       this._eventsNode.add(eventNode);
       this._eventInput.subscribe(event._eventOutput);
-      this._eventInput.on('showDetails', function(eventView) {
-        this._eventOutput.emit('showDetails', eventView);
-      }.bind(this));
     }
+    this._eventInput.on('showDetails', function(eventView) {
+      this._eventOutput.emit('showDetails', eventView);
+    }.bind(this));
   };  //  End DayView.prototype.loadEvents
   
   /**@method getDate
