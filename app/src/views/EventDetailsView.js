@@ -290,6 +290,7 @@ define(function(require, exports, module) {
         this.deleteButton.on('click', function(){
             Utility.deleteEvent(this.event);
             _outTransition.call(this);
+            this._eventOutput.emit('changes');
         }.bind(this));
 
 
@@ -419,6 +420,7 @@ define(function(require, exports, module) {
                 if(newEvent.date.length > 0 && newEvent.start.length > 0 && newEvent.end.length > 0) {
                     Utility.editEvent(this.event, newEvent);
                     _outTransition.call(this);
+                    this._eventOutput.emit('changes');
                 }else{
                     alert('Please complete event form');
                 }
