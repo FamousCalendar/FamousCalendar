@@ -17,8 +17,6 @@ define(function(require, exports, module) {
   var MonthScrollView = require('views/MonthScrollView');
   var FlexibleLayout = require('famous/views/FlexibleLayout');
   var AddEventView = require('views/AddEventView');
-  var WeekScrollView = require('views/WeekScrollView');
-  var YearView = require('views/YearView');
   var HeaderView = require('views/HeaderView');
 
 
