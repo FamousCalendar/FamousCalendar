@@ -122,6 +122,7 @@ define(function(require, exports, module) {
   }
 
   function _setListeners() {
+
     this._eventInput.on('stateChangeMonthView', function(clickData) {
       this.state = 'monthView';
       this.highlightModifier.setOpacity(0.01);
@@ -150,11 +151,25 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this._eventInput.on('showDetails', function(eventView) {
-      console.log('showDetails');
+      console.log(eventView);
+      var eventDetailsModifier = new Modifier({
+        transform: Transform.translate(0,0,15),
+        origin: [0.5, 0.5],
+        align: [0.5, 0.5],
+      });
+      var detailsView = new EventDetailsView(eventView.event);
+      this.add(eventDetailsModifier).add(detailsView);
     }.bind(this));
 
     this._eventInput.on('addEventView', function(clickData) {
-      console.log('addEventView');
+      var addEventView = new AddEventView();
+      var addEventViewModifier = new Modifier({
+        transform: Transform.translate(0,0,15),
+        origin: [0.5, 0.5],
+        align: [0.5, 0.5],
+
+      });
+      this.add(addEventViewModifier).add(addEventView);
     }.bind(this));
 
     this._eventInput.on('nodeChange', function(direction, date) {
