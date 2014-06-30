@@ -20,19 +20,25 @@ define(function(require, exports, module) {
       military: false
     },
     dayView: {
-      startTime: [8,0]
+      startTime: [8,0],   //  [hour, minute]
+      backgroundColorDay: '#FAFAFA',
+      backgroundColorNight: '#EFEFFF'
     },
     timelineView: {
       filePath: 'views/timelines/BasicTimelineView',
-      //font: ,
-      //fontSize: ,
-      //fontColor: ,
-      //fontStyle: ,
-      timebarWidth: 1,
+      fontFamily: 'sans-serif',
+      fontSize: '10px',
+      fontUnitColor: 'red',
+      fontAMColor: 'lightgrey',
+      fontPMColor: '#4444AA',
+      timebarWidth: 60,
+      timebarLineWidth: 1,
+      timebarColor: '#FAFAFA',
       notchWidth: 1,
       notchLength: 5,
       notchSpacing: 30,
-      notchColor: '#000000'
+      notchColor: '#4444AA',
+      backgroundColor: 'EEEEEE'
     }
   }
   
@@ -42,22 +48,27 @@ define(function(require, exports, module) {
       military: false
     },
     dayView: {
-      startTime: [8,0]    //  [hour, minute]
+      startTime: [8,0],   //  [hour, minute]
+      backgroundColorDay: '#FAFAFA',
+      backgroundColorNight: '#EFEFFF'
     },
     timelineView: {
       filePath: 'views/timelines/BasicTimelineView',
-      //font: ,
-      //fontSize: ,
-      //fontColor: ,
-      //fontStyle: ,
-      timebarWidth: 45,
+      //  Font Settings
+      fontFamily: 'sans-serif',
+      fontSize: 10,
+      fontUnitColor: 'red',
+      fontAMColor: 'lightgrey',
+      fontPMColor: '#4444AA',
+      //  Background surface settings for TimelineView
+      timebarWidth: 60,
       timebarLineWidth: 1,
-      timebarColor: '#4444AA',
+      timebarColor: '#FAFAFA',
+      //  TimelineView line settings
+      lineColor: '#4444AA',
       notchWidth: 1,
       notchLength: 5,
-      notchSpacing: 30,
-      notchColor: '#4444AA',
-      backgroundColor: 'EEEEEE'
+      notchSpacing: 30
     }
   }
   
@@ -67,18 +78,24 @@ define(function(require, exports, module) {
       is12HourClock: function() { return !current_settings.time['military']; }
     },
     dayView: {
-      getStartTime: function() { return current_settings.dayView['startTime']; }
+      getStartTime: function() { return current_settings.dayView['startTime']; },
+      getBGColorDay: function() { return current_settings.dayView['backgroundColorDay']; },
+      getBGColorNight: function() { return current_settings.dayView['backgroundColorNight']; }
     },
     timelineView: {
       getFilePath: function() { return current_settings.timelineView['filePath']; },
+      getFontFamily: function() { return current_settings.timelineView['fontFamily']; },
+      getFontSize: function() { return current_settings.timelineView['fontSize']; },
+      getFontUnitColor: function() { return current_settings.timelineView['fontUnitColor']; },
+      getFontAMColor: function() { return current_settings.timelineView['fontAMColor']; },
+      getFontPMColor: function() { return current_settings.timelineView['fontPMColor']; },
       getTimebarWidth: function() { return current_settings.timelineView['timebarWidth']; },
       getTimebarLineWidth: function() { return current_settings.timelineView['timebarLineWidth']; },
       getTimebarColor: function() { return current_settings.timelineView['timebarColor']; },
+      getLineColor: function() { return current_settings.timelineView['lineColor']; },
       getNotchWidth: function() { return current_settings.timelineView['notchWidth']; },
       getNotchLength: function() { return current_settings.timelineView['notchLength']; },
-      getNotchSpacing: function() { return current_settings.timelineView['notchSpacing']; },
-      getNotchColor: function() { return current_settings.timelineView['notchColor']; },
-      getBGColor: function() { return current_settings.timelineView['backgroundColor']; }
+      getNotchSpacing: function() { return current_settings.timelineView['notchSpacing']; }
     }
     //  Getters and Setters here
   };

@@ -11,10 +11,11 @@ define(function(require, exports, module) {
   var StateModifier = require('famous/modifiers/StateModifier');
   var Transform     = require('famous/core/Transform');
   
-  var AppSettings   = require('config/AppSettings');
-  var TimeUtil      = require('util/TimeUtil');
-  var TimelineView  = require('views/TimelineView');
-  var EventView     = require('views/EventView');
+  var AppSettings     = require('config/AppSettings');
+  var DayViewSettings = AppSettings.dayView;
+  var TimeUtil        = require('util/TimeUtil');
+  var TimelineView    = require('views/TimelineView');
+  var EventView       = require('views/EventView');
   
   function DayView() {
     View.apply(this, arguments);
@@ -126,7 +127,11 @@ define(function(require, exports, module) {
     
     var bgSurface = new Surface({
       properties: {
-        backgroundColor: '#BBBBAA',
+        background: '-webkit-linear-gradient(top, '
+                    + DayViewSettings.getBGColorNight() + ' ' + (5 / 24 * 100) + '%, '
+                    + DayViewSettings.getBGColorDay() + ' ' + (7 / 24 * 100) + '%, '
+                    + DayViewSettings.getBGColorDay() + ' ' + (17 / 24 * 100) + '%, '
+                    + DayViewSettings.getBGColorNight() + ' ' + (19 / 24 * 100) + '%)',
         zIndex: -10
       }
     });
