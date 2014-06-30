@@ -21,6 +21,7 @@ define(function(require, exports, module) {
     this.setOptions(DayScrollview.DEFAULT_OPTIONS);
     
     _setEventsUpdater.call(this);
+    _setNodeChangeEmitter.call(this);
     
     this.dayViews = [];
     this.viewSequence = new ViewSequence({
@@ -28,19 +29,22 @@ define(function(require, exports, module) {
       loop: true
     });
     this.sequenceFrom(this.viewSequence);
-    this._autoscroll = {};
+    this._autoscroll = {
+      active: false,        //  limits events based on DayView transitions
+      minDiff: 0            //  The distance in pixels to autoscroll
+    };
     
     _createDayViews.call(this);
     this.setToDate(this.options.startDate);
     
-    window.ascroll = function(val) {
+/*    window.ascroll = function(val) {
       this.setToDate( val, true );
     }.bind(this);
     
     window.gettime = function() {
       console.log('Position:', this.getPosition());
       console.log('Day:', this.dayViews[this._node.getIndex()].getDate());
-    }.bind(this);
+    }.bind(this);*/
     
   }
   
@@ -53,19 +57,37 @@ define(function(require, exports, module) {
     startTime: AppSettings.dayView.getStartTime()  //  time of day [hours, minutes] to be default start time
   };
   
-  /**@positionFrom() Transforms**/
-  var POSITION_TRANSFORM = {
-    'default': _default,
-    'autoscroll': _autoScroller
-  };
-  
   DayScrollview.prototype = Object.create(InfiniteScrollview.prototype);
   DayScrollview.prototype.constructor = DayScrollview;
+  
+  /** @method resetDay
+   * 
+   * Called by AppView when an event is deleted. Forces a single DayView to
+   * be rerendered after an event has been removed from the event data store.
+   * 
+   * @param {string/array} date : A date string ('yyyy-mm-dd') or array ([year, month, day])
+   */
+  DayScrollview.prototype.resetDay = function resetDay(date) {
+    if (!date) return;
+    else if (date instanceof Array && date.length === 3) date = TimeUtil.dateArrToStr(date);
+    var currentIdx = this._node.getIndex();
+    var loop = false;
+    
+    for (var i = currentIdx; i !== currentIdx && loop !== true; i++) {
+      if (i >= this.dayViews.lenth) i = 0;
+      loop = true;
+      if (date === this.dayViews[i].getDate()) {
+        this.dayViews[i].buildEvents(Utilities.getEvents(date));
+        break;
+      }
+    }
+  };  //  End DayScrollview.prototype.resetDay
   
   /**@method setToDate
    * 
    * Forces the currently displayed DayView to change to the date specified.
-   *
+   * TODO: Implement input verification to support receiving data array.
+   * 
    * @param {string} date : A hyphen-delimited date in the format of "yyyy-mm-dd". This is the date
    *                        the DayView is being set to.
    * @param {boolean} scrollToDate : If false, the DayView is updated without transition (instant).
@@ -89,6 +111,7 @@ define(function(require, exports, module) {
       then.push(this.options.startTime);
       if (!then[0] || !then[1]) return;
       
+      this._autoscroll.active = true;
       this._autoscroll.minDiff = TimeUtil.timeToPixels(then[1]) + TimeUtil.timeDiffMin.call(this, then[0], now[0], then[1], now[1]); //  Negative value means target time is before current time
       var transitioner = new Transitionable(this.getPosition());
       this._scroller.positionFrom(transitioner);
@@ -96,59 +119,10 @@ define(function(require, exports, module) {
         this._autoscroll.minDiff = 0;
         this.setPosition(transitioner.get());
         this._scroller.positionFrom(this.getPosition.bind(this));
-        console.log('It is currently:', this.dayViews[this._node.getIndex()].getDate());
+        this._autoscroll.active = false;
       }.bind(this));
     }
   }
-  
-    /** @enum */
-    var SpringStates = {
-        NONE: 0,
-        EDGE: 1,
-        PAGE: 2
-    };
-
-    function _shiftOrigin(amount) {
-        this._edgeSpringPosition += amount;
-        this._pageSpringPosition += amount;
-        this.setPosition(this.getPosition() + amount);
-        if (this._springState === SpringStates.EDGE) {
-            this.spring.setOptions({anchor: [this._edgeSpringPosition, 0, 0]});
-        }
-        else if (this._springState === SpringStates.PAGE) {
-            this.spring.setOptions({anchor: [this._pageSpringPosition, 0, 0]});
-        }
-    }
-
-
-  
-  /**
-   */
-  function _setScrollTransform(scrollTrans) {
-    scrollTrans = POSITION_TRANSFORM[scrollTrans].bind(this);
-    var positionSetter = scrollTrans();
-    this._scroller.positionFrom(positionSetter);
-  } //  End _setScrollTransform
-  
-  /**
-   * @method _autoScroll
-   * Used to autoscroll the DayViews when setToDate is invoked with true passed in as a second argument.
-   * This function is passed to DayScrollview._scroller.positionFrom() to make the scroll happen. After
-   * the scroll completes, the default getter function should be reset using positionFrom.
-   *
-   * @return {number} The position to scroll to
-   */
-  function _autoScroller() {
-    //return (this.options.direction === Utility.Direction.X) ? Transform.translate(offset, 0) : Transform.translate(0, offset);
-    return this._transmogrifier;
-  } //  End _autoScroller
-  
-  
-  /**
-   */
-  function _default(offset) {
-    return (this.options.direction === Utility.Direction.X) ? Transform.translate(offset, 0) : Transform.translate(0, offset);
-  };
   
   /**@method _createDayViews
    * 
@@ -159,8 +133,12 @@ define(function(require, exports, module) {
   function _createDayViews() {
     for (var views = 0; views < this.options.maxDayViews; views++) {
       this.dayViews.push(new DayView({
-        Scrollview: this
+        scrollView: this
       }));
+      this._eventInput.subscribe(this.dayViews[views]._eventOutput);
+      this._eventInput.on('showDetails', function(eventView) {
+        this._eventOutput.emit('showDetails', eventView);
+      }.bind(this));
     }
   } //  End _createDayViews
   
@@ -203,6 +181,17 @@ define(function(require, exports, module) {
       target.buildEvents(Utilities.getEvents(targetDate));
     };
   } //  End _setEventsUpdater
+  
+  /**@method _setNodeChangeEmitter
+   */
+  function _setNodeChangeEmitter() {
+    this.emitNodeChange = function _emitNodeChange(direction) {
+      if (!this._autoscroll.active) {
+        var date = this.dayViews[this._node.getIndex()].getDate();
+        this._eventOutput.emit('nodeChange', direction, date);
+      }
+    };
+  } //  End _setNodeChangeEmitter
   
   module.exports = DayScrollview;
 });

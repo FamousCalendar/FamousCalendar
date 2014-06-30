@@ -73,9 +73,14 @@ define(function(require, exports, module) {
       });
       
       var event = new EventView(events[i]);
+      event.eventSurface.pipe(this.options.scrollView);
       
       eventNode.add(eventModifier).add(event);
       this._eventsNode.add(eventNode);
+      this._eventInput.subscribe(event._eventOutput);
+      this._eventInput.on('showDetails', function(eventView) {
+        this._eventOutput.emit('showDetails', eventView);
+      }.bind(this));
     }
   };  //  End DayView.prototype.loadEvents
   
@@ -109,6 +114,7 @@ define(function(require, exports, module) {
    * @param {string} date : The date string in format "yyyy-mm-dd" to assign to the DayView.
    */
   DayView.prototype.setDate = function setDate(date) {
+    if (date && date instanceof Array && date.length === 3) date = TimeUtil.dateArrToStr(date);
     if (date && typeof date === 'string' && date.length === 10) this._date = date;
   };  //  End DayView.prototype.setDate
   
@@ -136,7 +142,7 @@ define(function(require, exports, module) {
       }
     });
     
-    bgSurface.pipe(this.options.Scrollview);
+    bgSurface.pipe(this.options.scrollView);
     this.add(bgModifier).add(bgSurface);
   } //  End _createBackground
   
