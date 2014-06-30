@@ -173,6 +173,7 @@ define(function(require, exports, module) {
 
       });
       this.add(addEventViewModifier).add(addEventView);
+      addEventView._eventOutput.pipe(this._eventInput);
     }.bind(this));
 
     this._eventInput.on('nodeChange', function(direction, date) {
