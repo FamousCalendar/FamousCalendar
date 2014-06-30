@@ -36,7 +36,7 @@ define(function(require, exports, module) {
    * @param {string} dateStr : A date supplied in string format "yyyy-mm-dd"
    * @return {array} A three-index array [year, month, day]
    */
-  var _dateStrToArr = timeUtil.dateStrToArr = function _dateStrToArr(dateStr) {
+   timeUtil.dateStrToArr = _dateStrToArr = function _dateStrToArr(dateStr) {
     if (dateStr instanceof Array) return dateStr;
     if (!dateStr || dateStr.length !== 10) return;
     
