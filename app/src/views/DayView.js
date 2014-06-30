@@ -69,7 +69,7 @@ define(function(require, exports, module) {
         origin: [0, 0],
         align: [0, 0],
         size: [undefined, duration],
-        transform: Transform.translate(0, posY, 0)
+        transform: Transform.translate(0, posY, 0.1)
       });
       
       var event = new EventView(events[i]);
@@ -151,7 +151,7 @@ define(function(require, exports, module) {
    * Builds the timebar measuring time units on the DayView.
    */
   function _createTimeline() {
-    this._timeline = new TimelineView();
+    this._timeline = new TimelineView({scrollView: this.options.scrollView});
     
     this.add(this._timeline);
   } //  End _createTimeline
