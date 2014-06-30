@@ -128,17 +128,14 @@ define(function(require, exports, module) {
 
     this._eventInput.on('stateChangeDayView', function(weekView) {
       this.state = 'dayView';
-      var date = weekView.getDate();
-      var month = date.month + 1 < 10 ? '0' + (date.month + 1) : date.month + 1;
-      var day = date.day < 10 ? '0' + date.day : date.day;
-      var dateString = [date.year, month, day].join('-');
-      this.dayScrollView.setToDate(dateString, false);
+      this.dayScrollView.setToDate(_generateDateString(weekView), false);
       _setHighlighter.call(this, weekView);
       _setTitleSurface.call(this, DateConstants.monthNames[weekView.getDate().month]);
       _toggleHeaderSize.call(this, weekView);
     }.bind(this));
 
     this._eventInput.on('toggleSelectedDate', function(weekView) {
+      this.dayScrollView.setToDate(_generateDateString(weekView), false);
       _setHighlighter.call(this, weekView);
       _transitionDateString.call(this, weekView);
     }.bind(this));
@@ -232,6 +229,13 @@ define(function(require, exports, module) {
 
     this.layout.content.add(this.highlightModifier).add(this.highlightSurface);
   };
+
+  function _generateDateString(weekView) {
+    var date = weekView.getDate();
+    var month = date.month + 1 < 10 ? '0' + (date.month + 1) : date.month + 1;
+    var day = date.day < 10 ? '0' + date.day : date.day;
+    return [date.year, month, day].join('-');
+  }
 
   module.exports = AppView;
 });
