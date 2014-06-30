@@ -49,7 +49,7 @@ define(function(require, exports, module) {
     },
     dayView: {
       startTime: [8,0],   //  [hour, minute]
-      backgroundColorDay: '#FAFAFA',
+      backgroundColorDay: 'white',
       backgroundColorNight: '#EFEFFF'
     },
     timelineView: {
@@ -63,7 +63,7 @@ define(function(require, exports, module) {
       //  Background surface settings for TimelineView
       timebarWidth: 50,
       timebarLineWidth: 1,
-      timebarColor: '#FAFAFA',
+      timebarColor: 'white',
       //  TimelineView line settings
       lineColor: '#4444AA',
       notchWidth: 1,

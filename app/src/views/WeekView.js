@@ -47,6 +47,10 @@ define(function(require, exports, module) {
     this.backgroundSurface.setContent(this.generateBackgroundHTML());
   }
 
+  WeekView.prototype.refreshBackground = function() {
+    this.backgroundSurface.setContent(this.generateBackgroundHTML());
+  };
+
   WeekView.prototype.generateDayArray = function() {
     this.dayArray = [];
     var dayOfWeek;
@@ -64,7 +68,7 @@ define(function(require, exports, module) {
         this.dayArray.push(dayOfMonth);
       }
     }
-  }
+  };
 
   WeekView.prototype.generateBackgroundHTML = function() {
     this.dayArray || this.generateDayArray();
