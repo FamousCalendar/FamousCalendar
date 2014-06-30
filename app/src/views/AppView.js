@@ -17,16 +17,19 @@ define(function(require, exports, module) {
   var MonthScrollView = require('views/MonthScrollView');
   var FlexibleLayout = require('famous/views/FlexibleLayout');
   var AddEventView = require('views/AddEventView');
+  var WeekScrollView = require('views/WeekScrollView');
+  var YearView = require('views/YearView');
+  var HeaderView = require('views/HeaderView');
 
 
   function AppView() {
     View.apply(this, arguments);
-    this.headerTransition = new Transitionable([undefined, 60]);
     this.state = 'monthView';
 
     _createLayout.call(this);
     _createHeader.call(this);
     _createHighlightSurface.call(this);
+    _createDateStringSurface.call(this);
     _createContent.call(this);
     _setListeners.call(this);
   }
@@ -53,90 +56,13 @@ define(function(require, exports, module) {
   }
 
   function _createHeader() {
-    // this.views.push(new HeaderView({ appView: this }));
-    // return;
-    // background surface
-    var backgroundSurface = new Surface({
-      properties: {
-        backgroundColor: '#FAFAFA',
-        borderBottom: '1px solid lightgrey',
-        zIndex: 3
-      }
-    });
+    this.headerView = new HeaderView({ appView: this });
+    this.headerTransition = new Transitionable([undefined, 60]);
+    this.layout.header.add(this.headerTransition).add(this.headerView);
+    this._eventInput.subscribe(this.headerView._eventOutput);
+  }
 
-    this.backgroundModifier = new Modifier({
-      transform: Transform.translate(0, 0, 3)
-    });
-
-    
-    // static days of the week bar
-    var fontColor;
-    var daysSurface;
-    var daysModifier;
-    var dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-
-    var html = '<table><tr>';
-    for (var i = 0; i < dayLetters.length; i++) {
-      html += '<td>' + dayLetters[i] + '</td>';
-    }
-    html + '</tr></table>';
-
-    daysSurface = new Surface({
-      size: [undefined, 14],
-      content: html,
-      properties: {
-        textAlign: 'center',
-        fontFamily: 'sans-serif',
-        fontSize: '10px',
-        color: fontColor,
-        zIndex: 5
-      }
-    });
-
-    daysModifier = new Modifier({
-      size: [undefined, 14],
-      transform: Transform.translate(0, 44, 5)
-    });
-
-
-    // back icon
-    var backIcon = new ImageSurface({
-      size: [30, 30],
-      content:'content/images/back_arrow.png',
-      properties: {
-        pointerEvents: 'none',
-        zIndex: 3
-      }
-    });
-
-    var backIconModifier = new Modifier({
-      align: [0.045, 0.4],
-      origin: [0.5, 0.5],
-      transform: Transform.translate(0, 0, 3)
-    });
-
-
-    // title surface
-    this.titleSurface = new Surface({
-      size: [100, 60],
-      content: '2014',
-      properties: {
-        color: 'red',
-        textAlign: 'left',
-        lineHeight: '48px',
-        fontSize: '16px',
-        fontFamily: 'sans-serif',
-        zIndex: 3
-      }
-    });
-
-    this.titleModifier = new Modifier({
-      align: [0.24, 0.5],
-      origin: [0.5, 0.5],
-      opacity: 0.999,
-      transform: Transform.translate(0, 0, 3)
-    });
-
+  function _createDateStringSurface() {
     this.dateStringSurface = new Surface({
       size:[undefined, 20],
       content: '',
@@ -152,44 +78,8 @@ define(function(require, exports, module) {
       opacity: 0.001,
       transform: Transform.translate(0, 140, 5)
     });
-    
-    var addIcon = new Surface({
-      size: [30, 30],
-      content: '+',
-      properties: {
-        color: 'red',
-        textAlign: 'center',
-        lineHeight: '36px',
-        fontSize: '36px',
-        fontFamily: 'sans-serif'
-      }
-    });
 
-    var addIconModifier = new Modifier({
-      align: [0.92, 0.3],
-      origin: [0.5, 0.5],
-      transform: Transform.translate(0, 0, 5)
-    });
-
-
-    addIcon.on('click', function(){
-      // alert('click');
-      var addEventView = new AddEventView();
-      var addEventViewModifier = new Modifier({
-        transform: Transform.translate(0,0,30),
-        origin: [0.5, 0.5],
-        align: [0.5, 0.5],
-
-      });
-      this.add(addEventViewModifier).add(addEventView);
-    }.bind(this));
-
-    this.layout.header.add(addIconModifier).add(addIcon);
-    this.layout.header.add(daysModifier).add(daysSurface);
-    this.layout.header.add(this.dateStringModifier).add(this.dateStringSurface);
-    this.layout.header.add(this.backgroundModifier).add(backgroundSurface);
-    this.layout.header.add(this.titleModifier).add(this.titleSurface);
-    this.layout.header.add(backIconModifier).add(backIcon);
+    this.add(this.dateStringModifier).add(this.dateStringSurface);
   }
 
 
@@ -203,7 +93,6 @@ define(function(require, exports, module) {
     });
 
     this.dayScrollView = new DayScrollView();
-
     this.dayScrollModifier = new Modifier();
 
     this.layout.content.add(this.dayScrollModifier).add(this.dayScrollView);
@@ -229,18 +118,12 @@ define(function(require, exports, module) {
   }
 
   function _setListeners() {
-    // when user clicks the button in header (the text not the back icon currently)
-    this.titleSurface.on('click', function(clickData) {
-      // short-circuited when in monthView because there currently is no yearView yet
-      if (this.state === 'monthView') return;
-
+    this._eventInput.on('stateChangeMonthView', function(clickData) {
       this.state = 'monthView';
       this.highlightModifier.setOpacity(0.01);
       _setTitleSurface.call(this, this.monthScrollView.year);
       _toggleHeaderSize.call(this);
-      // emit back event to MonthScrollView -> MonthView
       this._eventOutput.emit('back', clickData);
-
     }.bind(this));
 
     this._eventInput.on('stateChangeDayView', function(weekView) {
@@ -263,14 +146,22 @@ define(function(require, exports, module) {
     this._eventInput.on('updateYear', function(year) {
       _setTitleSurface.call(this, year);
     }.bind(this));
+
+    this._eventInput.on('showDetails', function(eventView) {
+      console.log('showDetials');
+    }.bind(this));
+
+    this._eventInput.on('addEventView', function(clickData) {
+      console.log('addEventView');
+    }.bind(this));
   }
 
   // transition for updating content in back/title surface, called whenever there is a change in state
   function _setTitleSurface(title) {
-    this.titleModifier.halt();
-    this.titleModifier.setOpacity(0.001, { duration: 200, curve: 'easeIn' }, function() {
-      this.titleSurface.setContent(title);
-      this.titleModifier.setOpacity(0.999, { duration: 200, curve: 'easeIn' });
+    this.headerView.titleModifier.halt();
+    this.headerView.titleModifier.setOpacity(0.001, { duration: 200, curve: 'easeIn' }, function() {
+      this.headerView.titleSurface.setContent(title);
+      this.headerView.titleModifier.setOpacity(0.999, { duration: 200, curve: 'easeIn' });
     }.bind(this));
   }
 
@@ -278,10 +169,10 @@ define(function(require, exports, module) {
   function _toggleHeaderSize() {
     var height = (this.state === 'dayView') ? 130 : 60;
     this.headerTransition.halt();
-    this.backgroundModifier.halt();
+    this.headerView.backgroundModifier.halt();
     this.dateStringModifier.halt();
     this.headerTransition.set([undefined, height], {duration: 700, curve: Easing.outQuint});
-    this.backgroundModifier.sizeFrom(this.headerTransition);
+    this.headerView.backgroundModifier.sizeFrom(this.headerTransition);
 
     if (height === 130) {
       var date = this.monthScrollView.selectedDate;
