@@ -12,6 +12,7 @@ define(function(require, exports, module) {
     var Transitionable = require('famous/transitions/Transitionable');
     var Modifier = require('famous/core/Modifier');
     var Easing = require('famous/transitions/Easing');
+    var EventDetails = require('views/EventDetailsView');
 
     // Constructor function for our EventView class
     function EventView(event) {
@@ -19,6 +20,7 @@ define(function(require, exports, module) {
         // Applies View's constructor function to EventView class
         View.apply(this, arguments);
 
+        this.event = event;
 
         //Stub event height
         var hourHeight = 60;
@@ -34,43 +36,33 @@ define(function(require, exports, module) {
 
         this.eventSurface = new Surface({
             size: [window.outerWidth/2, duration/60 * hourHeight],
-            content: '<h>' + event.title + '</h>',
+            content: '<h3>' + event.title + '</h3><p>Where: ' + event.location + '</p>',
+            opacity: 0.5,
             properties: {
-                backgroundColor: '#7201ce',
+                backgroundColor: '#CCCCCC',//'#7201ce',
+                lineHeight: '10px',
+                marginTop: '0px',
+                padding: '0px',
+                // boxShadow: '5px 5px 3px -3px',
+                fontSize: '13px',
+                color: '#686675',
                 fontFamily: 'sans-serif',
-                borderBottom: '1px solid lightgrey'
+                borderLeft: '2px solid gray'
             }
         });
 
 
         var eventModifier = new Modifier({
-            origin: [0.5, 0.5],
-            align: [0.5, 0.5],
-            transform: function(){
-                var x = /*window.innerWidth/2*/ 1 + (1 * eventSize.get());
-                var y = /*duration/60 * hourHeight*/1 + ((window.outerHeight/(duration/60 * hourHeight)) * eventSize.get());
-                return Transform.scale(x, y, 6);
-            }.bind(this)
+            origin: [0, 0],
+            align: [0.5, 0]
         });
-
-        // this.eventSurface.setSize(function(){return eventSize.get()});
-
-        // eventModifier.sizeFrom(Transform.scale(eventSize.get()).bind(this));
 
         this.add(eventModifier).add(this.eventSurface);
 
 
         this.eventSurface.on('click', function(){
-            //expand
-            console.log(eventModifier);
-            // eventModifier.setTransform(Transform.translate(0, 0, 1000), {duration: 1000, curve: Easing.inExpo});
-            eventSize.set(.99, {duration: 1000, curve: Easing.inExpo});
-            this.eventSurface.setContent('<div class="eventDetails"><h>' + 
-                event.title + '</h><p>' + event.date + 
-                '</p><p>' + event.location + '</p>' + '</div>');
-            // eventModifier.setTransform({
-            //     Transform.translate()
-            // })
+            this._eventOutput.emit('showDetails', this);
+            console.log('in EventView');
         }.bind(this));
 
     }

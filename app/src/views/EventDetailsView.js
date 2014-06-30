@@ -1,4 +1,4 @@
-/*** AddEventView ***/
+/*** EventDetailsView ***/
 
 // define this module in Require.JS
 define(function(require, exports, module) {
@@ -16,6 +16,7 @@ define(function(require, exports, module) {
     var RenderNode = require('famous/core/RenderNode');
     var Transitionable = require('famous/transitions/Transitionable');
     var EventView = require('views/EventView');
+    var ImageSurface = require('famous/surfaces/ImageSurface');
 
     var hUnits = window.innerHeight / 450;
     var wUnits = window.innerWidth / 500;
@@ -26,7 +27,7 @@ define(function(require, exports, module) {
     repeatValue.innerHTML = '<option value="false">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option>';
 
 
-    function AddEventView() {
+    function EventDetailsView(event) {
 
         View.apply(this, arguments);
         
@@ -34,6 +35,7 @@ define(function(require, exports, module) {
 
         });
         
+        this.event = event;
 
 
         this.back = new Surface({
@@ -52,7 +54,7 @@ define(function(require, exports, module) {
 
         var cancelIcon = new Surface({
           size: [true, true],
-          content:'Cancel',
+          content:'Day',
           properties: {
             color: 'red',
             fontFamily: 'sans-serif',
@@ -61,17 +63,54 @@ define(function(require, exports, module) {
         });
 
         var cancelIconModifier = new Modifier({
-          align: [0.04, 0.03],
+          align: [0.08, 0.03],
           origin: [0, 0]
         });
 
 
 
         this.node.add(cancelIconModifier).add(cancelIcon);
+
+
+         var editIcon = new Surface({
+          size: [true, true],
+          content:'Edit',
+          properties: {
+            color: 'red',
+            fontFamily: 'sans-serif',
+            cursor: 'pointer'
+          }
+        });
+
+        var editIconModifier = new Modifier({
+          align: [0.85, 0.03],
+          origin: [0, 0]
+        });
+
+        this.node.add(editIconModifier).add(editIcon);
+
+
+
+        var backIcon = new ImageSurface({
+          size: [30, 30],
+          content:'content/images/back_arrow.png',
+          properties: {
+            pointerEvents: 'none',
+            zIndex: 3
+          }
+        });
+
+        var backIconModifier = new Modifier({
+          align: [0.045, 0.048],
+          origin: [0.5, 0.5],
+          transform: Transform.translate(0, 0, 3)
+        });
+
+        this.node.add(backIconModifier).add(backIcon);
         //Focus Title Field
 
         this.header = new Surface({
-            content:'Add Event',
+            content:'Event Details',
             size: [true, undefined],
             properties: {
                 textAlign: 'center',
@@ -88,9 +127,8 @@ define(function(require, exports, module) {
 
         this.node.add(headerMod).add(this.header);
 
-        this.titleField = new InputSurface({
-            placeholder: 'Title',
-            type: 'text',
+        this.titleField = new Surface({
+            content: event.title,
             properties: {
                 // backgroundColor: 'red'
                 fontFamily: 'sans-serif',
@@ -105,16 +143,15 @@ define(function(require, exports, module) {
         });
         this.node.add(titleFieldModifier).add(this.titleField);
 
-        //Focus in title field
-        this.titleField.focus();
 
-        this.locationField = new InputSurface({
-            placeholder: 'Location',
-            type: 'text',
+
+        this.locationField = new Surface({
+            content: 'Location: <p>' + event.location + '</p>',
             size: [undefined, true],
             properies: {
                 fontFamily: 'sans-serif',
-                borderBottom: '1px solid lightgrey'
+                borderBottom: '1px solid lightgrey',
+                lineHeight: '10px'
             }
         });
         var locationModifier = new Modifier({
@@ -123,9 +160,8 @@ define(function(require, exports, module) {
         });
         this.node.add(locationModifier).add(this.locationField);
 
-        this.dateField = new InputSurface({
-            placeholder: 'Date',
-            type: 'date',
+        this.dateField = new Surface({
+            content: event.date,
             size: [undefined, true],
             properties: {
                 fontFamily: 'sans-serif',
@@ -159,8 +195,8 @@ define(function(require, exports, module) {
         });
         this.node.add(startLabelModifier).add(this.startLabel);
 
-        this.startField = new InputSurface({
-            type: 'time',
+        this.startField = new Surface({
+            content: event.start,
             size: [undefined, true],
             properties: {
                 fontFamily: 'sans-serif',
@@ -192,11 +228,10 @@ define(function(require, exports, module) {
         this.node.add(endLabelModifier).add(this.endLabel);
 
 
-        this.endField = new InputSurface({
-            type: 'time',
+        this.endField = new Surface({
+            content: event.end,
             size: [undefined, true],
             properties: {
-                backgroundColor: 'white',
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey',
                 color: 'red'
@@ -209,7 +244,7 @@ define(function(require, exports, module) {
         this.node.add(endFieldModifier).add(this.endField);
 
         this.repeatLabel = new Surface({
-            content: 'Repeat:',
+            content: 'Repeats:',
             properties: {
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey'
@@ -224,10 +259,9 @@ define(function(require, exports, module) {
         this.node.add(repeatLabelModifier).add(this.repeatLabel);
 
         this.repeatField = new Surface({
-            content: repeatValue,
+            content: event.repeat,
             size: [undefined, true],
             properties: {
-                backgroundColor: 'white',
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey'
             }
@@ -240,10 +274,10 @@ define(function(require, exports, module) {
         });
         this.node.add(repeatFieldModifier).add(this.repeatField);
 
-        this.saveButton = new InputSurface({
+        this.deleteButton = new InputSurface({
             type: 'button',
             size: [undefined, true],
-            value: 'Save',
+            value: 'Delete',
             properties: {
                 backgroundColor: '#FAFAFA',
                 color: 'red',
@@ -252,15 +286,10 @@ define(function(require, exports, module) {
             }
         });
 
-        //Save event
-        this.saveButton.on('click', function(){
-            var newEvent = _createEvent.call(this);
-            if(newEvent.date.length > 0 && newEvent.start.length > 0 && newEvent.end.length > 0) {
-                Utility.saveEvent(_createEvent.call(this));
-                _outTransition.call(this);
-            }else{
-                alert('Please complete event form');
-            }
+        //Delete event
+        this.deleteButton.on('click', function(){
+            Utility.deleteEvent(this.event);
+            _outTransition.call(this);
         }.bind(this));
 
 
@@ -269,15 +298,142 @@ define(function(require, exports, module) {
             _outTransition.call(this);
         }.bind(this));
 
+        //Make fields editable
+        editIcon.on('click', function(){ 
+            editIconModifier.setOpacity(0, {duration: 100});
+            titleFieldModifier.setOpacity(0);
+            this.titleField = new InputSurface({
+                placeholder: event.title,
+                value: event.title,
+                type: 'text',
+                properties: {
+                    // backgroundColor: 'red'
+                    fontFamily: 'sans-serif',
+                    borderBottom: '1px solid lightgrey'
+                },
+                size: [undefined, true]
+            });
+
+            this.node.add(titleFieldModifier).add(this.titleField);
+            titleFieldModifier.setOpacity(1);
+
+            locationModifier.setOpacity(0);
+            this.locationField = new InputSurface({
+                placeholder: event.location,
+                value: event.location,
+                size: [undefined, true],
+                properies: {
+                    fontFamily: 'sans-serif',
+                    borderBottom: '1px solid lightgrey',
+                    lineHeight: '10px'
+                }
+            });
+            
+            this.node.add(locationModifier).add(this.locationField);
+            locationModifier.setOpacity(1);
+
+
+            dateModifier.setOpacity(0);
+            this.dateField = new InputSurface({
+                value: event.date,
+                type: 'date',
+                size: [undefined, true],
+                properties: {
+                    fontFamily: 'sans-serif',
+                    borderBottom: '1px solid lightgrey',
+                    color: 'red',
+                    cursor: 'pointer'    
+                }
+            });
+
+            this.node.add(dateModifier).add(this.dateField);
+            dateModifier.setOpacity(1);
+
+            startFieldModifier.setOpacity(0);
+            this.startField = new InputSurface({
+                placeholder: event.start,
+                type: 'time',
+                value: event.start,
+                size: [undefined, true],
+                properties: {
+                    fontFamily: 'sans-serif',
+                    borderBottom: '1px solid lightgrey',
+                    color: 'red'
+                }
+            });
+   
+            this.node.add(startFieldModifier).add(this.startField);
+            startFieldModifier.setOpacity(1);
+
+            endFieldModifier.setOpacity(0);
+            this.endField = new InputSurface({
+                value: event.end,
+                type: 'time',
+                size: [undefined, true],
+                properties: {
+                    fontFamily: 'sans-serif',
+                    borderBottom: '1px solid lightgrey',
+                    color: 'red'
+                }
+            });
+           
+            this.node.add(endFieldModifier).add(this.endField);
+            endFieldModifier.setOpacity(1);
+
+            this.repeatValue = document.createElement('select');
+            this.repeatValue.innerHTML = '<option value="false">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option>';
+
+            repeatFieldModifier.setOpacity(0);
+            this.repeatField = new Surface({
+                value: event.repeat,
+                content: repeatValue,
+                size: [undefined, true],
+                properties: {
+                    fontFamily: 'sans-serif',
+                    borderBottom: '1px solid lightgrey'
+                }
+            });
+
+            this.node.add(repeatFieldModifier).add(this.repeatField);
+            repeatFieldModifier.setOpacity(1);
+
+
+            var saveIcon = new Surface({
+              size: [true, true],
+              content:'Save',
+              properties: {
+                color: 'red',
+                fontFamily: 'sans-serif',
+                cursor: 'pointer'
+              }
+            });
+            var saveIconModifier = new Modifier({
+              align: [0.85, 0.03],
+              origin: [0, 0]
+            });
+
+            this.node.add(saveIconModifier).add(saveIcon);
+
+            saveIcon.on('click', function(){
+                var newEvent = Utility.createEvent.call(this);
+                if(newEvent.date.length > 0 && newEvent.start.length > 0 && newEvent.end.length > 0) {
+                    Utility.editEvent(this.event, newEvent);
+                    _outTransition.call(this);
+                }else{
+                    alert('Please complete event form');
+                }
+            }.bind(this))
+        }.bind(this));
+
 
         var saveModifier = new Modifier({
             transform: Transform.translate(0, 0, 0),
             align: [0.5, 0.8]
         });
-        this.node.add(saveModifier).add(this.saveButton);
+        this.node.add(saveModifier).add(this.deleteButton);
 
         this.mainModifier = new Modifier({
-            transform: Transform.translate(0, 450 * hUnits, 0)
+            transform: Transform.translate(500 * wUnits, 0, 0)
 
         });
 
@@ -286,40 +442,22 @@ define(function(require, exports, module) {
 
 
         //ANIMATIONS
-        this.mainModifier.setTransform(Transform.translate(0,0,0), { duration: 990, curve: Easing.inOutExpo});
+        this.mainModifier.setTransform(Transform.translate(0,0,0), { duration: 1100, curve: Easing.inOutExpo});
 
     }
 
-    // Establishes prototype chain for AddEventView class to inherit from View
-    AddEventView.prototype = Object.create(View.prototype);
-    AddEventView.prototype.constructor = AddEventView;
+    // Establishes prototype chain for EventDetailsView class to inherit from View
+    EventDetailsView.prototype = Object.create(View.prototype);
+    EventDetailsView.prototype.constructor = EventDetailsView;
 
-    // Default options for AddEventView class
-    AddEventView.DEFAULT_OPTIONS = {
-        transition: {
-            duration: 300,
-            curve: Easing.inOutElastic
-        }
+    // Default options for EventDetailsView class
+    EventDetailsView.DEFAULT_OPTIONS = {
     };
 
     // Define your helper functions and prototype methods here
     function _outTransition(){
-        this.mainModifier.setTransform(Transform.translate(0, 450 * hUnits, 0), {duration: 990, curve: Easing.inOutExpo});
+        this.mainModifier.setTransform(Transform.translate(500 * wUnits, 0, 0), {duration: 1100, curve: Easing.inOutExpo});
     }
 
-    function _createEvent(){
-        return {
-            title : this.titleField.getValue(),
-            date : this.dateField.getValue(),
-            location : this.locationField.getValue(),
-            start : this.startField.getValue(),
-            end : this.endField.getValue(),
-            repeat : repeatValue.value
-            // eventData.repeat = this.repeatField.getValue();
-        };
-    }
-
-
-
-    module.exports = AddEventView;
+    module.exports = EventDetailsView;
 });
