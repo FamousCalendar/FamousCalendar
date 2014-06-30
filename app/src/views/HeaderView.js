@@ -90,7 +90,6 @@ define(function(require, exports, module) {
       size: [18, 18],
       content:'content/images/plus_icon.png',
       properties: {
-        pointerEvents: 'none',
         zIndex: 3
       }
     });
