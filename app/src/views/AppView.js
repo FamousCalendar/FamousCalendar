@@ -151,7 +151,7 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this._eventInput.on('showDetails', function(eventView) {
-      console.log(eventView);
+      console.log('AppView showDetails');
       var eventDetailsModifier = new Modifier({
         transform: Transform.translate(0,0,15),
         origin: [0.5, 0.5],
@@ -159,6 +159,7 @@ define(function(require, exports, module) {
       });
       var detailsView = new EventDetailsView(eventView.event);
       this.add(eventDetailsModifier).add(detailsView);
+      detailsView._eventOutput.pipe(this._eventInput);
     }.bind(this));
 
     this._eventInput.on('addEventView', function(clickData) {
