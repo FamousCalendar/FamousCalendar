@@ -29,6 +29,12 @@ define(function(require, exports, module) {
   MonthView.prototype = Object.create(View.prototype);
   MonthView.prototype.constructor = MonthView;
 
+  MonthView.prototype.refreshEvents = function() {
+    for (var i = 1; i < this.weeks.length; i++) {
+      this.weeks[i].refreshBackground();
+    }
+  };
+
   MonthView.prototype.getMonth = function() {
     return { month: this.options.month, year: this.options.year };
   };
