@@ -73,7 +73,7 @@ define(function(require, exports, module) {
       });
       
       var event = new EventView(events[i]);
-      // event.eventSurface.pipe(this.options.scrollView);
+      event.eventSurface.pipe(this.options.scrollView);
       
       eventNode.add(eventModifier).add(event);
       this._eventsNode.add(eventNode);
