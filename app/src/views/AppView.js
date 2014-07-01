@@ -26,6 +26,7 @@ define(function(require, exports, module) {
     View.apply(this, arguments);
     this.state = 'monthView';
     this.selectedWeek;
+    this.flag;
 
     _createLayout.call(this);
     _createHeader.call(this);
@@ -71,6 +72,7 @@ define(function(require, exports, module) {
         textAlign: 'center',
         fontFamily: 'sans-serif',
         fontSize: '16px',
+        pointerEvents: 'none',
         zIndex: 5
       }
     });
@@ -154,6 +156,14 @@ define(function(require, exports, module) {
 
     this._eventInput.on('showDetails', function(eventView) {
       console.log('AppView showDetails');
+      
+      // temporary hack for eventView/dayView event handling bug
+      if (this.flag) return;
+      this.flag = true;
+      setTimeout(function() {
+        this.flag = false;
+      }.bind(this), 1500);
+
       var eventDetailsModifier = new Modifier({
         transform: Transform.translate(0,0,15),
         origin: [0.5, 0.5],
