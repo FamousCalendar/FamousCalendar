@@ -72,6 +72,7 @@ define(function(require, exports, module) {
         textAlign: 'center',
         fontFamily: 'sans-serif',
         fontSize: '16px',
+        pointerEvents: 'none',
         zIndex: 5
       }
     });
