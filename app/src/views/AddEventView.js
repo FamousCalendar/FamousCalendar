@@ -257,6 +257,7 @@ define(function(require, exports, module) {
             var newEvent = _createEvent.call(this);
             if(newEvent.date.length > 0 && newEvent.start.length > 0 && newEvent.end.length > 0) {
                 Utility.saveEvent(_createEvent.call(this));
+                this._eventOutput.emit('changes');
                 _outTransition.call(this);
             }else{
                 alert('Please complete event form');
