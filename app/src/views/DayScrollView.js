@@ -36,18 +36,6 @@ define(function(require, exports, module) {
     
     _createDayViews.call(this);
     this.setToDate(this.options.startDate);
-    
-    window.ascroll = function(val) {
-      this.setToDate( val, true );
-    }.bind(this);
-    
-    window.gettime = function() {
-      console.log('Position:', this.getPosition());
-      console.log('Day:', this.dayViews[this._node.getIndex()].getDate());
-    }.bind(this);
-    
-    window.scroller = this;
-    
   }
   
   /** @const */
@@ -69,26 +57,10 @@ define(function(require, exports, module) {
    * 
    * @param {string/array} date : A date string ('yyyy-mm-dd') or array ([year, month, day])
    */
-  DayScrollview.prototype.resetDay = function resetDay(date) {
-    var currentNode = this._node;
+  DayScrollview.prototype.resetDay = function resetDay() {
     var currentPos = this.getPosition();
     _resetDayViews.call(this, this.dayViews[this._node.getIndex()].getDate());
     this.setPosition(currentPos);
-  /*
-    if (!date) return;
-    else if (date instanceof Array && date.length === 3) date = TimeUtil.dateArrToStr(date);
-    var currentIdx = this._node.getIndex();
-    var loop = false;
-    
-    for (var i = currentIdx; i !== currentIdx && loop !== true; i++) {
-      if (i >= this.dayViews.lenth) i = 0;
-      loop = true;
-      if (date === this.dayViews[i].getDate()) {
-        this.dayViews[i].buildEvents(Utilities.getEvents(date));
-        break;
-      }
-    }
-    */
   };  //  End DayScrollview.prototype.resetDay
   
   /**@method setToDate
@@ -120,7 +92,7 @@ define(function(require, exports, module) {
       if (!then[0] || !then[1]) return;
       
       this._autoscroll.active = true;
-      this._autoscroll.minDiff = TimeUtil.timeToPixels(then[1]) + TimeUtil.timeDiffMin.call(this, then[0], now[0], then[1], now[1]); //  Negative value means target time is before current time
+      this._autoscroll.minDiff = TimeUtil.timeToPixels(now[1]) + TimeUtil.timeDiffMin.call(this, then[0], now[0], then[1], now[1]); //  Negative value means target time is before current time
       var transitioner = new Transitionable(this.getPosition());
       this._scroller.positionFrom(transitioner);
       console.log(this._autoscroll.minDiff);
