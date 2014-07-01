@@ -43,7 +43,7 @@ define(function(require, exports, module) {
                 backgroundColor: '#CCCCCC',//'#7201ce',
                 lineHeight: '10px',
                 marginTop: '0px',
-                padding: '0px',
+                paddingLeft: '4px',
                 // boxShadow: '5px 5px 3px -3px',
                 fontSize: '13px',
                 //color: '#686675',
