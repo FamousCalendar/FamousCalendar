@@ -31,6 +31,7 @@ define(function(require, exports, module) {
     this.sequenceFrom(this.viewSequence);
     this._autoscroll = {
       active: false,        //  limits events based on DayView transitions
+      complete: true,
       minDiff: 0            //  The distance in pixels to autoscroll
     };
     
@@ -59,7 +60,8 @@ define(function(require, exports, module) {
    */
   DayScrollview.prototype.resetDay = function resetDay() {
     var currentPos = this.getPosition();
-    _resetDayViews.call(this, this.dayViews[this._node.getIndex()].getDate());
+    var currentDay = this.dayViews[this._node.getIndex()];
+    _resetDayViews.call(this, currentDay.getDate(), currentDay.getWeekday());
     this.setPosition(currentPos);
   };  //  End DayScrollview.prototype.resetDay
   
@@ -78,7 +80,7 @@ define(function(require, exports, module) {
     scrollToDate = (scrollToDate !== undefined) ? scrollToDate : false;
     
     if (!scrollToDate) {
-      _resetDayViews.call(this, date);
+      _resetDayViews.call(this, date, weekday);
       this.setPosition(1440 * TimeUtil.timeToPositionPercentage(this.options.startTime));
     } else {
       var currentIndex = this._node.getIndex();
@@ -95,12 +97,10 @@ define(function(require, exports, module) {
       this._autoscroll.minDiff = TimeUtil.timeToPixels(now[1]) + TimeUtil.timeDiffMin.call(this, then[0], now[0], then[1], now[1]); //  Negative value means target time is before current time
       var transitioner = new Transitionable(this.getPosition());
       this._scroller.positionFrom(transitioner);
-      console.log(this._autoscroll.minDiff);
       transitioner.set(this._autoscroll.minDiff, {duration: 750, curve: Easing.outCubic}, function() {
         this._autoscroll.minDiff = 0;
         this.setPosition(transitioner.get());
         this._scroller.positionFrom(this.getPosition.bind(this));
-        this._autoscroll.active = false;
       }.bind(this));
     }
   }
@@ -131,11 +131,13 @@ define(function(require, exports, module) {
    * and subsequent dates in sequence.
    *
    * @param {string} date : A date in the format "yyyy-mm-dd"
+   * @param {number} weekday : A number between 0-6 representing a day of the week (0 = sunday)
    */
-  function _resetDayViews(date) {
+  function _resetDayViews(date, weekday) {
     var currentIndex  = this._node.getIndex();
     var array         = this.dayViews;
     this.dayViews[currentIndex].setDate(date);
+    this.dayViews[currentIndex].setWeekday(weekday);
     
     for (var i = 0; i < array.length; i++) {
       var targetIndex = ((currentIndex + i) < array.length) ? (currentIndex + i) : (currentIndex + i - array.length);
@@ -156,15 +158,24 @@ define(function(require, exports, module) {
   function _setEventsUpdater() {
     this.updateNodeBuffer = function updateNodeBuffer(target, current, offset) {
       var currentDate = current.getDate();
+      var currentDay = current.getWeekday();
       currentDate = TimeUtil.dateStrToArr(currentDate);
+      
       var targetDate = TimeUtil.findOffsetDate(currentDate, offset);  //  targetDate will be an array
       targetDate = TimeUtil.dateArrToStr(targetDate);
+      var targetDay = currentDay + offset;
+      if (targetDay < 0) targetDay += 7;
+      if (targetDay > 6) targetDay -= 7;
+      
       target.setDate(targetDate);
+      target.setWeekday(targetDay);
       target.buildEvents(Utilities.getEvents(targetDate));
     };
   } //  End _setEventsUpdater
   
   /**@method _setNodeChangeEmitter
+   * 
+   * Sets the effects for when the user scrolls to a new node.
    */
   function _setNodeChangeEmitter() {
     this.emitNodeChange = function _emitNodeChange(direction) {
@@ -172,6 +183,8 @@ define(function(require, exports, module) {
         var date = this.dayViews[this._node.getIndex()].getDate();
         this._eventOutput.emit('nodeChange', direction, date);
       }
+      var position = this.getPosition();
+      if (position >= 0 && position < 1440) this._autoscroll.active = false;
     };
   } //  End _setNodeChangeEmitter
   
