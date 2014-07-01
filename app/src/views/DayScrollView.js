@@ -37,14 +37,16 @@ define(function(require, exports, module) {
     _createDayViews.call(this);
     this.setToDate(this.options.startDate);
     
-/*    window.ascroll = function(val) {
+    window.ascroll = function(val) {
       this.setToDate( val, true );
     }.bind(this);
     
     window.gettime = function() {
       console.log('Position:', this.getPosition());
       console.log('Day:', this.dayViews[this._node.getIndex()].getDate());
-    }.bind(this);*/
+    }.bind(this);
+    
+    window.scroller = this;
     
   }
   
@@ -68,6 +70,11 @@ define(function(require, exports, module) {
    * @param {string/array} date : A date string ('yyyy-mm-dd') or array ([year, month, day])
    */
   DayScrollview.prototype.resetDay = function resetDay(date) {
+    var currentNode = this._node;
+    var currentPos = this.getPosition();
+    _resetDayViews.call(this, this.dayViews[this._node.getIndex()].getDate());
+    this.setPosition(currentPos);
+  /*
     if (!date) return;
     else if (date instanceof Array && date.length === 3) date = TimeUtil.dateArrToStr(date);
     var currentIdx = this._node.getIndex();
@@ -81,6 +88,7 @@ define(function(require, exports, module) {
         break;
       }
     }
+    */
   };  //  End DayScrollview.prototype.resetDay
   
   /**@method setToDate
@@ -94,7 +102,7 @@ define(function(require, exports, module) {
    *                                 If set to true, the DayScrollView will autoscroll to the date.
    *                                 Set this to true only if the DayView is visible when updated.
    */
-  DayScrollview.prototype.setToDate = function setToDate(date, scrollToDate) {
+  DayScrollview.prototype.setToDate = function setToDate(date, weekday, scrollToDate) {
     scrollToDate = (scrollToDate !== undefined) ? scrollToDate : false;
     
     if (!scrollToDate) {
@@ -115,6 +123,7 @@ define(function(require, exports, module) {
       this._autoscroll.minDiff = TimeUtil.timeToPixels(then[1]) + TimeUtil.timeDiffMin.call(this, then[0], now[0], then[1], now[1]); //  Negative value means target time is before current time
       var transitioner = new Transitionable(this.getPosition());
       this._scroller.positionFrom(transitioner);
+      console.log(this._autoscroll.minDiff);
       transitioner.set(this._autoscroll.minDiff, {duration: 750, curve: Easing.outCubic}, function() {
         this._autoscroll.minDiff = 0;
         this.setPosition(transitioner.get());

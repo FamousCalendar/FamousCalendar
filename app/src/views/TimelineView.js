@@ -19,6 +19,7 @@ define(function(require, exports, module) {
   }
   
   TimelineView.DEFAULT_OPTIONS = {
+    scrollView: null,
     timeUnits: AppSettings.time.getTimeUnits(),
     _12HourClock: AppSettings.time.is12HourClock(),
     timebarSize: [TimelineSettings.getTimebarWidth(), ((1440 / AppSettings.time.getTimeUnits()) * TimelineSettings.getNotchSpacing())],
@@ -90,6 +91,7 @@ define(function(require, exports, module) {
           zIndex: 3
         }
       });
+      if (this.options.scrollView) notchSurface.pipe(this.options.scrollView);
       
       var notchModifier = new StateModifier({
         origin: [0, 0],
