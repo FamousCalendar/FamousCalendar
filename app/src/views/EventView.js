@@ -13,6 +13,7 @@ define(function(require, exports, module) {
     var Modifier = require('famous/core/Modifier');
     var Easing = require('famous/transitions/Easing');
     var EventDetails = require('views/EventDetailsView');
+    var AppSettings = require('config/AppSettings');
 
     // Constructor function for our EventView class
     function EventView(event) {
@@ -35,8 +36,8 @@ define(function(require, exports, module) {
 
 
         this.eventSurface = new Surface({
-            size: [window.outerWidth/2, duration/60 * hourHeight],
-            content: '<h3>' + event.title + '</h3><p>Where: ' + event.location + '</p>',
+            size: [(window.outerWidth - AppSettings.timelineView.getTimebarWidth() - 20), duration/60 * hourHeight],
+            content: '<h3 style="color:red">' + event.title + '</h3><p>Where: ' + event.location + '</p>',
             opacity: 0.5,
             properties: {
                 backgroundColor: '#CCCCCC',//'#7201ce',
@@ -45,7 +46,8 @@ define(function(require, exports, module) {
                 padding: '0px',
                 // boxShadow: '5px 5px 3px -3px',
                 fontSize: '13px',
-                color: '#686675',
+                //color: '#686675',
+                color: 'black',
                 fontFamily: 'sans-serif',
                 borderLeft: '2px solid gray'
             }
@@ -53,8 +55,9 @@ define(function(require, exports, module) {
 
 
         var eventModifier = new Modifier({
-            origin: [0, 0],
-            align: [0.5, 0]
+            origin: [0.5, 0],
+            align: [0.578, 0],
+            opacity: 0.75
         });
 
         this.add(eventModifier).add(this.eventSurface);
