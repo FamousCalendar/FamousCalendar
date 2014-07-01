@@ -37,7 +37,6 @@ define(function(require, exports, module) {
     
     _createDayViews.call(this);
     this.setToDate(this.options.startDate);
-    window.scroller = this;
   }
   
   /** @const */
