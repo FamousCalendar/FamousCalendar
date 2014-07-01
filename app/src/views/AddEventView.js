@@ -264,6 +264,7 @@ define(function(require, exports, module) {
             }
         }.bind(this));
 
+        this._eventOutput.on('changes', function(){console.log('changed');});
 
         //Cancel event creation
         cancelIcon.on('click', function(){

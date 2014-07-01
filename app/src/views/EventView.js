@@ -37,12 +37,13 @@ define(function(require, exports, module) {
 
         this.eventSurface = new Surface({
             size: [(window.outerWidth - AppSettings.timelineView.getTimebarWidth() - 20), duration/60 * hourHeight],
-            content: '<h3 style="color:red">' + event.title + '</h3><p>Where: ' + event.location + '</p>',
+            content: '<h3>' + event.title + '</h3><p>Where: ' + event.location + '</p>',
             opacity: 0.5,
             properties: {
                 backgroundColor: '#CCCCCC',//'#7201ce',
                 lineHeight: '10px',
                 marginTop: '0px',
+                overflow: 'hidden',
                 paddingLeft: '4px',
                 // boxShadow: '5px 5px 3px -3px',
                 fontSize: '13px',

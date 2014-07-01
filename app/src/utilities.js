@@ -38,20 +38,19 @@ define(function(require, exports, module){
 	  // repeat: eventRepetition,
 	  // title: eventTitle, 
 	  // description: eventBody};
+
+
 	  if(recurrence !== 'false'){
 	  	if(recurrence === 'daily'){
-	  		
 	  		_calendar.repeat['daily'].push(newEvent);
 	  	}else if(recurrence === 'weekly'){
-	  		
 	  		_calendar.repeat['weekly'][dateObj.getDay()] = _calendar.repeat['weekly'][dateObj.getDay()] || [];
 	  		_calendar.repeat['weekly'][dateObj.getDay()].push(newEvent);
 	  	}else if(recurrence === 'monthly'){
-	  		
-	  		_calendar.repeat[recurrence][eventDate.slice(-2)] = _calendar.repeat.recurrence[eventDate.slice(-2)] || [];
+	  		_calendar.repeat[recurrence][eventDate.slice(-2)] = _calendar.repeat[recurrence][eventDate.slice(-2)] || [];
 	  		_calendar.repeat[recurrence][eventDate.slice(-2)].push(newEvent);
 	  	}else if(recurrence === 'yearly'){
-	  		_calendar.repeat[recurrence][eventDate.slice(5)] = _calendar.repeat.recurrence[eventDate.slice(5)] || [];
+	  		_calendar.repeat[recurrence][eventDate.slice(5)] = _calendar.repeat[recurrence][eventDate.slice(5)] || [];
 	  		_calendar.repeat[recurrence][eventDate.slice(5)].push(newEvent);
 	  	}
 	  }
