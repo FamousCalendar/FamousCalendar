@@ -145,7 +145,7 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this._eventInput.on('toggleSelectedDate', function(weekView) {
-      this.dayScrollView.setToDate(_generateDateString(weekView), weekView.weekDay, false);
+      this.dayScrollView.setToDate(_generateDateString(weekView), weekView.weekDay, true);
       _setHighlighter.call(this, weekView);
       _transitionDateString.call(this, weekView);
     }.bind(this));

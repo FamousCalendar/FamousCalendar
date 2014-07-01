@@ -21,6 +21,7 @@ define(function(require, exports, module) {
     View.apply(this, arguments);
     
     this._date        = null;
+    this._weekday     = null;
     this._eventsNode  = new RenderNode();
     this.add(this._eventsNode);
     
@@ -108,6 +109,16 @@ define(function(require, exports, module) {
       : [true, this.options.sizeY, 0];
   };  //  End DayView.prototype.getSize
   
+  /**@method getWeekday
+   * 
+   * Returns the weekday associated with the DayView.
+   * 
+   * @return {number} An integer value between 0-6 where 0 = Sunday
+   */
+  DayView.prototype.getWeekday = function getWeekday() {
+    return this._weekday;
+  };  //  End DayView.prototype.getWeekday
+  
   /**@method setDate
    * 
    * Assigns a date string to the DayView's _date variable.
@@ -118,6 +129,16 @@ define(function(require, exports, module) {
     if (date && date instanceof Array && date.length === 3) date = TimeUtil.dateArrToStr(date);
     if (date && typeof date === 'string' && date.length === 10) this._date = date;
   };  //  End DayView.prototype.setDate
+  
+  /**@method setWeekday
+   * 
+   * Sets the day of the week associated with the DayView
+   * 
+   * @param {number} day : Integer between 0 and 6 where 0 = Sunday
+   */
+  DayView.prototype.setWeekday = function setWeekday(day) {
+    if (day !== undefined && typeof day === 'number' && day >= 0 && day <= 6) this._weekday = Math.floor(day);
+  };  //  End DayView.prototype.setWeekday
   
   //  Helper Functions
   /**@method _createBackground
