@@ -48,6 +48,7 @@ define(function(require, exports, module) {
         var backgroundMod = new Modifier({
             origin: [0.5, 0.5],
             align: [0.5, 0.5],
+            transform: Transform.translate(0, 0, 0)
         });
 
         this.node.add(backgroundMod).add(this.back);
@@ -64,7 +65,8 @@ define(function(require, exports, module) {
 
         var cancelIconModifier = new Modifier({
           align: [0.08, 0.03],
-          origin: [0, 0]
+          origin: [0, 0],
+          transform: Transform.translate(0, 0, 3)
         });
 
 
@@ -79,12 +81,14 @@ define(function(require, exports, module) {
             color: 'red',
             fontFamily: 'sans-serif',
             cursor: 'pointer'
-          }
+          },
+
         });
 
         var editIconModifier = new Modifier({
           align: [0.85, 0.03],
-          origin: [0, 0]
+          origin: [0, 0],
+          transform: Transform.translate(0, 0, 3)
         });
 
         this.node.add(editIconModifier).add(editIcon);
@@ -120,10 +124,10 @@ define(function(require, exports, module) {
         });
         var headerMod = new Modifier({
             origin : [0.5, 0.5],
-            align: [0.5, 0.5]
+            align: [0.5, 0.5],
+            transform: Transform.translate(0, 0, 3)
         })
 
-        //TBD: Add Cancel and Done buttons on Header
 
         this.node.add(headerMod).add(this.header);
 
@@ -134,12 +138,13 @@ define(function(require, exports, module) {
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey'
             },
-            size: [undefined, true]
+            size: [undefined, true],
+
         });
         var titleFieldModifier = new Modifier({
             origin: [0.5, 0.5],
             align: [0.5, 0.1],
-            transform: Transform.translate(0, 0, 0)
+            transform: Transform.translate(0, 0, 3)
         });
         this.node.add(titleFieldModifier).add(this.titleField);
 
@@ -148,7 +153,7 @@ define(function(require, exports, module) {
         this.locationField = new Surface({
             content: 'Location: <p>' + event.location + '</p>',
             size: [undefined, true],
-            properies: {
+            properties: {
                 fontFamily: 'sans-serif',
                 borderBottom: '1px solid lightgrey',
                 lineHeight: '10px'
@@ -156,7 +161,7 @@ define(function(require, exports, module) {
         });
         var locationModifier = new Modifier({
             align: [0.5, 0.2],
-            transform: Transform.translate(0, 0, 0)
+            transform: Transform.translate(0, 0, 3)
         });
         this.node.add(locationModifier).add(this.locationField);
 
@@ -176,7 +181,7 @@ define(function(require, exports, module) {
         });
         var dateModifier = new Modifier({
             align: [0.5, 0.3],
-            transform: Transform.translate(0, 0, 0)
+            transform: Transform.translate(0, 0, 3)
         });
         this.node.add(dateModifier).add(this.dateField);
 
@@ -323,7 +328,7 @@ define(function(require, exports, module) {
                 placeholder: event.location,
                 value: event.location,
                 size: [undefined, true],
-                properies: {
+                properties: {
                     fontFamily: 'sans-serif',
                     borderBottom: '1px solid lightgrey',
                     lineHeight: '10px'
@@ -387,7 +392,7 @@ define(function(require, exports, module) {
             repeatFieldModifier.setOpacity(0);
             this.repeatField = new Surface({
                 value: event.repeat,
-                content: repeatValue,
+                content: this.repeatValue,
                 size: [undefined, true],
                 properties: {
                     fontFamily: 'sans-serif',
@@ -410,7 +415,8 @@ define(function(require, exports, module) {
             });
             var saveIconModifier = new Modifier({
               align: [0.85, 0.03],
-              origin: [0, 0]
+              origin: [0, 0],
+              transform: Transform.translate(0, 0, 3)
             });
 
             this.node.add(saveIconModifier).add(saveIcon);
