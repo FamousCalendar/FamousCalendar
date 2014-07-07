@@ -1,16 +1,17 @@
 define(function(require, exports, module) {
   // import dependencies
-  var View = require('famous/core/View');
-  var Surface = require('famous/core/Surface');
-  var Modifier = require('famous/core/Modifier');
-  var Transform = require('famous/core/Transform');
-  var RenderNode = require('famous/core/RenderNode');
+  var View               = require('famous/core/View');
+  var Surface            = require('famous/core/Surface');
+  var Modifier           = require('famous/core/Modifier');
+  var Transform          = require('famous/core/Transform');
+  var RenderNode         = require('famous/core/RenderNode');
   var HeaderFooterLayout = require('famous/views/HeaderFooterLayout');
-  var GridLayout = require("famous/views/GridLayout");
-  var Transitionable = require('famous/transitions/Transitionable');
-  var ImageSurface = require('famous/surfaces/ImageSurface');
-  var DayBoxView = require('views/DayBoxView');
-  var Utilities = require('utilities');
+  var GridLayout         = require("famous/views/GridLayout");
+  var Transitionable     = require('famous/transitions/Transitionable');
+  var ImageSurface       = require('famous/surfaces/ImageSurface');
+  var DayBoxView         = require('views/DayBoxView');
+  var Utilities          = require('utilities');
+  var DateConstants      = require('config/DateConstants');
 
   function WeekView() {
     View.apply(this, arguments);
@@ -31,6 +32,55 @@ define(function(require, exports, module) {
     scrollView: null
   };
 
+  function _createBackgroundLayer() {
+    this.backgroundSurface = new Surface({
+      size: [undefined, undefined],
+      content: this.generateBackgroundHTML(),
+      properties: {
+        color: 'grey',
+        backgroundColor: 'white',
+        fontFamily: 'sans-serif',
+        textAlign: 'center',
+        zIndex: 0
+      }
+    });
+
+    this.backgroundModifier = new Modifier();
+    this.add(this.backgroundModifier).add(this.backgroundSurface);
+  }
+
+  function _createDaysOfWeek() {
+    this.surface = new Surface({
+      size: [undefined, undefined],
+      content: this.generateWeekHTML(),
+      properties: {
+        fontFamily: 'sans-serif',
+        zIndex: 1
+      }
+    });
+
+    this.modifier = new Modifier({
+      size: [undefined, undefined],
+      transform: Transform.translate(0, 0, 1)
+    });
+
+    this.surface.on('click', function(clickData) {
+      var day = this.determineClickedDay(clickData.x);
+
+      // nothing should happen if the user clicks on an already selected day
+      // or on empty areas of partial weeks at the beginning and end of months
+      if (day == null || this.selectedDay === day) return;
+
+      this.selectedDay = day;
+      this.options.scrollView.selectedWeek = this;
+      this.options.scrollView.selectedMonth = this.options.month;
+      this._eventOutput.emit('dateSelected', this);
+    }.bind(this));
+
+    this.surface.pipe(this.options.scrollView);
+    this.add(this.modifier).add(this.surface);
+  }
+
   WeekView.prototype = Object.create(View.prototype);
   WeekView.prototype.constructor = WeekView;
 
@@ -46,6 +96,16 @@ define(function(require, exports, module) {
     this.surface.setContent(this.generateWeekHTML());
     this.backgroundSurface.setContent(this.generateBackgroundHTML());
   }
+
+  WeekView.prototype.getDate = function() {
+    return { 
+      day: this.selectedDay, 
+      month: this.options.month,
+      year: this.options.year,
+      week: this.options.week,
+      weekDay: this.options.weekDay
+    };
+  };
 
   WeekView.prototype.refreshBackground = function() {
     this.backgroundSurface.setContent(this.generateBackgroundHTML());
@@ -72,12 +132,12 @@ define(function(require, exports, module) {
 
   WeekView.prototype.generateBackgroundHTML = function() {
     this.dayArray || this.generateDayArray();
+    var dateString;
     var html = '<table><tr>';
+
     for (var i = 0; i < this.dayArray.length; i++) {
-      var month = this.options.month + 1 < 10 ? '0' + (this.options.month + 1) : this.options.month + 1;
-      var day = this.dayArray[i] < 10 ? '0' + this.dayArray[i] : this.dayArray[i];
-      var dateString = [this.options.year, month, day].join('-');
       if (this.dayArray[i]) {
+        dateString = DateConstants.generateDateString(this.options.year, this.options.month + 1, this.dayArray[i]);
         if (Utilities.hasEvents(dateString)) {
           html += '<td class="day event">.</td>';
         } else {
@@ -102,86 +162,13 @@ define(function(require, exports, module) {
   };
 
   WeekView.prototype.determineClickedDay = function(x) {
+    if (!(typeof x === 'number')) throw 'Argument must be a number!';
     var dayOfWeek = Math.floor(x / (window.innerWidth / 7));
     if (dayOfWeek < this.options.startDay || this.options.startDate + dayOfWeek > this.options.daysInMonth) return null;
     this.options.weekDay = dayOfWeek;
 
     return this.options.startDate + (dayOfWeek - this.options.startDay);
   };
-
-  WeekView.prototype.isWeekend = function() {
-    return this.selectedDay === 0 || this.selectedDay === 6;
-  };
-
-  WeekView.prototype.getDate = function() {
-    return { 
-      day: this.selectedDay, 
-      month: this.options.month,
-      year: this.options.year,
-      week: this.options.week,
-      weekDay: this.options.weekDay
-    };
-  };
-
-  function _createBackgroundLayer() {
-    this.backgroundSurface = new Surface({
-      size: [undefined, undefined],
-      content: this.generateBackgroundHTML(),
-      properties: {
-        color: 'grey',
-        backgroundColor: 'white',
-        fontFamily: 'sans-serif',
-        textAlign: 'center',
-        zIndex: 0
-      }
-    });
-
-    this.backgroundModifier = new Modifier({
-      transform: Transform.translate(0, 0, 0)
-    });
-
-    this.add(this.backgroundModifier).add(this.backgroundSurface);
-  }
-
-  function _createDaysOfWeek() {
-    var day;
-    
-    this.surface = new Surface({
-      size: [undefined, undefined],
-      content: this.generateWeekHTML(),
-      properties: {
-        fontFamily: 'sans-serif',
-        zIndex: 1
-      }
-    });
-
-    this.modifier = new Modifier({
-      size: [undefined, undefined],
-      transform: Transform.translate(0, 0, 1)
-    });
-
-    this.surface.on('click', function(data) {
-      var day = this.determineClickedDay(data.x);
-
-      // check if user clicked on an actual day
-      if (day == null) return;
-
-      // check if user clicked on an already selected day
-      if (this.selectedDay === day) return;
-
-      if (this.selectedDay) {
-        this._eventOutput.emit('dateChanged', this);
-      }
-
-      this.selectedDay = day;
-      this.options.scrollView.selectedWeek = this;
-      this.options.scrollView.selectedMonth = this.options.month;
-      this._eventOutput.emit('dateSelected', this);
-    }.bind(this));
-
-    this.surface.pipe(this.options.scrollView);
-    this.add(this.modifier).add(this.surface);
-  }
 
   module.exports = WeekView;
 });
