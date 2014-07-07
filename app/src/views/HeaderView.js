@@ -40,7 +40,9 @@ define(function(require, exports, module) {
 
   function _createBackButton() {
     this.backButton = new View();
-    this.backButtonModifier = new Modifier();
+    this.backButtonModifier = new Modifier({
+      size: [100, undefined]
+    });
 
     this.titleSurface = new Surface({
       size: [true, undefined],
@@ -56,33 +58,33 @@ define(function(require, exports, module) {
     });
 
     this.titleModifier = new Modifier({
-      transform: Transform.translate(28, 0, 3)
+      align: [0.3, 0],
+      transform: Transform.translate(0, 0, 3)
     });
 
-    var backIcon = new ImageSurface({
+    this.backIcon = new ImageSurface({
       size: [30, 30],
       content:'content/images/back_arrow.png',
       properties: {
-        pointerEvents: 'none',
         zIndex: 3
       }
     });
 
     var backIconModifier = new Modifier({
-      align: [0.045, 0.4],
+      align: [0.15, 0.4],
       origin: [0.5, 0.5],
       transform: Transform.translate(0, 0, 3)
     });
 
-    this.backButton.add(backIconModifier).add(backIcon);
+    this.backButton.add(backIconModifier).add(this.backIcon);
     this.backButton.add(this.titleModifier).add(this.titleSurface);
     this.add(this.backButtonModifier).add(this.backButton);
   }
 
   function _createAddEventButton() {
     this.plusIcon = new ImageSurface({
-      size: [18, 18],
-      content:'content/images/plus_icon.png',
+      size: [30, 30],
+      content:'content/images/plus_icon_small.png',
       properties: {
         zIndex: 3
       }
@@ -122,6 +124,11 @@ define(function(require, exports, module) {
 
   function _setListeners() {
     this.titleSurface.on('click', function(clickData) {
+      if (this.options.appView.state === 'monthView') return;
+      this._eventOutput.emit('stateChangeMonthView', clickData);
+    }.bind(this));
+
+    this.backIcon.on('click', function(clickData) {
       if (this.options.appView.state === 'monthView') return;
       this._eventOutput.emit('stateChangeMonthView', clickData);
     }.bind(this));
