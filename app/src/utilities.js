@@ -101,9 +101,7 @@ define(function(require, exports, module){
 		if(event.repeat === 'daily'){
 			var dailyArray = _calendar.repeat.daily;
 			for(var x = 0; x < dailyArray.length; x++){
-				console.log(event, dailyArray[x]);
 				if(dailyArray[x].title === event.title && dailyArray[x].start === event.start){
-					console.log('found');
 					callback(dailyArray, dailyArray[x], x);
 				}
 			}
@@ -133,9 +131,7 @@ define(function(require, exports, module){
 
 	Utilities.deleteEvent = function(event){
 		_findEvent(event, function(arr, item, index){
-			console.log('Found event ', item, 'in ', arr)
 			arr.splice(index, 1);
-			console.log(arr);
 		});
 		window.localStorage.setItem('calendar', JSON.stringify(_calendar));
 	};
@@ -145,7 +141,6 @@ define(function(require, exports, module){
 			arr.splice(index, 1);
 		});
 		Utilities.saveEvent(updatedEvent);
-		console.log('editing');
 		window.localStorage.setItem('calendar', JSON.stringify(_calendar));
 	};
 

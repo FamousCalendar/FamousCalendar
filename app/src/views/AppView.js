@@ -109,7 +109,6 @@ define(function(require, exports, module) {
   function _positionHighlighter() {
     var offset = this.monthScrollView.determineOffset();
     var date = this.monthScrollView.selectedWeek.getDate();
-    console.log(date.weekDay);
     var y = ((date.week) * ((window.innerHeight - 60) / 7)) - (window.innerHeight / 60) - offset + (((window.innerHeight - 60) / 14));
     var x = ((window.innerWidth / 7) * date.weekDay) + (window.innerWidth / 14);
     this.highlightModifier.setAlign([x / (window.innerWidth), y / (window.innerHeight - 60)]);
@@ -137,7 +136,6 @@ define(function(require, exports, module) {
       this.state = 'dayView';
       this.selectedWeek = weekView;
       this.selectedDate = weekView.getDate();
-      console.log(this.selectedDate);
       this.dayScrollView.setToDate(_generateDateString(weekView),
         weekView.weekDay, false);
       _setHighlighter.call(this, weekView);
