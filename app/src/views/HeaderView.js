@@ -5,10 +5,7 @@ define(function(require, exports, module) {
   var Modifier = require('famous/core/Modifier');
   var Transform = require('famous/core/Transform');
   var Transitionable = require('famous/transitions/Transitionable');
-  var StateModifier     = require('famous/modifiers/StateModifier');
-  var MonthView = require('views/MonthView');
   var Easing = require('famous/transitions/Easing');
-  var GridLayout = require('famous/views/GridLayout');
   var ImageSurface = require('famous/surfaces/ImageSurface');
 
   function HeaderView() {
@@ -20,9 +17,6 @@ define(function(require, exports, module) {
     _createDaysOfWeekBar.call(this);
     _setListeners.call(this);
   }
-
-  HeaderView.prototype = Object.create(View.prototype);
-  HeaderView.prototype.constructor = HeaderView;
 
   HeaderView.DEFAULT_OPTIONS = {
     appView: null
@@ -104,7 +98,8 @@ define(function(require, exports, module) {
   }
 
   function _createDaysOfWeekBar() {
-    var html = '<table><tr><td>S</td><td>M</td><td>T</td><td>W</td><td>T</td><td>F</td><td>S</td></tr></table>';
+    var html = '<table><tr><td>S</td><td>M</td><td>T</td><td>W</td>' +
+               '<td>T</td><td>F</td><td>S</td></tr></table>';
 
     var daysSurface = new Surface({
       size: [undefined, 14],
@@ -135,6 +130,9 @@ define(function(require, exports, module) {
       this._eventOutput.emit('addEventView', clickData);
     }.bind(this));
   }
+
+  HeaderView.prototype = Object.create(View.prototype);
+  HeaderView.prototype.constructor = HeaderView;
 
   module.exports = HeaderView;
 });
