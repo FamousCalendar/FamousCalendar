@@ -16,50 +16,15 @@ define(function(require, exports, module) {
     View.apply(this, arguments);
     this.firstDay = new Date(this.options.year, this.options.month, 1).getDay();
     this.daysInMonth = new Date(this.options.year, this.options.month + 1, 0).getDate();
-    this.mods = [];
-    this.weeks = [];
-    this.gridWeeks = [];
+    this.mods = []; // modifiers
+    this.weeks = []; // weekViews
+    this.gridWeeks = []; // renderNodes (-> modifier -> weekView)
 
     _createLayout.call(this);
     _createMonthName.call(this);
     _createWeeks.call(this);
     _setListeners.call(this);
   }
-
-  MonthView.prototype = Object.create(View.prototype);
-  MonthView.prototype.constructor = MonthView;
-
-  MonthView.prototype.refreshEvents = function() {
-    for (var i = 1; i < this.weeks.length; i++) {
-      this.weeks[i].refreshBackground();
-    }
-  };
-
-  MonthView.prototype.getMonth = function() {
-    return { month: this.options.month, year: this.options.year };
-  };
-
-  MonthView.prototype.setMonth = function(month, year) {
-    this.options.month = month;
-    this.options.year = year;
-    this.firstDay = new Date(this.options.year, this.options.month, 1).getDay();
-    this.daysInMonth = new Date(this.options.year, this.options.month + 1, 0).getDate();
-
-    // update month name
-    this.weeks[0].setContent('&nbsp;' + DateConstants.monthNames[this.options.month].substr(0, 3).toUpperCase());
-    this.monthNameMod.setTransform(Transform.translate(this.firstDay * (window.innerWidth / 7), 0, 1));
-
-    // update weeks of month
-    for (var i = 0; i < 6; i++) {
-      this.weeks[i + 1].setWeek({
-        startDay: i ? 0 : this.firstDay,
-        startDate: i ? (7 - (this.firstDay) + ((i - 1) * 7)) + 1 : 1,
-        daysInMonth: this.daysInMonth,
-        month: this.options.month,
-        year: this.options.year,
-      });
-    }
-  };
 
   MonthView.DEFAULT_OPTIONS = {
     month: 0,
@@ -80,6 +45,7 @@ define(function(require, exports, module) {
 
   function _createMonthName() {
     this.monthNameView = new View();
+    var node = new RenderNode();
     var backgroundSurface = new Surface({
       size: [undefined, undefined],
       properties: {
@@ -87,7 +53,6 @@ define(function(require, exports, module) {
         zIndex: 0.1
       }
     });
-
 
     var monthName = new Surface({
       size: [true, true],
@@ -109,16 +74,16 @@ define(function(require, exports, module) {
       transform: Transform.translate(this.firstDay * (window.innerWidth / 7), 0, 1)
     });
 
-    this.monthNameView.add(backgroundSurface);
-    this.monthNameView.add(this.monthNameMod).add(monthName);
-    var node = new RenderNode();
     this.mods.push(slideMod);
-    node.add(slideMod).add(this.monthNameView);
     this.gridWeeks.push(node);
     this.weeks.push(monthName);
+
+    this.monthNameView.add(backgroundSurface);
+    this.monthNameView.add(this.monthNameMod).add(monthName);
+    node.add(slideMod).add(this.monthNameView);
+    
     backgroundSurface.pipe(this.options.scrollView);
     monthName.pipe(this.options.scrollView);
-    // this.add(slideMod).add(monthName);
   }
 
   function _createWeeks() {
@@ -166,7 +131,6 @@ define(function(require, exports, module) {
 
         // transition between selected days
         data.difference = this.weekDay - data.data.getDate().weekDay;
-        // _unselectDay.call(this);
         this.selectedDay = data.data.getDate();
         this.selectedRow = data.data.getDate().week;
         this._eventOutput.emit('changeDate', data.data);
@@ -174,8 +138,6 @@ define(function(require, exports, module) {
         // set the selected day and fire the transition into the dayView
         this.selectedDay = data.data.getDate();
         this.selectedRow = data.data.getDate().week;
-
-        // this._eventOutput.emit('dayView', data.data);
         this._eventOutput.emit('dayView', data);
         _animateWeeks.call(this, (-(this.selectedRow) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60) + offset, this.selectedRow);
       }
@@ -184,8 +146,6 @@ define(function(require, exports, module) {
     this._eventInput.on('back', function(data) {
       // only continue if this month is the selected month
       // if (this.options.month !== data.month) return;
-
-      // _unselectDay.call(this);
       this.selectedDay = undefined;
       this.selectedRow = undefined;
       this._eventOutput.emit('monthView', data.data);
@@ -193,19 +153,40 @@ define(function(require, exports, module) {
     }.bind(this));
   }
 
-  // unselect current selected day when selecting new day so only 1 appears selected
-  function _unselectDay() {
-    // saturday and sunday should be grey
-    var color = this.selectedDay.isWeekend() ? 'grey' : 'black';
-    this.selectedDay.numberSurface.setProperties({
-        fontWeight: '',
-        fontSize: '',
-        color: color,
-        backgroundColor: '',
-        borderRadius: '0px'
-    });
-    this.selectedDay = undefined;
-  }
+  MonthView.prototype = Object.create(View.prototype);
+  MonthView.prototype.constructor = MonthView;
+
+  MonthView.prototype.refreshEvents = function() {
+    for (var i = 1; i < this.weeks.length; i++) {
+      this.weeks[i].refreshBackground();
+    }
+  };
+
+  MonthView.prototype.getMonth = function() {
+    return { month: this.options.month, year: this.options.year };
+  };
+
+  MonthView.prototype.setMonth = function(month, year) {
+    this.options.month = month;
+    this.options.year = year;
+    this.firstDay = new Date(this.options.year, this.options.month, 1).getDay();
+    this.daysInMonth = new Date(this.options.year, this.options.month + 1, 0).getDate();
+
+    // update month name
+    this.weeks[0].setContent('&nbsp;' + DateConstants.monthNames[this.options.month].substr(0, 3).toUpperCase());
+    this.monthNameMod.setTransform(Transform.translate(this.firstDay * (window.innerWidth / 7), 0, 1));
+
+    // update weeks of month
+    for (var i = 0; i < 6; i++) {
+      this.weeks[i + 1].setWeek({
+        startDay: i ? 0 : this.firstDay,
+        startDate: i ? (7 - (this.firstDay) + ((i - 1) * 7)) + 1 : 1,
+        daysInMonth: this.daysInMonth,
+        month: this.options.month,
+        year: this.options.year,
+      });
+    }
+  };
 
   module.exports = MonthView;
 });

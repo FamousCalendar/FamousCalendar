@@ -1,14 +1,15 @@
 define(function(require, exports, module) {
-  var ViewSequence  = require('famous/core/ViewSequence');
-  var ScrollView    = require('famous/views/Scrollview');
-  var RenderNode    = require('famous/core/RenderNode');
-  var Modifier      = require('famous/core/Modifier');
-  var Easing        = require('famous/transitions/Easing');
-  var Transform     = require('famous/core/Transform');
-  var Surface       = require('famous/core/Surface');
-  var MonthView     = require('views/MonthView');
-  var DateConstants = require('config/DateConstants');
+  var ViewSequence       = require('famous/core/ViewSequence');
+  var ScrollView         = require('famous/views/Scrollview');
+  var RenderNode         = require('famous/core/RenderNode');
+  var Modifier           = require('famous/core/Modifier');
+  var Easing             = require('famous/transitions/Easing');
+  var Transform          = require('famous/core/Transform');
+  var Surface            = require('famous/core/Surface');
+  var MonthView          = require('views/MonthView');
+  var DateConstants      = require('config/DateConstants');
   var InfiniteScrollView = require('views/InfiniteScrollView');
+  var Transitionable     = require('famous/transitions/Transitionable');
   
   function MonthScrollView() {
     InfiniteScrollView.apply(this, arguments);
@@ -52,32 +53,14 @@ define(function(require, exports, module) {
   MonthScrollView.prototype.determineOffset = function() {
     var position = this.getPosition();
     var index = this._node.getIndex();
-    // var indexOfMonth;
 
-    // for (var i = 0; i < this.months.length; i++) {
-    //   if (this.months[i].options.month === this.selectedMonth && this.months[i].options.year === this.selectedMonth) {
-    //     indexOfMonth = i;
-    //     break;
-    //   }
-    // }
-    // if (true) {
-    //   console.log('position', position, 'index', index, 'indexOfMonth', this.selectedMonth);
-    // }
-
-    if (this.selectedIndex === index) {
-      return position;
-    } else {
-      return -(window.innerHeight - 60) + position;
-    }
-    // this.selectedMonth, get index of month in array
-    // get index of clicked month
+    return (this.selectedIndex === index) ? position : -(window.innerHeight - 60) + position;
   }
   
   function _createMonthViews() {
     var date = new Date();
     var month = date.getMonth();
-    var year = date.getFullYear();
-    this.year = year;
+    var year = this.year = date.getFullYear();
     var startArr = [];
     var endArr = [];
     var nextMonth;
@@ -85,7 +68,7 @@ define(function(require, exports, module) {
 
     for (var i = 0; i < Math.floor(this.options.maxMonthViews / 2); i++) {
       startArr.push({ month: month, year: year });
-      nextMonth = _calcNextMonth(month, year);
+      nextMonth = DateConstants.calcNextMonth(month, year);
       month = nextMonth.month;
       year = nextMonth.year;
     }
@@ -94,7 +77,7 @@ define(function(require, exports, module) {
     year = date.getFullYear();
 
     for (var i = 0; i < Math.floor(this.options.maxMonthViews / 2); i++) {
-      prevMonth = _calcPriorMonth(month, year);
+      prevMonth = DateConstants.calcPreviousMonth(month, year);
       month = prevMonth.month;
       year = prevMonth.year;
       endArr.push({ month: month, year: year });
@@ -123,6 +106,9 @@ define(function(require, exports, module) {
     }
 
     this._eventInput.on('back', function(clickData) {
+      // reactivate scrolling on selected week
+      this.months[this.selectedIndex].weeks[this.selectedDate.week].surface.pipe(this);
+
       _animateWeeks.call(this, 0, this.selectedDate.week);
       this.selectedDate = undefined;
       this.selectedWeek.selectedDay = undefined;
@@ -133,8 +119,13 @@ define(function(require, exports, module) {
         this.selectedDate = weekView.getDate();
         this._eventOutput.emit('toggleSelectedDate', weekView);
       } else {
+
         this.selectedDate = weekView.getDate();
         this.selectedIndex = _getSelectedIndex.call(this);
+
+        // deactivate scrolling on selected week
+        this.months[this.selectedIndex].weeks[this.selectedDate.week].surface.unpipe(this);
+
         this._eventOutput.emit('stateChangeDayView', weekView); // listened to by AppView
         _animateWeeks.call(this, (-(this.selectedDate.week) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60) + this.determineOffset(), this.selectedDate.week);
       }
@@ -143,7 +134,6 @@ define(function(require, exports, module) {
 
   function _getSelectedIndex() {
     for (var i = 0; i < this.monthViews.length; i++) {
-      //  console.log(this.monthViews[i].get());  //  Returning a Modifier
       if (this.months[i].options.month === this.selectedDate.month && this.months[i].options.year === this.selectedDate.year) {
         return i;
       }
@@ -157,7 +147,6 @@ define(function(require, exports, module) {
     var bottomDuration = amount ? 500 : 500;
     var backgroundOpacity = amount ? 0.01 : 0.99;
     var zIndex = amount ? 2 : 1;
-    var borderTop = amount ? 'lightgrey' : '';
     var currentMonth = this.months[this.selectedIndex];
 
     this.moveAdjacentMonths([amount, bottomMovement]);
@@ -189,28 +178,6 @@ define(function(require, exports, module) {
         });
       }
     }
-  }
-
-  function _calcPriorMonth(month, year) {
-    var priorMonth;
-    if (month === 0) {
-      priorMonth = { month: 11, year: year - 1 };
-    } else {
-      priorMonth = { month: month - 1, year: year };
-    }
-
-    return priorMonth;
-  }
-
-  function _calcNextMonth(month, year) {
-    var nextMonth;
-    if (month === 11) {
-      nextMonth = { month: 0, year: year + 1 };
-    } else {
-      nextMonth = { month: month + 1, year: year };
-    }
-
-    return nextMonth;
   }
 
   function _updateNodeBuffer(oldNode, currentNode, indexOffset, targetIndex, currentIndex) {
