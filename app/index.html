@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <title>Calendar</title>
+        <title>FamousCalendar</title>
         <meta name="viewport" content="width=device-width, maximum-scale=1, user-scalable=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -21,12 +21,18 @@
         <script type="text/javascript" src="lib/famous-polyfills/requestAnimationFrame.js"></script>
         <!-- endbuild -->
         
-        <!-- process:remove:dev -->
-        <script type="text/javascript" src="src/main.js"></script>
+        <!-- process:remove:dist -->
+        <script type='application/javascript' src='lib/fastclick/lib/fastclick.js'></script>
+        <script type="text/javascript">
+          window.addEventListener('load', function() {
+              FastClick.attach(document.body);
+          }, false);
+        </script>
+        <script type="text/javascript" src="lib/requirejs/require.js" data-main="src/requireConfig"></script>
         <!-- /process -->
         
-        <!-- process:remove:dist -->
-        <script type="text/javascript" src="lib/requirejs/require.js" data-main="src/requireConfig"></script>
+        <!-- process:remove:dev -->
+        <script type="text/javascript" src="src/main.js"></script>
         <!-- /process -->
     </head>
     <body></body>
