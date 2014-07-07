@@ -96,8 +96,7 @@ define(function(require, exports, module) {
       date.day = dateObj.day + 1;
       date.weekDay = (dateObj.weekDay + 1) % 7;
     }
-
-    console.log(date);
+    
     return date;
   };
 

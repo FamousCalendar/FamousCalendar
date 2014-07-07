@@ -66,7 +66,6 @@ define(function(require, exports, module) {
 
         this.eventSurface.on('click', function(){
             this._eventOutput.emit('showDetails', this);
-            console.log('in EventView');
         }.bind(this));
 
     }
