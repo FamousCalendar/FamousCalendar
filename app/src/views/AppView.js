@@ -26,6 +26,7 @@ define(function(require, exports, module) {
     View.apply(this, arguments);
     this.state = 'monthView';
     this.selectedWeek;
+    this.selectedDate;
     this.flag;
 
     _createLayout.call(this);
@@ -35,9 +36,6 @@ define(function(require, exports, module) {
     _createContent.call(this);
     _setListeners.call(this);
   }
-
-  AppView.prototype = Object.create(View.prototype);
-  AppView.prototype.constructor = AppView;
 
   AppView.DEFAULT_OPTIONS = {
     headerSize: 60
@@ -112,9 +110,9 @@ define(function(require, exports, module) {
     var offset = this.monthScrollView.determineOffset();
     var date = this.monthScrollView.selectedWeek.getDate();
     console.log(date.weekDay);
-    var y = ((date.week) * ((window.innerHeight - 60)/7)) - (window.innerHeight/60) - offset + (((window.innerHeight - 60)/14));
-    var x = ((window.innerWidth / 7) * date.weekDay) + (window.innerWidth/ 14);
-    this.highlightModifier.setAlign([x/(window.innerWidth), y/(window.innerHeight - 60)]);
+    var y = ((date.week) * ((window.innerHeight - 60) / 7)) - (window.innerHeight / 60) - offset + (((window.innerHeight - 60) / 14));
+    var x = ((window.innerWidth / 7) * date.weekDay) + (window.innerWidth / 14);
+    this.highlightModifier.setAlign([x / (window.innerWidth), y / (window.innerHeight - 60)]);
   }
 
   function _setHighlighter(data) {
@@ -138,16 +136,27 @@ define(function(require, exports, module) {
     this._eventInput.on('stateChangeDayView', function(weekView) {
       this.state = 'dayView';
       this.selectedWeek = weekView;
-      this.dayScrollView.setToDate(_generateDateString(weekView), weekView.weekDay, false);
+      this.selectedDate = weekView.getDate();
+      console.log(this.selectedDate);
+      this.dayScrollView.setToDate(_generateDateString(weekView),
+        weekView.weekDay, false);
       _setHighlighter.call(this, weekView);
       _setTitleSurface.call(this, DateConstants.monthNames[weekView.getDate().month]);
       _toggleHeaderSize.call(this, weekView);
     }.bind(this));
 
     this._eventInput.on('toggleSelectedDate', function(weekView) {
+      var currentMonth = this.selectedDate && this.selectedDate.month;
+      this.selectedDate = weekView.getDate();
+
+      // when user scrolls the day view to another month and then clicks back on a day in the original month
+      if (currentMonth !== this.selectedDate.month) {
+        _setTitleSurface.call(this, DateConstants.monthNames[this.selectedDate.month]);
+      }
+
       this.dayScrollView.setToDate(_generateDateString(weekView), weekView.weekDay, true);
       _setHighlighter.call(this, weekView);
-      _transitionDateString.call(this, weekView);
+      _transitionDateString.call(this, this.selectedDate);
     }.bind(this));
 
     this._eventInput.on('updateYear', function(year) {
@@ -155,8 +164,6 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this._eventInput.on('showDetails', function(eventView) {
-      console.log('AppView showDetails');
-      
       // temporary hack for eventView/dayView event handling bug
       if (this.flag) return;
       this.flag = true;
@@ -169,7 +176,9 @@ define(function(require, exports, module) {
         origin: [0.5, 0.5],
         align: [0.5, 0.5],
       });
+
       var detailsView = new EventDetailsView(eventView.event);
+
       this.add(eventDetailsModifier).add(detailsView);
       detailsView._eventOutput.pipe(this._eventInput);
     }.bind(this));
@@ -187,14 +196,27 @@ define(function(require, exports, module) {
     }.bind(this));
 
     this._eventInput.on('nodeChange', function(direction, date) {
-      this.selectedWeek.selectedDay += direction;
+      var dateString;
+      var monthBefore = this.selectedDate.month;
+      if (direction < 0) {
+        this.selectedDate = DateConstants.getPreviousDate(this.selectedDate);
+      } else {
+        this.selectedDate = DateConstants.getNextDate(this.selectedDate);
+      }
+
+      // when the user scrolls the dayView outside or back into the current month
+      if (this.selectedDate.month !== monthBefore) {
+        _setTitleSurface.call(this, DateConstants.monthNames[this.selectedDate.month]);
+      }
+
+      this.selectedWeek.selectedDay = this.selectedDate.day;
       this.selectedWeek.options.weekDay += direction;
+
       _setHighlighter.call(this, this.selectedWeek);
-      _transitionDateString.call(this, this.selectedWeek);
+      _transitionDateString.call(this, this.selectedDate);
     }.bind(this));
 
     this._eventInput.on('changes', function() {
-      console.log('changes');
       this.dayScrollView.resetDay();
       _checkForEvents.call(this);
     }.bind(this));
@@ -211,7 +233,9 @@ define(function(require, exports, module) {
 
   // header bar transition
   function _toggleHeaderSize() {
+    var date;
     var height = (this.state === 'dayView') ? 130 : 60;
+
     this.headerTransition.halt();
     this.headerView.backgroundModifier.halt();
     this.dateStringModifier.halt();
@@ -219,7 +243,7 @@ define(function(require, exports, module) {
     this.headerView.backgroundModifier.sizeFrom(this.headerTransition);
 
     if (height === 130) {
-      var date = this.monthScrollView.selectedDate;
+      date = this.monthScrollView.selectedDate;
       this.dateStringSurface.setContent(DateConstants.daysOfWeek[date.weekDay] + 
         ' ' + DateConstants.monthNames[date.month] + ' ' + date.day + ', ' + date.year);
       this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 650, curve: Easing.outExpo });
@@ -231,14 +255,13 @@ define(function(require, exports, module) {
   }
 
   // transitions displayed date string in header when going between selected dates 
-  function _transitionDateString(data) {
-    var date = data.getDate();
+  function _transitionDateString(dateObj) {
+    var dateString = DateConstants.toFormattedDateString(dateObj.year, dateObj.month, dateObj.day, dateObj.weekDay);
     this.dateStringModifier.halt();
     this.dateStringModifier.setOpacity(0.001);
-    this.dateStringSurface.setContent(DateConstants.daysOfWeek[date.weekDay] + 
-      ' ' + DateConstants.monthNames[date.month] + ' ' + date.day + ', ' + date.year);
+    this.dateStringSurface.setContent(dateString);
 
-    if (data.difference > 0) {
+    if (true) {
       this.dateStringModifier.setTransform(Transform.translate(-40, 100, 5));
       this.dateStringModifier.setOpacity(0.999, {duration: 600, curve: Easing.outCubic});
       this.dateStringModifier.setTransform(Transform.translate(0, 100, 5), { duration: 700, curve: Easing.outQuart });
@@ -278,10 +301,8 @@ define(function(require, exports, module) {
   };
 
   function _generateDateString(weekView) {
-    var date = weekView.getDate();
-    var month = date.month + 1 < 10 ? '0' + (date.month + 1) : date.month + 1;
-    var day = date.day < 10 ? '0' + date.day : date.day;
-    return [date.year, month, day].join('-');
+    return DateConstants.generateDateString(weekView.options.year,
+      weekView.options.month + 1, weekView.selectedDay);
   }
 
   function _checkForEvents() {
@@ -289,6 +310,9 @@ define(function(require, exports, module) {
       this.monthScrollView.months[i].refreshEvents();
     }
   }
+
+  AppView.prototype = Object.create(View.prototype);
+  AppView.prototype.constructor = AppView;
 
   module.exports = AppView;
 });
