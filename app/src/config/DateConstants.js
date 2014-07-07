@@ -30,7 +30,11 @@ define(function(require, exports, module) {
     month = month < 10 ? '0' + month : month;
     day = day < 10 ? '0' + day : day;
     return year + '-' + month + '-' + day;
-  }
+  };
+
+  data.toFormattedDateString = function(year, month, day, weekDay) {
+    return this.daysOfWeek[weekDay] + ' ' + this.monthNames[month] + ' ' + day + ', ' + year;
+  };
 
   module.exports = data;
 });
