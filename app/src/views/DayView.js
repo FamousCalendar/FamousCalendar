@@ -82,7 +82,6 @@ define(function(require, exports, module) {
     }
     this._eventInput.on('showDetails', function(eventView) {
       this._eventOutput.emit('showDetails', eventView);
-      console.log('DayView ShowDetails');
     }.bind(this));
   };  //  End DayView.prototype.loadEvents
   
