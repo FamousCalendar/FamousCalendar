@@ -20,25 +20,6 @@ define(function(require, exports, module){
 	  var dateObj = new Date(newEvent.date);
 	  var recurrence = newEvent.repeat;
 
-	  // //Check if any _calendar exist
-	  // if(_calendar === null){
-	  //   //Initialize _calendar to object
-	  //   _calendar = {};
-	  // }else{
-
-	  //   //Parse _calendar array from string
-	  //   _calendar = JSON.parse(_calendar);
-	  // }
-
-
-	  //Object schema:
-	  //{date: eventToBeSaved.date, 
-	  // start: eventToBeSaved.start, 
-	  // end: eventEndTime, 
-	  // repeat: eventRepetition,
-	  // title: eventTitle, 
-	  // description: eventBody};
-
 
 	  if(recurrence !== 'false'){
 	  	if(recurrence === 'daily'){
