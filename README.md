@@ -4,11 +4,11 @@
 [![Build Status](https://travis-ci.org/mikefreeman/calendar.svg?branch=master)](https://travis-ci.org/mikefreeman/calendar) [![Dependency Status](https://david-dm.org/mikefreeman/calendar.svg)](https://david-dm.org/mikefreeman/calendar) [![devDependency Status](https://david-dm.org/mikefreeman/calendar/dev-status.svg)](https://david-dm.org/mikefreeman/calendar#info=devDependencies)
 
 ##Dependencies
-It is actually quite simple really
+It is really quite simple .
 
 First make sure you have node.js installed... without that nothing works!  You can either install it with your favorite package manager or with [the installer](http://nodejs.org/download) found on [nodejs.org](http://nodejs.org).
 
-This project relies on grunt-cli, and bower to do all the heavy lifting for you
+This project relies on grunt-cli, and bower to do all the heavy lifting for you.
 
 ```
 npm install -g grunt-cli bower
@@ -57,10 +57,10 @@ git remote add upstream https://github.com/FamousCalendar/FamousCalendar.git
 ### Create your branch based off of the development branch
 
 Your branch should follow this naming convention:
-* `feat/thefeature` for feature additions
-* `bug/thebug` for bugfixes
-* `test/thetest` for test files
-* `doc/description` for documentation changes/style fixes
+* `feat/thefeature` for feature additions.
+* `bug/thebug` for bugfixes.
+* `test/thetest` for test files.
+* `doc/description` for documentation changes/style fixes.
 
 These commands will help you do this:
 
